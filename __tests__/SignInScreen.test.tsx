@@ -7,10 +7,8 @@ import ReactTestRenderer, { ReactTestInstance } from 'react-test-renderer';
 
 import App from '../App';
 import { MOCK_USER } from '../src/services/mockAuth';
-import {
-  INVALID_EMAIL_MESSAGE,
-  WRONG_PASSWORD_MESSAGE,
-} from '../src/screens/SignInScreen';
+import { WRONG_PASSWORD_MESSAGE } from '../src/screens/SignInScreen';
+import { INVALID_EMAIL_MESSAGE } from '../src/utils/validation';
 
 const { act } = ReactTestRenderer;
 
@@ -24,9 +22,13 @@ const byLabel = (label: string) =>
       (n.props.onPress !== undefined || n.props.onChangeText !== undefined),
   );
 
+const textOf = (children: unknown): string =>
+  Array.isArray(children) ? children.map(textOf).join('') : String(children);
+
 const hasText = (text: string) =>
-  root.findAll(n => typeof n.type === 'string' && n.props.children === text)
-    .length > 0;
+  root.findAll(
+    n => typeof n.type === 'string' && textOf(n.props.children) === text,
+  ).length > 0;
 
 const signInButton = () => byLabel('Sign In');
 
@@ -110,14 +112,24 @@ test('wrong password shows the password error', async () => {
   expect(hasText(WRONG_PASSWORD_MESSAGE)).toBe(true);
 });
 
-test('mock credentials sign in without errors', async () => {
+test('unknown email falls back to the wrong password error', async () => {
+  await openSignIn();
+  await type('Email address', 'someone@else.com');
+  await type('Password', MOCK_USER.password);
+  await submit();
+  expect(hasText(WRONG_PASSWORD_MESSAGE)).toBe(true);
+});
+
+test('mock credentials open Home, and Sign Out returns to Welcome', async () => {
   await openSignIn();
   await type('Email address', MOCK_USER.email);
   await type('Password', MOCK_USER.password);
   await submit();
-  expect(hasText(WRONG_PASSWORD_MESSAGE)).toBe(false);
-  expect(hasText(INVALID_EMAIL_MESSAGE)).toBe(false);
-  expect(signInButton().props.accessibilityState.busy).toBe(false);
+  expect(hasText(`Welcome back, ${MOCK_USER.name}`)).toBe(true);
+  await act(async () => {
+    byLabel('Sign Out').props.onPress();
+  });
+  expect(hasText('Sign in to continue your journey')).toBe(true);
 });
 
 test('password visibility toggles', async () => {

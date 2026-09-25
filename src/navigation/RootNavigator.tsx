@@ -9,13 +9,22 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
+import { CheckEmailScreen } from '../screens/CheckEmailScreen';
+import { CreateAccountScreen } from '../screens/CreateAccountScreen';
+import { HomeScreen } from '../screens/HomeScreen';
+import { ResetPasswordScreen } from '../screens/ResetPasswordScreen';
 import { SignInScreen } from '../screens/SignInScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
+import type { MockProfile } from '../services/mockAuth';
 import { colors } from '../theme/colors';
 
 export type RootStackParamList = {
   Welcome: undefined;
   SignIn: undefined;
+  CreateAccount: undefined;
+  ResetPassword: undefined;
+  CheckEmail: { email: string };
+  Home: { user: MockProfile };
 };
 
 export type RootScreenProps<T extends keyof RootStackParamList> =
@@ -45,6 +54,14 @@ export function RootNavigator() {
       >
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="SignIn" component={SignInScreen} />
+        <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ gestureEnabled: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
