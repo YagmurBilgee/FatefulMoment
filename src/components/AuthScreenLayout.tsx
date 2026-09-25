@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   View,
@@ -31,10 +30,9 @@ export function AuthScreenLayout({
   const insets = useSafeAreaInsets();
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    // Android runs edge-to-edge, so the window is not resized for the
+    // keyboard (adjustResize has no effect); pad on both platforms.
+    <KeyboardAvoidingView style={styles.root} behavior="padding">
       <ScrollView
         contentContainerStyle={[
           styles.content,
