@@ -65,22 +65,31 @@ function Marquee({ text }: { text: string }) {
  * Top-right audio / status pill of the landscape header. Playback is not
  * implemented; the controls are visual only. Pill sizes are estimates.
  */
-export function AudioStatusPill() {
+type AudioStatusPillProps = {
+  /**
+   * Inner right padding. The pill runs flush to the screen edge, so its
+   * content keeps the screen margin (and clears a notch) on the inside.
+   */
+  edgePadding: number;
+};
+
+export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
   return (
     <View
-      style={styles.pill}
+      style={[styles.pill, { paddingRight: edgePadding }]}
       accessible
       accessibilityLabel={`Standby. ${MARQUEE_TEXT}`}
     >
       <Image source={icons.prev} style={styles.skip} />
-      <Image source={icons.next} style={styles.skip} />
       {/* The ring fills this slot; the glow spills outside it. */}
       <View style={styles.playSlot}>
         <Image source={icons.play} style={styles.playImage} />
       </View>
-      <Text style={styles.status}>STANDBY</Text>
-      <Marquee text={MARQUEE_TEXT} />
-      {/* Placement of the playlist icon is an estimate. */}
+      <Image source={icons.next} style={styles.skip} />
+      <View style={styles.texts}>
+        <Text style={styles.status}>STANDBY</Text>
+        <Marquee text={MARQUEE_TEXT} />
+      </View>
       <Image source={icons.playlist} style={styles.playlist} />
     </View>
   );
@@ -90,8 +99,12 @@ const styles = StyleSheet.create({
   pill: {
     height: 40, // est.
     paddingLeft: 16,
-    paddingRight: 12,
-    borderRadius: 20,
+    // Rounded on the left only; the right side is square and touches the
+    // screen edge. RN caps each radius at half the height (20pt here).
+    borderTopLeftRadius: 24,
+    borderBottomLeftRadius: 24,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -116,9 +129,12 @@ const styles = StyleSheet.create({
     width: 42 / 3,
     height: 42 / 3,
   },
+  texts: {
+    gap: 2, // est.
+  },
   status: {
     ...androidTextFix,
-    color: colors.white,
+    color: colors.primary,
     fontFamily: fonts.semiBold, // est.
     fontSize: 11,
     lineHeight: 14,

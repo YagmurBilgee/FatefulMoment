@@ -26,16 +26,18 @@ type LandscapeHeaderProps = {
 
 /**
  * Header bar shared by the landscape screens: content on the left, the audio
- * status pill on the right, and a full-width 1pt separator underneath.
+ * status pill flush with the right screen edge, and a full-width 1pt
+ * separator underneath.
  */
 export function LandscapeHeader({ left }: LandscapeHeaderProps) {
   const insets = useSafeAreaInsets();
-  const padding = useLandscapePadding();
+  const { paddingLeft, paddingRight } = useLandscapePadding();
   return (
     <View style={{ paddingTop: insets.top }}>
-      <View style={[styles.bar, padding]}>
+      {/* No right padding: the pill runs to the screen edge. */}
+      <View style={[styles.bar, { paddingLeft }]}>
         <View style={styles.left}>{left}</View>
-        <AudioStatusPill />
+        <AudioStatusPill edgePadding={paddingRight} />
       </View>
       <View style={styles.separator} />
     </View>
