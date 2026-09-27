@@ -99,6 +99,10 @@ export interface Scenario {
   title: string;
   /** The player's role in the scenario. */
   role: string;
+  /** One-line teaser on the scenario card. */
+  summary: string;
+  /** Estimated play time shown on the card, e.g. "1:30 min". */
+  duration?: string;
   briefing: string;
   /** `false` renders the card as "Coming Soon". */
   playable: boolean;
@@ -118,6 +122,9 @@ const APOLLO_13: Scenario = {
   categoryId: 'history-war',
   title: 'Apollo 13',
   role: 'Flight Director, Mission Control',
+  summary:
+    '1970. Oxygen tank explosion in deep space. Bring three astronauts home alive.',
+  duration: '1:30 min',
   briefing:
     'April 1970. Apollo 13 is on its way to the Moon when an oxygen tank ' +
     'in the Service Module fails. Three astronauts are 200,000 miles from ' +
@@ -181,19 +188,30 @@ const APOLLO_13: Scenario = {
   ],
 };
 
-/** One placeholder per remaining category until more scenarios exist. */
-const comingSoon = (categoryId: CategoryId): Scenario => ({
-  id: `${categoryId}-coming-soon`,
+/** Listed but not playable yet ("Soon"). */
+const upcoming = (
+  id: string,
+  categoryId: CategoryId,
+  title: string,
+): Scenario => ({
+  id,
   categoryId,
-  title: 'Coming Soon',
+  title,
   role: '',
+  summary: '',
   briefing: '',
   playable: false,
   decisions: [],
 });
 
+/** One placeholder per remaining category until more scenarios exist. */
+const comingSoon = (categoryId: CategoryId): Scenario =>
+  upcoming(`${categoryId}-coming-soon`, categoryId, 'Coming Soon');
+
 export const SCENARIOS: Scenario[] = [
   APOLLO_13,
+  upcoming('cuban-missile-crisis', 'history-war', 'Cuban Missile Crisis'),
+  upcoming('iraq-war', 'history-war', 'Iraq War'),
   comingSoon('business-world'),
   comingSoon('crisis-security'),
   comingSoon('science'),

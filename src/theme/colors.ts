@@ -37,4 +37,7 @@ export const colors = {
   error: '#FB2C36', // [Estimated] error border and message
   secondaryLink: '#00B8DB', // [Estimated] "Forgot password?"
   backButtonIcon: '#90A1B9', // [Estimated] back arrow tint
+
+  // Landscape container frame (1.png, 812×375 @3x)
+  headerSeparator: '#314158', // [Measured] 1pt line under the header bar
 } as const;

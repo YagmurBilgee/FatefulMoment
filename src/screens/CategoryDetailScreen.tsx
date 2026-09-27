@@ -1,67 +1,91 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { MainScreenLayout } from '../components/MainScreenLayout';
+import { BackButton } from '../components/BackButton';
+import {
+  LandscapeHeader,
+  useLandscapePadding,
+} from '../components/LandscapeHeader';
+import { ScenarioCard } from '../components/ScenarioCard';
 import { CATEGORIES, scenariosIn } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
+const CARD_GAP = 16; // Figma token
+
 /**
- * Skeleton of a category's scenario list (e.g. History & War -> Apollo 13).
- * The final layout follows the Figma category detail frame.
+ * Landscape list of a category's scenarios (History & War -> Apollo 13).
+ * Only playable scenarios can be started.
  */
 export function CategoryDetailScreen({
   navigation,
   route,
 }: RootScreenProps<'CategoryDetail'>) {
+  const insets = useSafeAreaInsets();
+  const padding = useLandscapePadding();
   const category = CATEGORIES.find(c => c.id === route.params.categoryId);
-  const scenarios = scenariosIn(route.params.categoryId).filter(
-    s => s.playable,
-  );
 
   return (
-    <MainScreenLayout title={category?.title ?? 'Scenarios'} showBack>
-      {scenarios.map(scenario => (
-        <Pressable
-          key={scenario.id}
-          accessibilityRole="button"
-          accessibilityLabel={scenario.title}
-          onPress={() =>
-            navigation.navigate('Simulation', { scenarioId: scenario.id })
-          }
-          style={styles.card}
-        >
-          <Text style={styles.cardTitle}>{scenario.title}</Text>
-          <Text style={styles.cardRole}>{scenario.role}</Text>
-        </Pressable>
-      ))}
-    </MainScreenLayout>
+    <View style={styles.root}>
+      <LandscapeHeader
+        left={
+          <>
+            <BackButton />
+            <Text
+              style={styles.title}
+              numberOfLines={1}
+              accessibilityRole="header"
+            >
+              {category?.title ?? 'Scenarios'}
+            </Text>
+          </>
+        }
+      />
+
+      <FlatList
+        horizontal
+        data={scenariosIn(route.params.categoryId)}
+        keyExtractor={scenario => scenario.id}
+        showsHorizontalScrollIndicator={false}
+        style={styles.list}
+        contentContainerStyle={[
+          styles.listContent,
+          padding,
+          { paddingBottom: insets.bottom + 16 },
+        ]}
+        renderItem={({ item }) => (
+          <ScenarioCard
+            scenario={item}
+            onStart={() =>
+              navigation.navigate('Simulation', { scenarioId: item.id })
+            }
+          />
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    alignSelf: 'flex-start',
-    minWidth: 220,
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryButtonFill,
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  cardTitle: {
+  title: {
     ...androidTextFix,
+    flexShrink: 1,
     color: colors.white,
     fontFamily: fonts.bold,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: 20, // est.
+    lineHeight: 25,
   },
-  cardRole: {
-    ...androidTextFix,
-    color: colors.textSecondary,
-    fontFamily: fonts.regular,
-    fontSize: 14,
-    lineHeight: 20,
+  list: {
+    flexGrow: 0,
+  },
+  listContent: {
+    gap: CARD_GAP,
+    paddingTop: 24, // est.
   },
 });
