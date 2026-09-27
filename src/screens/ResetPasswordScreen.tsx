@@ -48,7 +48,7 @@ export function ResetPasswordScreen({
         subtitle="Enter your email to receive a reset link"
       />
 
-      <View style={styles.field}>
+      <View style={styles.form}>
         <FMTextInput
           value={email}
           onChangeText={text => {
@@ -86,10 +86,11 @@ export function ResetPasswordScreen({
 }
 
 const styles = StyleSheet.create({
-  field: {
+  form: {
     marginTop: 32, // est.
+    gap: 16, // Figma token
   },
   submit: {
-    marginTop: 24, // est. — also holds the email error message
+    marginTop: 24, // est.
   },
 });

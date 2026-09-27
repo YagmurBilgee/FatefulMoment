@@ -103,7 +103,7 @@ export function CreateAccountScreen({
     >
       <AuthHeader title="Create your Fateful Moment Account" />
 
-      <View style={styles.firstField}>
+      <View style={styles.form}>
         <FMTextInput
           value={name}
           onChangeText={text => {
@@ -125,9 +125,6 @@ export function CreateAccountScreen({
           submitBehavior="submit"
           onSubmitEditing={() => emailRef.current?.focus()}
         />
-      </View>
-
-      <View style={styles.field}>
         <FMTextInput
           ref={emailRef}
           value={email}
@@ -152,9 +149,6 @@ export function CreateAccountScreen({
           submitBehavior="submit"
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
-      </View>
-
-      <View style={styles.field}>
         <FMTextInput
           ref={passwordRef}
           password
@@ -169,27 +163,27 @@ export function CreateAccountScreen({
           returnKeyType="done"
           onSubmitEditing={submit}
         />
-      </View>
 
-      {showRules ? (
-        <View style={styles.rules} accessibilityLabel="Password requirements">
-          {rules.map(rule => (
-            <View
-              key={rule.label}
-              style={styles.rule}
-              accessibilityState={{ checked: rule.met }}
-            >
-              <Image
-                source={rule.met ? ruleMetIcon : ruleUnmetIcon}
-                style={styles.ruleIcon}
-              />
-              <Text style={[styles.ruleText, rule.met && styles.ruleTextMet]}>
-                {rule.label}
-              </Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
+        {showRules ? (
+          <View accessibilityLabel="Password requirements">
+            {rules.map(rule => (
+              <View
+                key={rule.label}
+                style={styles.rule}
+                accessibilityState={{ checked: rule.met }}
+              >
+                <Image
+                  source={rule.met ? ruleMetIcon : ruleUnmetIcon}
+                  style={styles.ruleIcon}
+                />
+                <Text style={[styles.ruleText, rule.met && styles.ruleTextMet]}>
+                  {rule.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
 
       <View style={showRules ? styles.submitAfterRules : styles.submit}>
         <PrimaryButton
@@ -204,14 +198,9 @@ export function CreateAccountScreen({
 }
 
 const styles = StyleSheet.create({
-  firstField: {
+  form: {
     marginTop: 32, // est.
-  },
-  field: {
-    marginTop: 32, // est. — also holds the previous field's error message
-  },
-  rules: {
-    marginTop: 16, // est.
+    gap: 16, // Figma token
   },
   rule: {
     height: 20, // est.

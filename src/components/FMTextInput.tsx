@@ -14,12 +14,10 @@ import {
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-/*
- * Measured from the Sign in frames (~0.66x exports). All values are
- * estimates until confirmed in Figma inspect.
- */
-const HEIGHT = 56; // est.
-const RADIUS = 16; // est.
+// Box height, radius and width are Figma tokens; the rest are estimates
+// measured from the Sign in frames (~0.66x exports).
+const HEIGHT = 56;
+const RADIUS = 16;
 const PADDING_X = 16; // est.
 const ICON_SIZE = 20; // est.
 
@@ -44,9 +42,8 @@ const hideIcon = require('../assets/images/eye-off.png'); // 50x50px
  * Text field with the auth flow states: empty, focused or filled (cyan
  * border), and error (red border + message).
  *
- * The error message is positioned below the field without affecting layout,
- * matching Figma where fields do not move when an error appears. Leave at
- * least 24pt below the field for it.
+ * The error message sits below the field and takes up layout space, so it
+ * cannot overlap the next field at the 16pt form gap.
  */
 export function FMTextInput({
   error,
@@ -125,6 +122,7 @@ export function FMTextInput({
 
 const styles = StyleSheet.create({
   field: {
+    width: '100%',
     height: HEIGHT,
     borderRadius: RADIUS,
     borderWidth: 1,
@@ -171,10 +169,7 @@ const styles = StyleSheet.create({
   },
   error: {
     ...androidTextFix,
-    position: 'absolute',
-    top: HEIGHT + 8, // est.
-    left: 0,
-    right: 0,
+    marginTop: 8, // est.
     color: colors.error,
     fontFamily: fonts.medium, // est.: Inter 10
     fontSize: 10,

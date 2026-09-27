@@ -81,7 +81,7 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
         subtitle="Sign in with Email"
       />
 
-      <View style={styles.emailField}>
+      <View style={styles.form}>
         <FMTextInput
           value={email}
           onChangeText={text => {
@@ -106,9 +106,6 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
           submitBehavior="submit"
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
-      </View>
-
-      <View style={styles.passwordField}>
         <FMTextInput
           ref={passwordRef}
           password
@@ -148,14 +145,12 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
 }
 
 const styles = StyleSheet.create({
-  emailField: {
+  form: {
     marginTop: 32, // est.
-  },
-  passwordField: {
-    marginTop: 32, // est. — also holds the email error message
+    gap: 16, // Figma token
   },
   submit: {
-    marginTop: 48, // est. — also holds the password error message
+    marginTop: 48, // est.
   },
   forgot: {
     ...androidTextFix,
