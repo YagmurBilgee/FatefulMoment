@@ -34,13 +34,11 @@ export type FMTextInputProps = Omit<TextInputProps, 'style' | 'ref'> & {
 };
 
 /*
- * Pending: eye / eye-slash icon assets from Figma. Until they are provided the
- * toggle keeps its touch target and accessibility label but draws no glyph.
+ * Figma @3x exports. The icon shows the action: the open eye while the value
+ * is hidden, the slashed eye while it is visible (Create Account frame g).
  */
-const visibilityIcons: {
-  show?: ImageSourcePropType;
-  hide?: ImageSourcePropType;
-} = {};
+const showIcon = require('../assets/images/eye-on.png'); // 50x37px
+const hideIcon = require('../assets/images/eye-off.png'); // 50x50px
 
 /**
  * Text field with the auth flow states: empty, focused or filled (cyan
@@ -65,8 +63,6 @@ export function FMTextInput({
   const hasError = error !== undefined;
   const highlighted = focused || Boolean(value);
 
-  const toggleIcon = hidden ? visibilityIcons.show : visibilityIcons.hide;
-
   return (
     <View>
       <View
@@ -76,7 +72,13 @@ export function FMTextInput({
           hasError && styles.fieldError,
         ]}
       >
-        {leftIcon ? <Image source={leftIcon} style={styles.leftIcon} /> : null}
+        {leftIcon ? (
+          <Image
+            source={leftIcon}
+            style={styles.leftIcon}
+            resizeMode="contain"
+          />
+        ) : null}
         <TextInput
           {...rest}
           ref={ref}
@@ -105,9 +107,10 @@ export function FMTextInput({
             onPress={() => setHidden(h => !h)}
             style={styles.toggle}
           >
-            {toggleIcon ? (
-              <Image source={toggleIcon} style={styles.toggleIcon} />
-            ) : null}
+            <Image
+              source={hidden ? showIcon : hideIcon}
+              style={hidden ? styles.showIcon : styles.hideIcon}
+            />
           </Pressable>
         ) : null}
       </View>
@@ -158,9 +161,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  toggleIcon: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
+  showIcon: {
+    width: 50 / 3,
+    height: 37 / 3,
+  },
+  hideIcon: {
+    width: 50 / 3,
+    height: 50 / 3,
   },
   error: {
     ...androidTextFix,

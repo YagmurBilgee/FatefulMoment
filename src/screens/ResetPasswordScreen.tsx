@@ -11,6 +11,8 @@ import { INVALID_EMAIL_MESSAGE, isValidEmail } from '../utils/validation';
 // Figma labels this button "Sign In" in every frame; confirmed as a typo.
 export const RESET_BUTTON_LABEL = 'Send reset link';
 
+const mailIcon = require('../assets/images/mail-input.png');
+
 /*
  * Layout measured from the Reset Password frames (~0.66x exports). All
  * spacing values are estimates. No email is actually sent (no backend).
@@ -47,7 +49,6 @@ export function ResetPasswordScreen({
       />
 
       <View style={styles.field}>
-        {/* Pending: the gray mail icon inside this field (Figma asset). */}
         <FMTextInput
           value={email}
           onChangeText={text => {
@@ -60,6 +61,7 @@ export function ResetPasswordScreen({
             }
           }}
           error={emailError}
+          leftIcon={mailIcon}
           placeholder="Your email address"
           accessibilityLabel="Email address"
           keyboardType="email-address"

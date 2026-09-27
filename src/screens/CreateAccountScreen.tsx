@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
+  Image,
   Keyboard,
   StyleSheet,
   Text,
@@ -23,6 +24,9 @@ import {
   PASSWORD_RULES,
   SHORT_NAME_MESSAGE,
 } from '../utils/validation';
+
+const ruleMetIcon = require('../assets/images/check-circle.png');
+const ruleUnmetIcon = require('../assets/images/check-circle-grey.png');
 
 /*
  * Layout measured from the Create Account frames (~0.66x exports). All
@@ -175,8 +179,10 @@ export function CreateAccountScreen({
               style={styles.rule}
               accessibilityState={{ checked: rule.met }}
             >
-              {/* Pending: check-circle asset; a plain dot stands in for it. */}
-              <View style={[styles.ruleDot, rule.met && styles.ruleDotMet]} />
+              <Image
+                source={rule.met ? ruleMetIcon : ruleUnmetIcon}
+                style={styles.ruleIcon}
+              />
               <Text style={[styles.ruleText, rule.met && styles.ruleTextMet]}>
                 {rule.label}
               </Text>
@@ -212,16 +218,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  ruleDot: {
-    width: 12, // est.
-    height: 12,
-    borderRadius: 6,
-    marginLeft: 2,
-    marginRight: 10,
-    backgroundColor: colors.placeholder,
-  },
-  ruleDotMet: {
-    backgroundColor: colors.primary,
+  ruleIcon: {
+    width: 40 / 3, // Figma @3x export, 40px
+    height: 40 / 3,
+    marginLeft: 1, // est.
+    marginRight: 10, // est.
   },
   ruleText: {
     ...androidTextFix,

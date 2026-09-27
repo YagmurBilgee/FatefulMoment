@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Image,
-  ImageSourcePropType,
   Pressable,
   StyleSheet,
 } from 'react-native';
@@ -9,13 +8,10 @@ import {
 import { colors } from '../theme/colors';
 
 const SIZE = 40; // est. — measured 39–40pt in the Sign in frames
-const ICON_SIZE = 20; // est.
+// Figma @3x export, 48px -> 16pt. Exported black; tinted to the icon color.
+const ICON_SIZE = 16;
 
-/*
- * Pending: back-arrow asset from Figma. Until it is provided the button draws
- * only its circle; the touch target and accessibility label are complete.
- */
-const arrowIcon: ImageSourcePropType | undefined = undefined;
+const arrowIcon = require('../assets/images/icon-back.png');
 
 type BackButtonProps = {
   onPress: () => void;
@@ -31,7 +27,7 @@ export function BackButton({ onPress }: BackButtonProps) {
       onPress={onPress}
       style={styles.button}
     >
-      {arrowIcon ? <Image source={arrowIcon} style={styles.icon} /> : null}
+      <Image source={arrowIcon} style={styles.icon} />
     </Pressable>
   );
 }
