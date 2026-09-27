@@ -146,11 +146,11 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
 
 const styles = StyleSheet.create({
   form: {
-    marginTop: 32, // est.
-    gap: 16, // Figma token
+    marginTop: 32, // Figma: subtitle -> email field (AuthHeader has no bottom margin)
+    gap: 32, // Figma: email -> password field
   },
   submit: {
-    marginTop: 48, // est.
+    marginTop: 48, // Figma: password field -> Sign In button
   },
   forgot: {
     ...androidTextFix,
