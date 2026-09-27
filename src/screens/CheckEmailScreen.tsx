@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { AuthScreenLayout } from '../components/AuthScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -8,6 +8,9 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
 const BADGE_SIZE = 80; // est.
+const BADGE_ICON_SIZE = 40; // Figma @3x export, 120px
+
+const badgeIcon = require('../assets/images/check-badge.png');
 
 /*
  * Layout measured from the "Check your email" frame (~0.66x export). All
@@ -19,8 +22,9 @@ export function CheckEmailScreen({
 }: RootScreenProps<'CheckEmail'>) {
   return (
     <AuthScreenLayout onBack={navigation.goBack}>
-      {/* Pending: check-mark asset; only the badge circle is drawn. */}
-      <View style={styles.badge} />
+      <View style={styles.badge}>
+        <Image source={badgeIcon} style={styles.badgeIcon} />
+      </View>
 
       <Text style={styles.title} accessibilityRole="header">
         Check Your Email
@@ -48,6 +52,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 167, // est.
     backgroundColor: colors.primaryButtonFill, // est.
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeIcon: {
+    width: BADGE_ICON_SIZE,
+    height: BADGE_ICON_SIZE,
   },
   title: {
     ...androidTextFix,
