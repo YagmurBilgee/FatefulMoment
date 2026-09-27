@@ -158,5 +158,5 @@ test('Sign up starts a mock session and opens Scenarios', async () => {
     jest.runAllTimers();
   });
   expect(hasText('Scenarios')).toBe(true);
-  expect(hasText('Welcome back, Jane Roe')).toBe(true);
+  expect(hasText('30 Scenarios')).toBe(true);
 });

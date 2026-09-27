@@ -1,104 +1,168 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { MainScreenLayout } from '../components/MainScreenLayout';
+import { AudioStatusPill } from '../components/AudioStatusPill';
+import { CategoryCard } from '../components/CategoryCard';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { CATEGORIES, SCENARIOS } from '../data/simulation';
+import { CATEGORIES, isCategoryAvailable } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
+const CARD_GAP = 16; // Figma token
+const SIDE_PADDING = 24;
+
+// Figma copy; the total is a design figure, not derived from local data.
+const SCENARIO_COUNT_LABEL = '30 Scenarios';
+
 /**
- * Skeleton of the Scenarios screen: lists every category with its scenarios.
- * The horizontal landscape layout from Figma replaces this later.
+ * Landscape Scenarios screen: header, then a horizontal carousel of category
+ * cards. Only History & War is open in the demo.
  */
-export function ScenariosScreen({
-  navigation,
-  route,
-}: RootScreenProps<'Scenarios'>) {
-  const { user } = route.params;
+export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
+  const insets = useSafeAreaInsets();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // In landscape the notch sits on one side; never go below the 24pt margin.
+  const paddingLeft = Math.max(insets.left, SIDE_PADDING);
+  const paddingRight = Math.max(insets.right, SIDE_PADDING);
 
   return (
-    <MainScreenLayout title="Scenarios">
-      <Text style={styles.greeting}>Welcome back, {user.name}</Text>
+    <ScrollView
+      style={styles.root}
+      contentContainerStyle={{
+        paddingTop: insets.top + 16,
+        paddingBottom: insets.bottom + 16,
+      }}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={[styles.header, { paddingLeft, paddingRight }]}>
+        {/* Pending: hamburger icon asset from Figma. */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={menuOpen ? 'Close menu' : 'Open menu'}
+          accessibilityState={{ expanded: menuOpen }}
+          hitSlop={8}
+          onPress={() => setMenuOpen(open => !open)}
+          style={styles.menuButton}
+        >
+          <Text style={styles.menuIcon}>≡</Text>
+        </Pressable>
+        <AudioStatusPill />
+      </View>
 
-      {CATEGORIES.map(category => (
-        <View key={category.id} style={styles.category}>
-          <Text style={styles.categoryTitle}>{category.title}</Text>
-          {SCENARIOS.filter(s => s.categoryId === category.id).map(scenario => (
-            <Pressable
-              key={scenario.id}
-              accessibilityRole="button"
-              accessibilityLabel={scenario.title}
-              accessibilityState={{ disabled: !scenario.playable }}
-              disabled={!scenario.playable}
-              onPress={() =>
-                navigation.navigate('Simulation', {
-                  scenarioId: scenario.id,
-                })
-              }
-              style={[styles.card, !scenario.playable && styles.cardLocked]}
-            >
-              <Text style={styles.cardTitle}>{scenario.title}</Text>
-              {scenario.playable ? (
-                <Text style={styles.cardRole}>{scenario.role}</Text>
-              ) : null}
-            </Pressable>
-          ))}
+      {/* Temporary menu; not in the Figma frames provided so far. */}
+      {menuOpen ? (
+        <View style={[styles.menu, { marginLeft: paddingLeft }]}>
+          <PrimaryButton
+            label="DNA Profile"
+            onPress={() => {
+              setMenuOpen(false);
+              navigation.navigate('DnaProfile', {});
+            }}
+          />
+          <PrimaryButton
+            label="Sign Out"
+            onPress={() =>
+              navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] })
+            }
+          />
         </View>
-      ))}
+      ) : null}
 
-      <PrimaryButton
-        label="DNA Profile"
-        onPress={() => navigation.navigate('DnaProfile', {})}
+      <View style={[styles.intro, { paddingLeft, paddingRight }]}>
+        <Text style={styles.title} accessibilityRole="header">
+          Scenarios
+        </Text>
+        <Text style={styles.subtitle}>
+          Choose A Scenario And Ask Yourself, "If You Were In That Situation,
+          What Would You Do?"
+        </Text>
+        <Text style={styles.count}>{SCENARIO_COUNT_LABEL}</Text>
+      </View>
+
+      <FlatList
+        horizontal
+        data={CATEGORIES}
+        keyExtractor={category => category.id}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          gap: CARD_GAP,
+          paddingLeft,
+          paddingRight,
+        }}
+        renderItem={({ item }) => (
+          <CategoryCard
+            title={item.title}
+            available={isCategoryAvailable(item.id)}
+            onPress={() =>
+              navigation.navigate('CategoryDetail', { categoryId: item.id })
+            }
+          />
+        )}
       />
-      <PrimaryButton
-        label="Sign Out"
-        onPress={() =>
-          navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] })
-        }
-      />
-    </MainScreenLayout>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  greeting: {
-    ...androidTextFix,
-    color: colors.textSecondary,
-    fontFamily: fonts.regular,
-    fontSize: 16,
-    lineHeight: 24,
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  category: {
-    gap: 8,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  categoryTitle: {
-    ...androidTextFix,
-    color: colors.white,
-    fontFamily: fonts.semiBold,
-    fontSize: 16,
-    lineHeight: 24,
+  menuButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
   },
-  card: {
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: colors.secondaryButtonFill,
-  },
-  cardLocked: {
-    opacity: 0.5,
-  },
-  cardTitle: {
+  menuIcon: {
     ...androidTextFix,
     color: colors.white,
     fontFamily: fonts.medium,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 28,
+    lineHeight: 32,
   },
-  cardRole: {
+  menu: {
+    width: 220,
+    marginTop: 12,
+    gap: 12,
+  },
+  intro: {
+    marginTop: 16, // est.
+    marginBottom: 20, // est.
+    gap: 4, // est.
+  },
+  title: {
     ...androidTextFix,
-    color: colors.textSecondary,
-    fontFamily: fonts.regular,
+    color: colors.white,
+    fontFamily: fonts.bold,
+    fontSize: 24, // est.
+    lineHeight: 30,
+  },
+  subtitle: {
+    ...androidTextFix,
+    color: colors.primary,
+    fontFamily: fonts.regular, // est.
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  count: {
+    ...androidTextFix,
+    color: colors.textMuted,
+    fontFamily: fonts.regular, // est.
     fontSize: 14,
     lineHeight: 20,
   },

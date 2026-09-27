@@ -9,7 +9,8 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
-import type { DnaScore } from '../data/simulation';
+import type { CategoryId, DnaScore } from '../data/simulation';
+import { CategoryDetailScreen } from '../screens/CategoryDetailScreen';
 import { CheckEmailScreen } from '../screens/CheckEmailScreen';
 import { CreateAccountScreen } from '../screens/CreateAccountScreen';
 import { DnaProfileScreen } from '../screens/DnaProfileScreen';
@@ -33,6 +34,7 @@ export type AuthStackParamList = {
 /** Signed-in screens; entered with `navigation.reset` so Back cannot leave. */
 export type MainStackParamList = {
   Scenarios: { user: MockProfile };
+  CategoryDetail: { categoryId: CategoryId };
   Simulation: { scenarioId: string };
   /** `score` is absent when the profile is opened before playing. */
   DnaProfile: { score?: DnaScore };
@@ -56,10 +58,10 @@ const theme: Theme = {
 };
 
 /*
- * One stack with two groups keeps a single dark container. The screens that
- * start each group (Welcome after Sign Out, Scenarios after sign-in) are only
- * reached via `navigation.reset`; they fade in so the Auth <-> Main switch
- * stays clean once the Main group is locked to landscape.
+ * One stack with two groups keeps a single dark container. Auth is locked to
+ * portrait and Main to landscape. Welcome (after Sign Out) and every Main
+ * screen fade in, so the device rotates under a cross-fade instead of during
+ * a slide animation.
  */
 export function RootNavigator() {
   return (
@@ -71,7 +73,7 @@ export function RootNavigator() {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Stack.Group>
+        <Stack.Group screenOptions={{ orientation: 'portrait_up' }}>
           <Stack.Screen
             name="Welcome"
             component={WelcomeScreen}
@@ -83,11 +85,17 @@ export function RootNavigator() {
           <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
         </Stack.Group>
 
-        <Stack.Group>
+        <Stack.Group
+          screenOptions={{ orientation: 'landscape', animation: 'fade' }}
+        >
           <Stack.Screen
             name="Scenarios"
             component={ScenariosScreen}
-            options={{ animation: 'fade', gestureEnabled: false }}
+            options={{ gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="CategoryDetail"
+            component={CategoryDetailScreen}
           />
           <Stack.Screen name="Simulation" component={SimulationScreen} />
           <Stack.Screen name="DnaProfile" component={DnaProfileScreen} />

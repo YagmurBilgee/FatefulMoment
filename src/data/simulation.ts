@@ -114,7 +114,8 @@ export const CATEGORIES: Category[] = [
 
 const APOLLO_13: Scenario = {
   id: 'apollo-13',
-  categoryId: 'science',
+  // Shown under History & War, the only open category in the demo.
+  categoryId: 'history-war',
   title: 'Apollo 13',
   role: 'Flight Director, Mission Control',
   briefing:
@@ -192,11 +193,20 @@ const comingSoon = (categoryId: CategoryId): Scenario => ({
 });
 
 export const SCENARIOS: Scenario[] = [
-  comingSoon('history-war'),
+  APOLLO_13,
   comingSoon('business-world'),
   comingSoon('crisis-security'),
-  APOLLO_13,
+  comingSoon('science'),
 ];
+
+export function scenariosIn(categoryId: CategoryId): Scenario[] {
+  return SCENARIOS.filter(scenario => scenario.categoryId === categoryId);
+}
+
+/** A category opens only when it has at least one playable scenario. */
+export function isCategoryAvailable(categoryId: CategoryId): boolean {
+  return scenariosIn(categoryId).some(scenario => scenario.playable);
+}
 
 export function findScenario(id: string): Scenario | undefined {
   return SCENARIOS.find(scenario => scenario.id === id);

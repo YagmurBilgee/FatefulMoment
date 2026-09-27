@@ -126,7 +126,9 @@ test('mock credentials open Scenarios, and Sign Out returns to Welcome', async (
   await type('Password', MOCK_USER.password);
   await submit();
   expect(hasText('Scenarios')).toBe(true);
-  expect(hasText(`Welcome back, ${MOCK_USER.name}`)).toBe(true);
+  await act(async () => {
+    byLabel('Open menu').props.onPress();
+  });
   await act(async () => {
     byLabel('Sign Out').props.onPress();
   });

@@ -1,5 +1,6 @@
 package com.yagmurbilge.fatefulmoment
 
+import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -12,6 +13,16 @@ class MainActivity : ReactActivity() {
    * rendering of the component.
    */
   override fun getMainComponentName(): String = "FatefulMoment"
+
+  /**
+   * react-native-screens cannot restore its fragments after the system
+   * recreates the Activity, so the saved state is dropped on purpose.
+   * The manifest starts the app in portrait; screens then set the
+   * orientation per navigation group at runtime.
+   */
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(null)
+  }
 
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
