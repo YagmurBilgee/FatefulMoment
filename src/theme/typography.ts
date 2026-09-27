@@ -14,6 +14,15 @@ export const fonts = {
   bold: 'Inter-Bold',
 } as const;
 
+/**
+ * Monospace face for small status labels (Figma: Menlo). Menlo ships with
+ * iOS; Android falls back to its system monospace font.
+ */
+export const monoFont = Platform.select({
+  ios: 'Menlo',
+  default: 'monospace',
+});
+
 // Removes Android's extra font padding so text boxes match iOS metrics.
 export const androidTextFix = Platform.select({
   android: { includeFontPadding: false },

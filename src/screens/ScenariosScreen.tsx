@@ -100,7 +100,7 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
           }}
           renderItem={({ item }) => (
             <CategoryCard
-              title={item.title}
+              category={item}
               available={isCategoryAvailable(item.id)}
               onPress={() =>
                 navigation.navigate('CategoryDetail', { categoryId: item.id })
@@ -137,25 +137,28 @@ const styles = StyleSheet.create({
     marginBottom: 20, // est.
     gap: 4, // est.
   },
+  // Typography below is from Figma inspect.
   title: {
     ...androidTextFix,
-    color: colors.white,
-    fontFamily: fonts.bold,
-    fontSize: 24, // est.
-    lineHeight: 30,
+    color: colors.screenTitle,
+    fontFamily: fonts.bold, // 700
+    fontSize: 20,
+    lineHeight: 20,
   },
   subtitle: {
     ...androidTextFix,
     color: colors.primary,
-    fontFamily: fonts.regular, // est.
-    fontSize: 14,
-    lineHeight: 20,
+    fontFamily: fonts.bold, // 700
+    fontSize: 12,
+    lineHeight: 16,
   },
   count: {
     ...androidTextFix,
-    color: colors.textMuted,
-    fontFamily: fonts.regular, // est.
-    fontSize: 14,
-    lineHeight: 20,
+    color: colors.placeholder, // #62748E
+    // Figma: 900 (Black). Inter Black is not bundled yet; Bold is the
+    // heaviest face available.
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    lineHeight: 16,
   },
 });

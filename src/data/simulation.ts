@@ -76,6 +76,8 @@ export type CategoryId =
 export interface Category {
   id: CategoryId;
   title: string;
+  /** Figma card copy; a design figure, not a count of local scenarios. */
+  scenarioCountLabel: string;
 }
 
 export interface DecisionOption {
@@ -110,10 +112,22 @@ export interface Scenario {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: 'history-war', title: 'History & War' },
-  { id: 'business-world', title: 'Business World' },
-  { id: 'crisis-security', title: 'Crisis & Security' },
-  { id: 'science', title: 'Science' },
+  {
+    id: 'history-war',
+    title: 'History & War',
+    scenarioCountLabel: '2 Scenarios',
+  },
+  {
+    id: 'business-world',
+    title: 'Business World',
+    scenarioCountLabel: '4 Scenarios',
+  },
+  {
+    id: 'crisis-security',
+    title: 'Crisis & Security',
+    scenarioCountLabel: '6 Scenarios',
+  },
+  { id: 'science', title: 'Science', scenarioCountLabel: '12 Scenarios' },
 ];
 
 const APOLLO_13: Scenario = {

@@ -40,4 +40,10 @@ export const colors = {
 
   // Landscape container frame (1.png, 812×375 @3x)
   headerSeparator: '#314158', // [Measured] 1pt line under the header bar
+
+  // Scenarios (home) screen, from Figma inspect
+  screenTitle: '#E2E8F0', // [Figma] "Scenarios" title
+  cardTitle: '#F8FAFC', // [Figma] category card title
+  marqueeText: '#F1F5F9', // [Figma] audio pill marquee
+  standbyText: 'rgba(0, 211, 243, 0.8)', // [Figma] #00D3F3CC, "STANDBY"
 } as const;

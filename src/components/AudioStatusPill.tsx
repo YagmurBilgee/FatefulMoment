@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
-import { androidTextFix, fonts } from '../theme/typography';
+import { androidTextFix, fonts, monoFont } from '../theme/typography';
 
 const MARQUEE_TEXT = 'THIS IS THE FATEFUL MOMENT...';
 const MARQUEE_WIDTH = 150; // est.
@@ -90,7 +90,9 @@ export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
         <Text style={styles.status}>STANDBY</Text>
         <Marquee text={MARQUEE_TEXT} />
       </View>
-      <Image source={icons.playlist} style={styles.playlist} />
+      <View style={styles.playlistButton}>
+        <Image source={icons.playlist} style={styles.playlist} />
+      </View>
     </View>
   );
 }
@@ -125,6 +127,14 @@ const styles = StyleSheet.create({
     width: 186 / 3,
     height: 165 / 3,
   },
+  playlistButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.divider, // est.
+  },
   playlist: {
     width: 42 / 3,
     height: 42 / 3,
@@ -132,17 +142,19 @@ const styles = StyleSheet.create({
   texts: {
     gap: 2, // est.
   },
+  // Typography below is from Figma inspect.
   status: {
     ...androidTextFix,
-    color: colors.primary,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 1,
+    color: colors.standbyText,
+    fontFamily: monoFont,
+    fontSize: 9,
+    lineHeight: 13.5,
+    letterSpacing: 0.9,
+    textTransform: 'uppercase',
   },
   marquee: {
     width: MARQUEE_WIDTH,
-    height: 14,
+    height: 15, // marquee line height
     overflow: 'hidden',
   },
   marqueeTrack: {
@@ -156,10 +168,10 @@ const styles = StyleSheet.create({
   },
   marqueeText: {
     ...androidTextFix,
-    color: colors.textSecondary,
-    fontFamily: fonts.medium, // est.
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 1,
+    color: colors.marqueeText,
+    fontFamily: fonts.bold, // 700
+    fontSize: 10,
+    lineHeight: 15,
+    textTransform: 'uppercase',
   },
 });
