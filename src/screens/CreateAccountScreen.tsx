@@ -92,7 +92,7 @@ export function CreateAccountScreen({
 
   return (
     <AuthScreenLayout
-      onBack={navigation.goBack}
+      showBack
       footer={
         <AuthFooterLink
           prompt="Already have an account?"

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   Animated,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -11,8 +12,6 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 import { usePressScale } from './usePressScale';
 
-const HEIGHT = 56;
-const RADIUS = 16; // est.
 // Measured: the disabled frame matches the active one at ~35% opacity.
 const DISABLED_OPACITY = 0.35; // est.
 
@@ -61,8 +60,11 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    height: HEIGHT,
-    borderRadius: RADIUS,
+    height: 56,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 8,
     borderWidth: 1,
     borderColor: colors.primaryButtonBorder,
     backgroundColor: colors.primaryButtonFill,
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...androidTextFix,
+    ...Platform.select({ android: { textAlignVertical: 'center' as const } }),
     color: colors.primary,
     // est.: same as the verified Welcome button labels (Inter Medium 16/24);
     // the Sign In frame measures closer to 15.

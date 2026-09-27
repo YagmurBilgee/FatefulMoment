@@ -1,10 +1,6 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import {
-  Animated,
-  Image,
-  Pressable,
-  StyleSheet,
-} from 'react-native';
+import { Animated, Image, Pressable, StyleSheet } from 'react-native';
 
 import { colors } from '../theme/colors';
 import { usePressScale } from './usePressScale';
@@ -15,20 +11,23 @@ const ICON_SIZE = 16;
 
 const arrowIcon = require('../assets/images/icon-back.png');
 
-type BackButtonProps = {
-  onPress: () => void;
-};
-
 /** Circular top-left back button used on the auth screens. */
-export function BackButton({ onPress }: BackButtonProps) {
+export function BackButton() {
+  const navigation = useNavigation();
   const press = usePressScale();
+  const goBack = () => {
+    // Nothing to return to, e.g. after a reset or a deep link.
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  };
   return (
     <Animated.View style={press.style}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Go back"
         hitSlop={8}
-        onPress={onPress}
+        onPress={goBack}
         onPressIn={press.onPressIn}
         onPressOut={press.onPressOut}
         style={styles.button}

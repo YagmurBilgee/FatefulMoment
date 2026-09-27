@@ -1,18 +1,9 @@
 import React from 'react';
-import {
-  Animated,
-  Image,
-  ImageSourcePropType,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AuthButton } from '../components/AuthButton';
 import { AuthHeader } from '../components/AuthHeader';
-import { usePressScale } from '../components/usePressScale';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
@@ -41,49 +32,8 @@ const icons = {
  * iPhone X safe area (top 44, bottom 34). Values marked "est." are derived
  * from pixels and still need confirmation from Figma inspect.
  */
-const BUTTON_HEIGHT = 56;
-const BUTTON_RADIUS = 16; // est.
-const ICON_GAP = 12; // est.
-
-// Font family is Inter (confirmed). Title, subtitle and button label styles
-// are confirmed from Figma; "OR" and legal text styles are estimates.
-
-type AuthButtonProps = {
-  label: string;
-  icon: { source: ImageSourcePropType; width: number; height: number };
-  variant: 'primary' | 'secondary';
-  onPress?: () => void;
-};
-
-function AuthButton({ label, icon, variant, onPress }: AuthButtonProps) {
-  const isPrimary = variant === 'primary';
-  const press = usePressScale();
-  return (
-    <Animated.View style={press.style}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        onPress={onPress}
-        onPressIn={press.onPressIn}
-        onPressOut={press.onPressOut}
-        style={[styles.button, isPrimary ? styles.primary : styles.secondary]}
-      >
-        <Image
-          source={icon.source}
-          style={[styles.icon, { width: icon.width, height: icon.height }]}
-        />
-        <Text
-          style={[
-            styles.buttonLabel,
-            isPrimary ? styles.primaryLabel : styles.secondaryLabel,
-          ]}
-        >
-          {label}
-        </Text>
-      </Pressable>
-    </Animated.View>
-  );
-}
+// Font family is Inter (confirmed). Title, subtitle and button styles are
+// confirmed from Figma; "OR" and legal text styles are estimates.
 
 export function WelcomeScreen({ navigation }: RootScreenProps<'Welcome'>) {
   const insets = useSafeAreaInsets();
@@ -155,37 +105,6 @@ const styles = StyleSheet.create({
   },
   primaryAction: {
     marginTop: 47, // est.
-  },
-  button: {
-    height: BUTTON_HEIGHT,
-    borderRadius: BUTTON_RADIUS,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primary: {
-    backgroundColor: colors.primaryButtonFill,
-    borderWidth: 1,
-    borderColor: colors.primaryButtonBorder,
-  },
-  secondary: {
-    backgroundColor: colors.secondaryButtonFill,
-  },
-  icon: {
-    marginRight: ICON_GAP,
-  },
-  buttonLabel: {
-    ...androidTextFix,
-    fontFamily: fonts.medium, // Figma: Inter Medium 16/24, letter spacing 0
-    fontSize: 16,
-    lineHeight: 24,
-    letterSpacing: 0,
-  },
-  primaryLabel: {
-    color: colors.primary,
-  },
-  secondaryLabel: {
-    color: colors.white,
   },
   dividerRow: {
     height: 21,

@@ -21,7 +21,7 @@ export function CheckEmailScreen({
   route,
 }: RootScreenProps<'CheckEmail'>) {
   return (
-    <AuthScreenLayout onBack={navigation.goBack}>
+    <AuthScreenLayout showBack>
       <View style={styles.badge}>
         <Image source={badgeIcon} style={styles.badgeIcon} />
       </View>

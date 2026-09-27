@@ -67,7 +67,7 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
 
   return (
     <AuthScreenLayout
-      onBack={navigation.goBack}
+      showBack
       footer={
         <AuthFooterLink
           prompt="No account yet?"

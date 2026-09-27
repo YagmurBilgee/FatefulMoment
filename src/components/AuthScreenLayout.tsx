@@ -13,7 +13,7 @@ import { BackButton } from './BackButton';
 type AuthScreenLayoutProps = {
   children: ReactNode;
   /** Renders the circular back button in the top-left corner. */
-  onBack?: () => void;
+  showBack?: boolean;
   /** Pinned to the bottom of the screen (e.g. "No account yet? Sign up"). */
   footer?: ReactNode;
 };
@@ -24,7 +24,7 @@ type AuthScreenLayoutProps = {
  */
 export function AuthScreenLayout({
   children,
-  onBack,
+  showBack = false,
   footer,
 }: AuthScreenLayoutProps) {
   const insets = useSafeAreaInsets();
@@ -43,9 +43,9 @@ export function AuthScreenLayout({
         showsVerticalScrollIndicator={false}
       >
         <View>
-          {onBack ? (
+          {showBack ? (
             <View style={styles.backButton}>
-              <BackButton onPress={onBack} />
+              <BackButton />
             </View>
           ) : null}
           {children}

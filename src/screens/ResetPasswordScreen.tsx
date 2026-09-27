@@ -42,7 +42,7 @@ export function ResetPasswordScreen({
   };
 
   return (
-    <AuthScreenLayout onBack={navigation.goBack}>
+    <AuthScreenLayout showBack>
       <AuthHeader
         title="Reset your password"
         subtitle="Enter your email to receive a reset link"
