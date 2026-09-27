@@ -1,15 +1,19 @@
 import React from 'react';
 import {
+  Animated,
   Image,
   Pressable,
   StyleSheet,
 } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { usePressScale } from './usePressScale';
 
 const SIZE = 40; // est. — measured 39–40pt in the Sign in frames
 // Figma @3x export, 48px -> 16pt. Exported black; tinted to the icon color.
 const ICON_SIZE = 16;
+// Press feedback; not specified in Figma.
+const PRESSED_SCALE = 0.92;
 
 const arrowIcon = require('../assets/images/icon-back.png');
 
@@ -19,16 +23,21 @@ type BackButtonProps = {
 
 /** Circular top-left back button used on the auth screens. */
 export function BackButton({ onPress }: BackButtonProps) {
+  const press = usePressScale(PRESSED_SCALE);
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Go back"
-      hitSlop={8}
-      onPress={onPress}
-      style={styles.button}
-    >
-      <Image source={arrowIcon} style={styles.icon} />
-    </Pressable>
+    <Animated.View style={press.style}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+        hitSlop={8}
+        onPress={onPress}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
+        style={styles.button}
+      >
+        <Image source={arrowIcon} style={styles.icon} />
+      </Pressable>
+    </Animated.View>
   );
 }
 

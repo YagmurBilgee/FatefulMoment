@@ -1,13 +1,22 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import {
+  ActivityIndicator,
+  Animated,
+  Pressable,
+  StyleSheet,
+  Text,
+} from 'react-native';
 
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
+import { usePressScale } from './usePressScale';
 
 const HEIGHT = 56;
 const RADIUS = 16; // est.
 // Measured: the disabled frame matches the active one at ~35% opacity.
 const DISABLED_OPACITY = 0.35; // est.
+// Press feedback; not specified in Figma.
+const PRESSED_SCALE = 0.97;
 
 type PrimaryButtonProps = {
   label: string;
@@ -29,21 +38,26 @@ export function PrimaryButton({
   loading = false,
 }: PrimaryButtonProps) {
   const inactive = disabled || loading;
+  const press = usePressScale(PRESSED_SCALE, inactive);
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled: inactive, busy: loading }}
-      disabled={inactive}
-      onPress={onPress}
-      style={[styles.button, disabled && !loading && styles.disabled]}
-    >
-      {loading ? (
-        <ActivityIndicator color={colors.primary} />
-      ) : (
-        <Text style={styles.label}>{label}</Text>
-      )}
-    </Pressable>
+    <Animated.View style={press.style}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: inactive, busy: loading }}
+        disabled={inactive}
+        onPress={onPress}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
+        style={[styles.button, disabled && !loading && styles.disabled]}
+      >
+        {loading ? (
+          <ActivityIndicator color={colors.primary} />
+        ) : (
+          <Text style={styles.label}>{label}</Text>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
 
