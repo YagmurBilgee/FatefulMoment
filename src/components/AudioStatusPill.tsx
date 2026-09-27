@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
@@ -11,42 +11,15 @@ const MARQUEE_SPEED = 30; // pt per second
 // MARQUEE_WIDTH window is shown, so this just has to exceed the text.
 const MARQUEE_TRACK_WIDTH = 1000;
 
-type TriangleProps = {
-  direction: 'left' | 'right';
-  size: number;
-  color: string;
+// Figma @3x exports; point size = pixel size / 3.
+const icons = {
+  prev: require('../assets/images/icon-player-prev.png'), // 48×42
+  next: require('../assets/images/icon-player-next.png'), // 48×42
+  playlist: require('../assets/images/icon-player-playlist.png'), // 42×42
+  // 186×165 including its glow; the ring is 96px (32pt) wide at (45, 24)px.
+  play: require('../assets/images/icon-player-play.png'),
 };
-
-/*
- * Pending Figma icon assets: the rewind / forward / play glyphs are drawn
- * with border triangles until the exports are provided.
- */
-function Triangle({ direction, size, color }: TriangleProps) {
-  return (
-    <View
-      style={[
-        styles.triangle,
-        {
-          borderTopWidth: size / 2,
-          borderBottomWidth: size / 2,
-          [direction === 'right' ? 'borderLeftWidth' : 'borderRightWidth']:
-            size * 0.85,
-          [direction === 'right' ? 'borderLeftColor' : 'borderRightColor']:
-            color,
-        },
-      ]}
-    />
-  );
-}
-
-function DoubleTriangle({ direction }: { direction: 'left' | 'right' }) {
-  return (
-    <View style={styles.double}>
-      <Triangle direction={direction} size={8} color={colors.textSecondary} />
-      <Triangle direction={direction} size={8} color={colors.textSecondary} />
-    </View>
-  );
-}
+const PLAY_RING = 32;
 
 /** Scrolls its text from right to left forever (native driver). */
 function Marquee({ text }: { text: string }) {
@@ -89,8 +62,8 @@ function Marquee({ text }: { text: string }) {
 }
 
 /**
- * Top-right audio / status pill on the Scenarios screen. Playback is not
- * implemented; the controls are visual only. Sizes are estimates.
+ * Top-right audio / status pill of the landscape header. Playback is not
+ * implemented; the controls are visual only. Pill sizes are estimates.
  */
 export function AudioStatusPill() {
   return (
@@ -99,13 +72,16 @@ export function AudioStatusPill() {
       accessible
       accessibilityLabel={`Standby. ${MARQUEE_TEXT}`}
     >
-      <DoubleTriangle direction="left" />
-      <DoubleTriangle direction="right" />
-      <View style={styles.play}>
-        <Triangle direction="right" size={10} color={colors.background} />
+      <Image source={icons.prev} style={styles.skip} />
+      <Image source={icons.next} style={styles.skip} />
+      {/* The ring fills this slot; the glow spills outside it. */}
+      <View style={styles.playSlot}>
+        <Image source={icons.play} style={styles.playImage} />
       </View>
       <Text style={styles.status}>STANDBY</Text>
       <Marquee text={MARQUEE_TEXT} />
+      {/* Placement of the playlist icon is an estimate. */}
+      <Image source={icons.playlist} style={styles.playlist} />
     </View>
   );
 }
@@ -121,24 +97,24 @@ const styles = StyleSheet.create({
     gap: 12,
     backgroundColor: colors.secondaryButtonFill,
   },
-  triangle: {
-    width: 0,
-    height: 0,
-    borderStyle: 'solid',
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
+  skip: {
+    width: 48 / 3,
+    height: 42 / 3,
   },
-  double: {
-    flexDirection: 'row',
+  playSlot: {
+    width: PLAY_RING,
+    height: PLAY_RING,
   },
-  play: {
-    width: 28, // est.
-    height: 28,
-    borderRadius: 14,
-    paddingLeft: 2, // optical centering of the triangle
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
+  playImage: {
+    position: 'absolute',
+    left: -45 / 3,
+    top: -24 / 3,
+    width: 186 / 3,
+    height: 165 / 3,
+  },
+  playlist: {
+    width: 42 / 3,
+    height: 42 / 3,
   },
   status: {
     ...androidTextFix,

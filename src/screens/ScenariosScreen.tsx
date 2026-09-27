@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   FlatList,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -22,6 +23,9 @@ import { androidTextFix, fonts } from '../theme/typography';
 
 const CARD_GAP = 16; // Figma token
 
+// Figma @3x export, 60×60px.
+const menuIcon = require('../assets/images/icon-menu-hamburger.png');
+
 // Figma copy; the total is a design figure, not derived from local data.
 const SCENARIO_COUNT_LABEL = '30 Scenarios';
 
@@ -38,7 +42,6 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
     <View style={styles.root}>
       <LandscapeHeader
         left={
-          // Pending: hamburger icon asset from Figma.
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={menuOpen ? 'Close menu' : 'Open menu'}
@@ -47,7 +50,7 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
             onPress={() => setMenuOpen(open => !open)}
             style={styles.menuButton}
           >
-            <Text style={styles.menuIcon}>≡</Text>
+            <Image source={menuIcon} style={styles.menuIcon} />
           </Pressable>
         }
       />
@@ -121,11 +124,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   menuIcon: {
-    ...androidTextFix,
-    color: colors.white,
-    fontFamily: fonts.medium,
-    fontSize: 28,
-    lineHeight: 32,
+    width: 60 / 3,
+    height: 60 / 3,
   },
   menu: {
     width: 220,
