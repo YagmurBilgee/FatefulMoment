@@ -146,7 +146,7 @@ test('Create Account validates name and password rules', async () => {
   expect(signUp()).toBe(false);
 });
 
-test('Sign up starts a mock session and opens Home', async () => {
+test('Sign up starts a mock session and opens Scenarios', async () => {
   await openSignIn();
   await press(link('Sign up'));
   await type('Full name', 'Jane Roe');
@@ -157,6 +157,6 @@ test('Sign up starts a mock session and opens Home', async () => {
   await act(async () => {
     jest.runAllTimers();
   });
+  expect(hasText('Scenarios')).toBe(true);
   expect(hasText('Welcome back, Jane Roe')).toBe(true);
-  expect(hasText('jane@mail.com')).toBe(true);
 });

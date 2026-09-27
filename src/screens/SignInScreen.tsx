@@ -61,7 +61,7 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
     // Replace the auth stack so Back cannot return to Sign In.
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Home', params: { user: result.user } }],
+      routes: [{ name: 'Scenarios', params: { user: result.user } }],
     });
   };
 

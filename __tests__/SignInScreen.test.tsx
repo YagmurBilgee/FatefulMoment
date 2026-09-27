@@ -120,11 +120,12 @@ test('unknown email falls back to the wrong password error', async () => {
   expect(hasText(WRONG_PASSWORD_MESSAGE)).toBe(true);
 });
 
-test('mock credentials open Home, and Sign Out returns to Welcome', async () => {
+test('mock credentials open Scenarios, and Sign Out returns to Welcome', async () => {
   await openSignIn();
   await type('Email address', MOCK_USER.email);
   await type('Password', MOCK_USER.password);
   await submit();
+  expect(hasText('Scenarios')).toBe(true);
   expect(hasText(`Welcome back, ${MOCK_USER.name}`)).toBe(true);
   await act(async () => {
     byLabel('Sign Out').props.onPress();

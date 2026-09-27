@@ -86,7 +86,7 @@ export function CreateAccountScreen({
     // Start the mock session; Back cannot return to the auth screens.
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Home', params: { user } }],
+      routes: [{ name: 'Scenarios', params: { user } }],
     });
   };
 
