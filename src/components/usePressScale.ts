@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 
+// Shared by every tappable button so the feedback feels consistent.
+// Not specified in Figma.
+export const PRESSED_SCALE = 0.95;
+
 /**
  * Press-down scale feedback for buttons. Spread the handlers on a Pressable
  * and apply `style` to an Animated.View wrapping it.
@@ -9,7 +13,7 @@ import { Animated } from 'react-native';
  * loading) the scale snaps back to 1 so a press that started just before the
  * state change cannot leave the button shrunk.
  */
-export function usePressScale(pressedScale: number, inactive = false) {
+export function usePressScale(inactive = false) {
   const scale = useRef(new Animated.Value(1)).current;
 
   const animateTo = (toValue: number, bounciness: number) => {
@@ -30,7 +34,7 @@ export function usePressScale(pressedScale: number, inactive = false) {
 
   return {
     style: { transform: [{ scale }] },
-    onPressIn: () => animateTo(pressedScale, 0),
+    onPressIn: () => animateTo(PRESSED_SCALE, 0),
     onPressOut: () => animateTo(1, 6),
   };
 }

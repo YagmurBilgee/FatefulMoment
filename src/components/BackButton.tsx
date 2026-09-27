@@ -12,8 +12,6 @@ import { usePressScale } from './usePressScale';
 const SIZE = 40; // est. — measured 39–40pt in the Sign in frames
 // Figma @3x export, 48px -> 16pt. Exported black; tinted to the icon color.
 const ICON_SIZE = 16;
-// Press feedback; not specified in Figma.
-const PRESSED_SCALE = 0.92;
 
 const arrowIcon = require('../assets/images/icon-back.png');
 
@@ -23,7 +21,7 @@ type BackButtonProps = {
 
 /** Circular top-left back button used on the auth screens. */
 export function BackButton({ onPress }: BackButtonProps) {
-  const press = usePressScale(PRESSED_SCALE);
+  const press = usePressScale();
   return (
     <Animated.View style={press.style}>
       <Pressable

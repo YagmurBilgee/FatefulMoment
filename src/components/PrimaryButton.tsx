@@ -15,8 +15,6 @@ const HEIGHT = 56;
 const RADIUS = 16; // est.
 // Measured: the disabled frame matches the active one at ~35% opacity.
 const DISABLED_OPACITY = 0.35; // est.
-// Press feedback; not specified in Figma.
-const PRESSED_SCALE = 0.97;
 
 type PrimaryButtonProps = {
   label: string;
@@ -38,7 +36,7 @@ export function PrimaryButton({
   loading = false,
 }: PrimaryButtonProps) {
   const inactive = disabled || loading;
-  const press = usePressScale(PRESSED_SCALE, inactive);
+  const press = usePressScale(inactive);
   return (
     <Animated.View style={press.style}>
       <Pressable

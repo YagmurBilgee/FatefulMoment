@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Animated,
   Image,
   ImageSourcePropType,
   Pressable,
@@ -11,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthHeader } from '../components/AuthHeader';
+import { usePressScale } from '../components/usePressScale';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
@@ -55,26 +57,31 @@ type AuthButtonProps = {
 
 function AuthButton({ label, icon, variant, onPress }: AuthButtonProps) {
   const isPrimary = variant === 'primary';
+  const press = usePressScale();
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      style={[styles.button, isPrimary ? styles.primary : styles.secondary]}
-    >
-      <Image
-        source={icon.source}
-        style={[styles.icon, { width: icon.width, height: icon.height }]}
-      />
-      <Text
-        style={[
-          styles.buttonLabel,
-          isPrimary ? styles.primaryLabel : styles.secondaryLabel,
-        ]}
+    <Animated.View style={press.style}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        onPress={onPress}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
+        style={[styles.button, isPrimary ? styles.primary : styles.secondary]}
       >
-        {label}
-      </Text>
-    </Pressable>
+        <Image
+          source={icon.source}
+          style={[styles.icon, { width: icon.width, height: icon.height }]}
+        />
+        <Text
+          style={[
+            styles.buttonLabel,
+            isPrimary ? styles.primaryLabel : styles.secondaryLabel,
+          ]}
+        >
+          {label}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
 }
 
