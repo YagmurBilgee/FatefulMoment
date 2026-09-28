@@ -85,7 +85,9 @@ export function FMTextInput({
           selectionColor={colors.primary}
           secureTextEntry={password && hidden}
           autoCapitalize={password ? 'none' : rest.autoCapitalize}
-          autoCorrect={password ? false : rest.autoCorrect}
+          // Off unless a field opts in: email and name fields should not be
+          // "corrected", and it avoids lingering suggestion bars.
+          autoCorrect={password ? false : rest.autoCorrect ?? false}
           aria-invalid={hasError}
           onFocus={e => {
             setFocused(true);

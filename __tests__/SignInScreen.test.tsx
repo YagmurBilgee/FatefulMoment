@@ -224,6 +224,10 @@ test('Home lists both scenarios active until one is completed', async () => {
   await act(async () => {
     startButton('Iraq War').props.onPress();
   });
+  expect(hasText('Scenario Briefing')).toBe(true);
+  await act(async () => {
+    byLabel('Start Simulation').props.onPress();
+  });
   expect(hasText('President of the United States · Decision 1 of 2')).toBe(
     true,
   );

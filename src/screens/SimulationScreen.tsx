@@ -14,6 +14,7 @@ import {
   LandscapeHeader,
   useLandscapePadding,
 } from '../components/LandscapeHeader';
+import { ScenarioBriefing } from '../components/ScenarioBriefing';
 import { usePressScale } from '../components/usePressScale';
 import {
   applyImpacts,
@@ -54,7 +55,9 @@ function OptionCard({
 }
 
 /**
- * Landscape simulation: briefing and the current decision on the left, its
+ * Landscape simulation. It opens on the scenario briefing card; Start
+ * Simulation moves on to the decisions (a video phase is not built yet).
+ * Decisions show the briefing and the current decision on the left, its
  * options on the right. Both columns scroll on their own if a device is too
  * short, so nothing is clipped. After the last decision the DNA profile
  * replaces this screen, so Back from the profile returns to Scenarios.
@@ -69,9 +72,10 @@ export function SimulationScreen({
   const padding = useLandscapePadding();
   const scenario = findScenario(route.params.scenarioId);
   const [impacts, setImpacts] = useState<DnaImpact[]>([]);
+  const [phase, setPhase] = useState<'briefing' | 'decisions'>('briefing');
   const { markCompleted } = useScenarioProgress();
 
-  const header = (title: string) => (
+  const header = (title = '') => (
     <LandscapeHeader
       left={
         <>
@@ -95,6 +99,20 @@ export function SimulationScreen({
         <Text style={[styles.body, styles.unavailable, padding]}>
           This scenario is coming soon.
         </Text>
+      </View>
+    );
+  }
+
+  if (phase === 'briefing') {
+    return (
+      <View style={styles.root}>
+        {header()}
+        <View style={styles.briefingArea}>
+          <ScenarioBriefing
+            scenario={scenario}
+            onStart={() => setPhase('decisions')}
+          />
+        </View>
       </View>
     );
   }
@@ -172,6 +190,14 @@ const styles = StyleSheet.create({
   },
   unavailable: {
     marginTop: 24,
+  },
+  // Everything below the header separator down to the screen's bottom
+  // edge; the card is centered in it both ways. No side padding, so the
+  // card's 90% width is of the full screen and it centers on the screen.
+  briefingArea: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   columns: {
     flex: 1,

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   FlatList,
+  Keyboard,
   ScrollView,
   StyleSheet,
   Text,
@@ -48,6 +50,14 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { completedScenarioIds } = useScenarioProgress();
   const { paddingLeft, paddingRight } = useLandscapePadding();
+
+  // Sign-in focus can outlive the auth screens on iOS and leave the
+  // keyboard's AutoFill bar showing here; drop it whenever Home is shown.
+  useFocusEffect(
+    useCallback(() => {
+      Keyboard.dismiss();
+    }, []),
+  );
 
   // Only the first card opens the simulation. The repeats that fill the
   // carousel show "coming soon" from Start or anywhere on the card, even
