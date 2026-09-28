@@ -59,8 +59,9 @@ export const colors = {
 
   // Simulation decision phase
   decisionScrim: 'rgba(2, 6, 24, 0.72)', // [Unverified] darkened scene
-  decisionCardFill: 'rgba(15, 23, 43, 0.72)', // [Unverified]
-  decisionCardBorder: 'rgba(255, 255, 255, 0.12)', // [Unverified]
+  optionCardFill: 'rgba(15, 23, 43, 0.63)', // [Figma] #0F172BA1
+  optionCardBorder: 'rgba(248, 250, 252, 0.2)', // [Figma] #F8FAFC @ 20%
+  optionCardBorderTop: '#F8FAFC', // [Figma] lit top edge
   timerStart: '#EAB308', // [Unverified] tension timer at full time (brief)
   timerMid: '#FF6900', // [Unverified] tension timer halfway (orange)
   timerEnd: '#FB2C36', // [Unverified] tension timer running out (brief)

@@ -2,9 +2,10 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import Video, { type ReactVideoSource } from 'react-native-video';
 
-/** Local scenario clips. Scenarios without one skip the video phase. */
-export const SCENARIO_VIDEOS: Record<string, ReactVideoSource> = {
+/** Local clips, by the ids the scenario data refers to. */
+export const VIDEOS: Record<string, ReactVideoSource> = {
   'iraq-war': { uri: require('../assets/images/iraq-war.mp4') },
+  'iraq-war-2': { uri: require('../assets/images/irac-war-2.mp4') },
 };
 
 type ScenarioVideoProps = {

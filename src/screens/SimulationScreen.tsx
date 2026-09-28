@@ -12,11 +12,12 @@ import {
   BRIEFING_IMAGES,
   ScenarioBriefing,
 } from '../components/ScenarioBriefing';
-import { SCENARIO_VIDEOS, ScenarioVideo } from '../components/ScenarioVideo';
+import { ScenarioVideo, VIDEOS } from '../components/ScenarioVideo';
 import { TensionTimer, UrgencyVignette } from '../components/TensionTimer';
 import {
   applyImpacts,
   BASELINE_DNA,
+  DecisionOption,
   DnaImpact,
   findScenario,
   TIMEOUT_IMPACT,
@@ -26,34 +27,46 @@ import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-/** Video out, decisions in, once the clip has ended. */
+/** Video ↔ decisions cross-fade, both ways. */
 const CROSS_FADE_MS = 1200;
-/** A finished decision fading out before the next one fades in. */
+/** A decision fading out before the next one when there is no clip. */
 const STEP_FADE_MS = 300;
 const DECISION_MS = 15000;
 /** How long a picked card glows before the flow moves on. */
-export const SELECT_HOLD_MS = 450;
+export const SELECT_HOLD_MS = 300;
 
-// Room kept clear at the top for the back button (16 + 40 + 12).
-const TOP_SPACE = 68;
-const GRID_GAP = 12; // est.
+// Figma "Options": rows of Option Cards, 12pt apart, the last row's bottom
+// edge 76.5pt above the screen's bottom edge.
+const OPTIONS_GAP = 12;
+const OPTIONS_BOTTOM = 76.5;
 
 type Phase = 'briefing' | 'video' | 'decision';
 
+const fade = (value: Animated.Value, toValue: number, duration: number) =>
+  Animated.timing(value, {
+    toValue,
+    duration,
+    easing: Easing.inOut(Easing.quad),
+    useNativeDriver: true,
+  });
+
+/** The clip id if that clip is bundled; unknown ids play nothing. */
+const playable = (id: string | undefined) =>
+  id !== undefined && VIDEOS[id] !== undefined ? id : undefined;
+
 /**
- * Landscape simulation. Phases:
- * - briefing: the scenario briefing card; Start Simulation plays the video.
- * - video: the full-screen scenario clip, played to its end, with only the
- *   back button on top (Figma). When it ends, the video slowly fades out
- *   while the darkened scene, the decision cards and the timer fade in. A
- *   scenario without a clip goes straight to the decisions.
- * - decision: five options (two left, two right, one bottom center) around
- *   the question, with a 15 s tension timer. Picking a card makes it glow
- *   for a moment; running out of time scores `TIMEOUT_IMPACT`. Either way
- *   the next decision fades in, and after the last decision the DNA profile
- *   replaces this screen, so Back from it returns to Scenarios.
- *
- * Decision layout values are estimates until the Figma frame is inspected.
+ * Landscape simulation, alternating full-screen clips and decisions:
+ * - briefing: the scenario briefing card; Start Simulation plays the intro.
+ * - video: a full-screen clip played to its end, with only the back button
+ *   on top (Figma). Its end cross-fades into the next decision.
+ * - decision: only the back button, five Option Cards in three rows (2, 2,
+ *   1) and the 15 s tension timer (Figma). A picked card glows, then the
+ *   decision cross-fades into its consequence clip (the option's, else the
+ *   decision's); running out of time scores `TIMEOUT_IMPACT` and plays the
+ *   decision's clip. Only when that clip ends does the next decision
+ *   appear, or, after the last one, the DNA profile, which replaces this
+ *   screen so Back from it returns to Scenarios. Without a clip the flow
+ *   moves straight on.
  */
 export function SimulationScreen({
   navigation,
@@ -62,12 +75,16 @@ export function SimulationScreen({
   const insets = useSafeAreaInsets();
   const padding = useLandscapePadding();
   const scenario = findScenario(route.params.scenarioId);
-  const [impacts, setImpacts] = useState<DnaImpact[]>([]);
-  const [phase, setPhase] = useState<Phase>('briefing');
-  const [selectedId, setSelectedId] = useState<string>();
-  // The clip stays mounted through the cross-fade, then is released.
-  const [videoMounted, setVideoMounted] = useState(true);
   const { markCompleted } = useScenarioProgress();
+
+  const [phase, setPhase] = useState<Phase>('briefing');
+  /** Decisions answered so far; drives which options are shown. */
+  const [step, setStep] = useState(0);
+  const [selectedId, setSelectedId] = useState<string>();
+  /** Clip on screen; `key` remounts it, so the same clip can play again. */
+  const [clip, setClip] = useState<{ id: string; key: number }>();
+  /** The decision layer stays mounted while it fades out. */
+  const [decisionMounted, setDecisionMounted] = useState(false);
 
   const videoOpacity = useRef(new Animated.Value(1)).current;
   const decisionOpacity = useRef(new Animated.Value(0)).current;
@@ -75,6 +92,10 @@ export function SimulationScreen({
   const remaining = useRef(new Animated.Value(1)).current;
   const timer = useRef<Animated.CompositeAnimation | null>(null);
   const holdTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Read by callbacks that outlive a render (timer, clip end), so they
+  // always see the latest answers.
+  const impacts = useRef<DnaImpact[]>([]);
+  const clipCount = useRef(0);
   // Guards against a double end (end + error) and double decisions (tap +
   // timeout, or two quick taps).
   const videoEnded = useRef(false);
@@ -116,58 +137,14 @@ export function SimulationScreen({
     );
   }
 
-  const step = impacts.length;
-  const decision = scenario.decisions[step];
+  const decisions = scenario.decisions;
   const scene = BRIEFING_IMAGES[scenario.id];
-  const video = SCENARIO_VIDEOS[scenario.id];
 
-  const fadeInDecision = (duration: number) => {
-    decided.current = false;
-    remaining.setValue(1);
-    Animated.timing(decisionOpacity, {
-      toValue: 1,
-      duration,
-      easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (finished) {
-        startTimer();
-      }
+  const finish = () => {
+    markCompleted(scenario.id);
+    navigation.replace('DnaProfile', {
+      score: applyImpacts(BASELINE_DNA, impacts.current),
     });
-  };
-
-  const commit = (impact: DnaImpact) => {
-    const next = [...impacts, impact];
-    if (next.length === scenario.decisions.length) {
-      markCompleted(scenario.id);
-      navigation.replace('DnaProfile', {
-        score: applyImpacts(BASELINE_DNA, next),
-      });
-      return;
-    }
-    Animated.timing(decisionOpacity, {
-      toValue: 0,
-      duration: STEP_FADE_MS,
-      useNativeDriver: true,
-    }).start(() => {
-      setImpacts(next);
-      setSelectedId(undefined);
-      fadeInDecision(STEP_FADE_MS);
-    });
-  };
-
-  const decide = (impact: DnaImpact, optionId?: string) => {
-    if (decided.current) {
-      return;
-    }
-    decided.current = true;
-    timer.current?.stop();
-    if (!optionId) {
-      commit(impact); // timed out
-      return;
-    }
-    setSelectedId(optionId);
-    holdTimeout.current = setTimeout(() => commit(impact), SELECT_HOLD_MS);
   };
 
   const startTimer = () => {
@@ -184,38 +161,116 @@ export function SimulationScreen({
     });
   };
 
+  /** Fades the next decision in, from a clip or from the previous one. */
+  const showDecision = (fromVideo: boolean) => {
+    decided.current = false;
+    remaining.setValue(1);
+    decisionOpacity.setValue(0);
+    setStep(impacts.current.length);
+    setSelectedId(undefined);
+    setDecisionMounted(true);
+    setPhase('decision');
+    const duration = fromVideo ? CROSS_FADE_MS : STEP_FADE_MS;
+    if (fromVideo) {
+      // Only a completed fade releases the clip: an interrupted one means a
+      // new clip has started on top of it.
+      fade(videoOpacity, 0, duration).start(({ finished }) => {
+        if (finished) {
+          setClip(undefined);
+        }
+      });
+    }
+    fade(decisionOpacity, 1, duration).start(({ finished }) => {
+      if (finished) {
+        startTimer();
+      }
+    });
+  };
+
+  /** After a clip or a decision: the next decision, or the profile. */
+  const advance = (fromVideo: boolean) => {
+    if (impacts.current.length === decisions.length) {
+      finish();
+    } else {
+      showDecision(fromVideo);
+    }
+  };
+
+  /** Plays a clip; from a decision, the two cross-fade. */
+  const playClip = (id: string, fromDecision: boolean) => {
+    videoEnded.current = false;
+    clipCount.current += 1;
+    setClip({ id, key: clipCount.current });
+    setPhase('video');
+    if (!fromDecision) {
+      videoOpacity.setValue(1);
+      return;
+    }
+    videoOpacity.setValue(0);
+    fade(videoOpacity, 1, CROSS_FADE_MS).start();
+    fade(decisionOpacity, 0, CROSS_FADE_MS).start(({ finished }) => {
+      if (finished) {
+        setDecisionMounted(false);
+      }
+    });
+  };
+
   const endVideo = () => {
     if (videoEnded.current) {
       return;
     }
     videoEnded.current = true;
-    decisionOpacity.setValue(0);
-    setPhase('decision');
-    Animated.timing(videoOpacity, {
-      toValue: 0,
-      duration: CROSS_FADE_MS,
-      easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true,
-    }).start(() => setVideoMounted(false));
-    fadeInDecision(CROSS_FADE_MS);
+    advance(true);
+  };
+
+  const decide = (impact: DnaImpact, option?: DecisionOption) => {
+    if (decided.current) {
+      return;
+    }
+    decided.current = true;
+    timer.current?.stop();
+    const node = decisions[impacts.current.length];
+    const outcome = playable(option?.outcomeVideo ?? node.outcomeVideo);
+    const commit = () => {
+      impacts.current = [...impacts.current, impact];
+      if (outcome) {
+        playClip(outcome, true);
+        return;
+      }
+      if (impacts.current.length === decisions.length) {
+        finish();
+        return;
+      }
+      fade(decisionOpacity, 0, STEP_FADE_MS).start(() => advance(false));
+    };
+    if (!option) {
+      commit(); // timed out
+      return;
+    }
+    setSelectedId(option.id);
+    holdTimeout.current = setTimeout(commit, SELECT_HOLD_MS);
   };
 
   if (phase === 'briefing') {
+    const start = () => {
+      const intro = playable(scenario.introVideo);
+      if (intro) {
+        playClip(intro, false);
+      } else {
+        advance(false);
+      }
+    };
     return (
       <View style={styles.root}>
         {header()}
         <View style={styles.briefingArea}>
-          <ScenarioBriefing
-            scenario={scenario}
-            onStart={() =>
-              SCENARIO_VIDEOS[scenario.id] ? setPhase('video') : endVideo()
-            }
-          />
+          <ScenarioBriefing scenario={scenario} onStart={start} />
         </View>
       </View>
     );
   }
 
+  const decision = decisions[step];
   const card = (index: number) => {
     const option = decision.options[index];
     if (!option) {
@@ -226,64 +281,53 @@ export function SimulationScreen({
         option={option}
         selected={selectedId === option.id}
         dimmed={selectedId !== undefined && selectedId !== option.id}
-        onPress={() => decide(option.impact, option.id)}
+        onPress={() => decide(option.impact, option)}
       />
     );
   };
 
   return (
     <View style={styles.root}>
-      {/* The scene the video ends on, left behind once the video fades. */}
+      {/* The scene behind the decisions once a clip has faded. */}
       {scene ? (
         <Image source={scene} resizeMode="cover" style={styles.scene} />
       ) : null}
 
-      {video && videoMounted ? (
+      {clip ? (
         <Animated.View
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { opacity: videoOpacity }]}
         >
-          <ScenarioVideo source={video} onEnd={endVideo} />
+          <ScenarioVideo
+            key={clip.key}
+            source={VIDEOS[clip.id]}
+            onEnd={endVideo}
+          />
         </Animated.View>
       ) : null}
 
-      {/* Mounted for the whole decision phase, which includes both fades,
-          so nothing of it is reachable while the video plays. */}
-      {phase === 'decision' ? (
+      {/* Mounted through both fades; only touchable in the decision phase. */}
+      {decisionMounted && decision ? (
         <Animated.View
-          pointerEvents="box-none"
+          pointerEvents={phase === 'decision' ? 'box-none' : 'none'}
           style={[StyleSheet.absoluteFill, { opacity: decisionOpacity }]}
         >
           <View style={styles.scrim} />
           <UrgencyVignette remaining={remaining} />
-          <View
-            style={[
-              styles.decision,
-              padding,
-              { paddingTop: insets.top + TOP_SPACE },
-              { paddingBottom: insets.bottom + 12 },
-            ]}
-          >
-            <View style={styles.grid}>
-              <View style={styles.column}>
-                {card(0)}
-                {card(1)}
-              </View>
-              <View style={styles.question}>
-                <Text style={styles.meta}>
-                  Decision {step + 1} of {scenario.decisions.length}
-                </Text>
-                <Text style={styles.decisionTitle} accessibilityRole="header">
-                  {decision.title}
-                </Text>
-                <Text style={styles.prompt}>{decision.prompt}</Text>
-              </View>
-              <View style={styles.column}>
-                {card(2)}
-                {card(3)}
-              </View>
+
+          <View style={[styles.options, padding]}>
+            <View style={styles.row}>
+              {card(0)}
+              {card(1)}
             </View>
-            <View style={styles.bottomCard}>{card(4)}</View>
+            <View style={styles.row}>
+              {card(2)}
+              {card(3)}
+            </View>
+            <View style={styles.row}>{card(4)}</View>
+          </View>
+
+          <View style={[styles.timer, padding, { bottom: insets.bottom + 12 }]}>
             <TensionTimer remaining={remaining} />
           </View>
         </Animated.View>
@@ -334,49 +378,26 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     backgroundColor: colors.decisionScrim,
   },
-  decision: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    gap: GRID_GAP,
+  // Figma "Options": Row 1 and Row 2 hold two cards, Row 3 one centered.
+  options: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: OPTIONS_BOTTOM,
+    gap: OPTIONS_GAP,
   },
-  grid: {
+  row: {
     flexDirection: 'row',
-    gap: 20, // est.
-  },
-  column: {
-    width: '30%', // est.
-    gap: GRID_GAP,
-  },
-  question: {
-    flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: OPTIONS_GAP,
   },
-  bottomCard: {
-    width: '30%',
-    alignSelf: 'center',
+  timer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
   back: {
     position: 'absolute',
-  },
-  meta: {
-    ...androidTextFix,
-    color: colors.primary,
-    fontFamily: fonts.bold, // est.
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 1,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-  },
-  decisionTitle: {
-    ...androidTextFix,
-    color: colors.white,
-    fontFamily: fonts.bold, // est.
-    fontSize: 20,
-    lineHeight: 25,
-    textAlign: 'center',
   },
   body: {
     ...androidTextFix,
@@ -384,13 +405,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular, // est.
     fontSize: 14,
     lineHeight: 20,
-  },
-  prompt: {
-    ...androidTextFix,
-    color: colors.screenTitle,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 15,
-    lineHeight: 22,
-    textAlign: 'center',
   },
 });

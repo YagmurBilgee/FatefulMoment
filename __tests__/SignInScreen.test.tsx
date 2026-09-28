@@ -14,6 +14,7 @@ import {
 } from '../src/screens/ScenariosScreen';
 import { WRONG_PASSWORD_MESSAGE } from '../src/screens/SignInScreen';
 import { SELECT_HOLD_MS } from '../src/screens/SimulationScreen';
+import { VIDEOS } from '../src/components/ScenarioVideo';
 import { INVALID_EMAIL_MESSAGE } from '../src/utils/validation';
 
 const { act } = ReactTestRenderer;
@@ -37,6 +38,11 @@ const hasText = (text: string) =>
   ).length > 0;
 
 const signInButton = () => byLabel('Sign In');
+
+// One option of each Iraq War decision; the decision screen shows no
+// question text (Figma), so the options identify the decision on screen.
+const DECISION_1 = 'Wait for Signal from Moscow';
+const DECISION_2 = 'Launch the invasion with a coalition of willing allies';
 
 const video = () =>
   root.findAll(
@@ -252,29 +258,34 @@ test('Home lists both scenarios active until one is completed', async () => {
   });
   // Video phase: the clip and Back only; nothing moves on until it ends.
   expect(video()).toHaveLength(1);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war']);
   expect(top('Skip video')).toBeUndefined();
-  expect(hasText('Decision 1 of 2')).toBe(false);
+  expect(hasText(DECISION_1)).toBe(false);
   await wait(30000);
-  expect(hasText('Decision 1 of 2')).toBe(false);
+  expect(hasText(DECISION_1)).toBe(false);
   await endVideo();
-  expect(hasText('Decision 1 of 2')).toBe(true);
-  expect(
-    hasText('Share the uncertainty openly with Congress and the public'),
-  ).toBe(true);
-  await act(async () => {
-    top('Accept the dossier and prepare for military action').props.onPress();
-  });
-  // The picked card glows, then the next decision fades in; the clip
-  // played once and is gone after the cross-fade.
-  await wait(SELECT_HOLD_MS + 600);
-  expect(hasText('Decision 2 of 2')).toBe(true);
+  expect(hasText(DECISION_1)).toBe(true);
+  expect(hasText('Signal US Ships with Sonar')).toBe(true);
+  // The intro clip is gone after the cross-fade.
+  await wait(1300);
   expect(video()).toHaveLength(0);
   await act(async () => {
-    top(
-      'Launch the invasion with a coalition of willing allies',
-    ).props.onPress();
+    top(DECISION_1).props.onPress();
   });
-  await wait(SELECT_HOLD_MS + 100);
+  // The picked card glows, then its consequence clip plays; the next
+  // question waits for the clip to end.
+  await wait(SELECT_HOLD_MS + 1200);
+  expect(video()).toHaveLength(1);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
+  expect(hasText(DECISION_2)).toBe(false);
+  await endVideo();
+  expect(hasText(DECISION_2)).toBe(true);
+  await act(async () => {
+    top(DECISION_2).props.onPress();
+  });
+  await wait(SELECT_HOLD_MS + 1200);
+  expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(false);
+  await endVideo();
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
 
   await act(async () => {
@@ -305,11 +316,14 @@ test('running out of decision time moves on to the next decision', async () => {
     byLabel('Start Simulation').props.onPress();
   });
   await endVideo();
-  expect(hasText('Decision 1 of 2')).toBe(true);
-  // Cross-fade, then the full 15 s window, then the step fade.
-  await wait(1200 + 15000 + 400);
-  expect(hasText('Decision 1 of 2')).toBe(false);
-  expect(hasText('Decision 2 of 2')).toBe(true);
+  expect(hasText(DECISION_1)).toBe(true);
+  // Cross-fade, the full 15 s window, then the decision's clip fades in.
+  await wait(1200 + 15000 + 1300);
+  expect(hasText(DECISION_1)).toBe(false);
+  expect(video()).toHaveLength(1);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
+  await endVideo();
+  expect(hasText(DECISION_2)).toBe(true);
 });
 
 test('cards after the first show a coming soon alert and stay on Home', async () => {

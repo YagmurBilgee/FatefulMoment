@@ -71,6 +71,8 @@ export interface DecisionOption {
   id: string;
   label: string;
   impact: DnaImpact;
+  /** Consequence clip for this choice; overrides the decision's clip. */
+  outcomeVideo?: string;
 }
 
 export interface DecisionNode {
@@ -80,6 +82,12 @@ export interface DecisionNode {
   situation: string;
   prompt: string;
   options: DecisionOption[];
+  /**
+   * Consequence clip played after this decision (or when its time runs
+   * out) before the next decision appears. Without one the next decision
+   * follows directly.
+   */
+  outcomeVideo?: string;
 }
 
 /**
@@ -100,6 +108,8 @@ export interface Scenario {
   briefing: string;
   /** `false` keeps the card listed with its Start button disabled. */
   playable: boolean;
+  /** Clip played after Start Simulation, before the first decision. */
+  introVideo?: string;
   decisions: DecisionNode[];
 }
 
@@ -116,6 +126,7 @@ const IRAQ_WAR: Scenario = {
     'The evidence is disputed, allies are divided and the UN inspectors ' +
     'have asked for more time. The decision is yours.',
   playable: true,
+  introVideo: 'iraq-war',
   decisions: [
     {
       id: 'intelligence',
@@ -124,31 +135,39 @@ const IRAQ_WAR: Scenario = {
         'Your advisers present the intelligence as conclusive, but analysts ' +
         'inside the agencies say key sources are unverified.',
       prompt: 'How do you treat the intelligence?',
+      // Consequence scene; the same clip follows every option for now.
+      outcomeVideo: 'iraq-war-2',
+      // Option copy is verbatim from the Figma decision frame, in row
+      // order (1 left, 1 right, 2 left, 2 right, 3). Impacts are
+      // placeholders.
       options: [
         {
-          id: 'act-on-it',
-          label: 'Accept the dossier and prepare for military action',
-          impact: { courage: 10, risk: 15, ethics: -10, control: 5 },
+          id: 'naval-quarantine',
+          label:
+            "Deniz Karantinası: Küba'yı kuşatıp Sovyet gemilerini engelleyerek gizli pazarlık yürütmek.",
+          impact: { control: 10, courage: 5, risk: 5, ethics: 5 },
         },
         {
-          id: 'verify',
-          label: 'Order an independent review of the sources before deciding',
-          impact: { ethics: 10, control: 10, courage: -5 },
+          id: 'wait-for-moscow',
+          label: 'Wait for Signal from Moscow',
+          impact: { empathy: 5, courage: -10, risk: -5 },
         },
         {
-          id: 'go-public',
-          label: 'Share the uncertainty openly with Congress and the public',
-          impact: { ethics: 15, empathy: 5, control: -10 },
+          id: 'launch-on-schedule',
+          label:
+            'Zaman Baskısına Uyum: Siyasi ve medya baskısı nedeniyle risklere rağmen belirlenen takvimde fırlatmayı başlat.',
+          impact: { courage: 10, risk: 15, ethics: -10 },
         },
         {
-          id: 'leak-doubts',
-          label: "Quietly leak the analysts' doubts to slow the rush to war",
-          impact: { ethics: 5, risk: 10, control: -15 },
+          id: 'sonar-signal',
+          label: 'Signal US Ships with Sonar',
+          impact: { control: 5, risk: 5, vision: 5 },
         },
         {
-          id: 'defer',
-          label: 'Let the National Security Council decide and back their call',
-          impact: { empathy: 5, courage: -10, control: -10 },
+          // Same copy as the card above in Figma.
+          id: 'sonar-signal-2',
+          label: 'Signal US Ships with Sonar',
+          impact: { control: 5, risk: 5, vision: 5 },
         },
       ],
     },
@@ -159,6 +178,7 @@ const IRAQ_WAR: Scenario = {
         'The UN Security Council is split. Inspectors want months; your ' +
         'military commanders say the window for action is closing.',
       prompt: 'What is your next move?',
+      outcomeVideo: 'iraq-war-2',
       options: [
         {
           id: 'invade',
