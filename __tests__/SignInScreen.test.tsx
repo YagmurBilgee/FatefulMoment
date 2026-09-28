@@ -130,9 +130,48 @@ test('mock credentials open Scenarios, and Sign Out returns to Welcome', async (
     byLabel('Open menu').props.onPress();
   });
   await act(async () => {
+    byLabel('SETTINGS').props.onPress();
+  });
+  await act(async () => {
     byLabel('Sign Out').props.onPress();
   });
   expect(hasText('Sign in to continue your journey')).toBe(true);
+});
+
+test('drawer opens DNA and returns to Scenarios', async () => {
+  await openSignIn();
+  await type('Email address', MOCK_USER.email);
+  await type('Password', MOCK_USER.password);
+  await submit();
+  // Stacked screens stay mounted; the top screen renders last.
+  const top = (label: string) => {
+    const matches = root.findAll(
+      n => n.props.accessibilityLabel === label && n.props.onPress,
+    );
+    return matches[matches.length - 1];
+  };
+  const selected = (label: string) =>
+    top(label).props.accessibilityState.selected;
+
+  await act(async () => {
+    top('Open menu').props.onPress();
+  });
+  expect(selected('SCENARIOS')).toBe(true);
+  expect(selected('DNA')).toBe(false);
+  await act(async () => {
+    top('DNA').props.onPress();
+  });
+  expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
+
+  await act(async () => {
+    top('Open menu').props.onPress();
+  });
+  expect(selected('DNA')).toBe(true);
+  await act(async () => {
+    top('SCENARIOS').props.onPress();
+  });
+  expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(false);
+  expect(hasText('Scenarios')).toBe(true);
 });
 
 test('password visibility toggles', async () => {

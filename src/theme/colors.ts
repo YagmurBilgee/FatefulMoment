@@ -46,4 +46,12 @@ export const colors = {
   cardTitle: '#F8FAFC', // [Figma] category card title
   marqueeText: '#F1F5F9', // [Figma] audio pill marquee
   standbyText: 'rgba(0, 211, 243, 0.8)', // [Figma] #00D3F3CC, "STANDBY"
+
+  // Navigation drawer, from Figma inspect
+  drawerBackground: 'rgba(2, 6, 24, 0.95)', // [Figma] #020618F2
+  drawerBorder: '#1D293D', // [Figma] right edge
+  drawerBackdrop: 'rgba(0, 0, 0, 0.6)', // [Unverified] outside scrim
+  drawerItemFill: 'rgba(15, 23, 43, 0.4)', // [Figma] #0F172B66
+  drawerItemBorder: 'rgba(0, 184, 219, 0.3)', // [Figma] #00B8DB4D, top edge
+  drawerItemActiveFill: 'rgba(0, 184, 219, 0.1)', // [Figma] #00B8DB1A
 } as const;

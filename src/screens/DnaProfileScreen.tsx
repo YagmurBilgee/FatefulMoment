@@ -1,12 +1,13 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BackButton } from '../components/BackButton';
 import {
   LandscapeHeader,
   useLandscapePadding,
 } from '../components/LandscapeHeader';
+import { MenuButton } from '../components/MenuButton';
+import { NavigationDrawer } from '../components/NavigationDrawer';
 import {
   BASELINE_DNA,
   DNA_DIMENSIONS,
@@ -73,13 +74,14 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
   const padding = useLandscapePadding();
   const score = route.params.score ?? BASELINE_DNA;
   const columnPadding = { paddingTop: 12, paddingBottom: insets.bottom + 12 };
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <View style={styles.root}>
       <LandscapeHeader
         left={
           <>
-            <BackButton />
+            <MenuButton expanded={menuOpen} onPress={() => setMenuOpen(true)} />
             <Text style={styles.headerTitle} accessibilityRole="header">
               DNA
             </Text>
@@ -162,6 +164,12 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
           </Card>
         </ScrollView>
       </View>
+
+      <NavigationDrawer
+        visible={menuOpen}
+        activeRoute="DNA"
+        onClose={() => setMenuOpen(false)}
+      />
     </View>
   );
 }
