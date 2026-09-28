@@ -49,12 +49,11 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
   const { completedScenarioIds } = useScenarioProgress();
   const { paddingLeft, paddingRight } = useLandscapePadding();
 
-  // Only playable scenarios open the simulation; the rest show feedback
-  // from the Start button or anywhere on the card.
-  const start = (scenario: Scenario) =>
-    scenario.playable
-      ? navigation.navigate('Simulation', { scenarioId: scenario.id })
-      : showComingSoon();
+  // Only the first card opens the simulation. The repeats that fill the
+  // carousel show "coming soon" from Start or anywhere on the card, even
+  // when they repeat a playable scenario.
+  const isPlayable = (scenario: Scenario, index: number) =>
+    index === 0 && scenario.playable;
 
   return (
     <View style={styles.root}>
@@ -90,14 +89,24 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
             paddingRight,
             paddingBottom: SHADOW_SPACE,
           }}
-          renderItem={({ item }) => (
-            <ScenarioCard
-              scenario={item}
-              isCompleted={completedScenarioIds.includes(item.id)}
-              onStart={() => start(item)}
-              onCardPress={item.playable ? undefined : showComingSoon}
-            />
-          )}
+          renderItem={({ item, index }) => {
+            const playable = isPlayable(item, index);
+            return (
+              <ScenarioCard
+                scenario={item}
+                isCompleted={playable && completedScenarioIds.includes(item.id)}
+                onStart={
+                  playable
+                    ? () =>
+                        navigation.navigate('Simulation', {
+                          scenarioId: item.id,
+                        })
+                    : showComingSoon
+                }
+                onCardPress={playable ? undefined : showComingSoon}
+              />
+            );
+          }}
         />
       </ScrollView>
 

@@ -248,7 +248,7 @@ test('Home lists both scenarios active until one is completed', async () => {
   expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(false);
 });
 
-test('Cuban Missile Crisis shows a coming soon alert and stays on Home', async () => {
+test('cards after the first show a coming soon alert and stay on Home', async () => {
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   await openSignIn();
   await type('Email address', MOCK_USER.email);
@@ -266,7 +266,14 @@ test('Cuban Missile Crisis shows a coming soon alert and stays on Home', async (
   await act(async () => {
     first('Cuban Missile Crisis (1962)').props.onPress();
   });
-  expect(alert).toHaveBeenCalledTimes(2);
+  // Card 3 repeats Iraq War but must not open the simulation.
+  const card3 = root.findAll(
+    n => n.props.accessibilityLabel === 'Start Iraq War' && n.props.onPress,
+  )[1];
+  await act(async () => {
+    card3.props.onPress();
+  });
+  expect(alert).toHaveBeenCalledTimes(3);
   expect(alert).toHaveBeenCalledWith(COMING_SOON_TITLE, COMING_SOON_MESSAGE);
   expect(hasText('This scenario is coming soon.')).toBe(false);
   expect(hasText('30 Scenarios')).toBe(true);
