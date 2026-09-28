@@ -54,4 +54,6 @@ export const colors = {
   drawerItemFill: 'rgba(15, 23, 43, 0.4)', // [Figma] #0F172B66
   drawerItemBorder: 'rgba(0, 184, 219, 0.3)', // [Figma] #00B8DB4D, top edge
   drawerItemActiveFill: 'rgba(0, 184, 219, 0.1)', // [Figma] #00B8DB1A
+
+  cardBorder: '#1D293D', // [Figma] scenario card
 } as const;

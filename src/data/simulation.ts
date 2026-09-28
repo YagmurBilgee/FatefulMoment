@@ -2,9 +2,9 @@
  * Local scenario data and the DNA scoring model. There is no backend: all
  * content and scores live here and in component state.
  *
- * Scenario copy is placeholder demo content until the final texts are
- * provided; the Apollo 13 situations follow the real mission, but the
- * option wording and DNA impacts are illustrative.
+ * Card copy (title, duration, description) is from the Figma Home V2 frame.
+ * Briefing, decisions and DNA impacts are illustrative placeholders until
+ * the Simulation Briefing frames are provided.
  */
 
 // ---------------------------------------------------------------------------
@@ -67,19 +67,6 @@ export function applyImpacts(base: DnaScore, impacts: DnaImpact[]): DnaScore {
 // Scenario content
 // ---------------------------------------------------------------------------
 
-export type CategoryId =
-  | 'history-war'
-  | 'business-world'
-  | 'crisis-security'
-  | 'science';
-
-export interface Category {
-  id: CategoryId;
-  title: string;
-  /** Figma card copy; a design figure, not a count of local scenarios. */
-  scenarioCountLabel: string;
-}
-
 export interface DecisionOption {
   id: string;
   label: string;
@@ -97,148 +84,99 @@ export interface DecisionNode {
 
 export interface Scenario {
   id: string;
-  categoryId: CategoryId;
   title: string;
+  /** Estimated play time shown on the card, e.g. "1:37 min". */
+  duration: string;
+  /** Teaser on the scenario card. */
+  description: string;
   /** The player's role in the scenario. */
   role: string;
-  /** One-line teaser on the scenario card. */
-  summary: string;
-  /** Estimated play time shown on the card, e.g. "1:30 min". */
-  duration?: string;
   briefing: string;
-  /** `false` renders the card as "Coming Soon". */
+  /** `false` keeps the card listed with its Start button disabled. */
   playable: boolean;
   decisions: DecisionNode[];
 }
 
-export const CATEGORIES: Category[] = [
-  {
-    id: 'history-war',
-    title: 'History & War',
-    scenarioCountLabel: '2 Scenarios',
-  },
-  {
-    id: 'business-world',
-    title: 'Business World',
-    scenarioCountLabel: '4 Scenarios',
-  },
-  {
-    id: 'crisis-security',
-    title: 'Crisis & Security',
-    scenarioCountLabel: '6 Scenarios',
-  },
-  { id: 'science', title: 'Science', scenarioCountLabel: '12 Scenarios' },
-];
-
-const APOLLO_13: Scenario = {
-  id: 'apollo-13',
-  // Shown under History & War, the only open category in the demo.
-  categoryId: 'history-war',
-  title: 'Apollo 13',
-  role: 'Flight Director, Mission Control',
-  summary:
-    '1970. Oxygen tank explosion in deep space. Bring three astronauts home alive.',
-  duration: '1:30 min',
+const IRAQ_WAR: Scenario = {
+  id: 'iraq-war',
+  title: 'Iraq War',
+  duration: '1:37 min',
+  description:
+    '2003. The Chemical Weapon Allegations Are On Your Desk. Your Decision ' +
+    'Will Determine The Fate Of Millions.',
+  role: 'President of the United States',
   briefing:
-    'April 1970. Apollo 13 is on its way to the Moon when an oxygen tank ' +
-    'in the Service Module fails. Three astronauts are 200,000 miles from ' +
-    'Earth and every call you make from Houston matters.',
+    'March 2003. Intelligence reports claim Iraq holds chemical weapons. ' +
+    'The evidence is disputed, allies are divided and the UN inspectors ' +
+    'have asked for more time. The decision is yours.',
   playable: true,
   decisions: [
     {
-      id: 'power-loss',
-      title: 'Houston, we have a problem',
+      id: 'intelligence',
+      title: 'The dossier',
       situation:
-        'Oxygen is venting into space and the Command Module fuel cells are ' +
-        'dying. The crew is waiting for instructions.',
-      prompt: 'How do you keep the crew alive?',
+        'Your advisers present the intelligence as conclusive, but analysts ' +
+        'inside the agencies say key sources are unverified.',
+      prompt: 'How do you treat the intelligence?',
       options: [
         {
-          id: 'lifeboat',
-          label:
-            'Power down the Command Module and use the Lunar Module as a lifeboat',
-          impact: { vision: 10, control: 10, courage: 5 },
+          id: 'act-on-it',
+          label: 'Accept the dossier and prepare for military action',
+          impact: { courage: 10, risk: 15, ethics: -10, control: 5 },
         },
         {
-          id: 'direct-abort',
-          label: 'Fire the main engine now for an immediate direct abort',
-          impact: { courage: 10, risk: 15, control: -10, vision: -5 },
+          id: 'verify',
+          label: 'Order an independent review of the sources before deciding',
+          impact: { ethics: 10, control: 10, courage: -5 },
         },
         {
-          id: 'restore-cells',
-          label: 'Keep troubleshooting the fuel cells before committing',
-          impact: { control: 5, vision: -10, courage: -5, risk: -5 },
+          id: 'go-public',
+          label: 'Share the uncertainty openly with Congress and the public',
+          impact: { ethics: 15, empathy: 5, control: -10 },
         },
       ],
     },
     {
-      id: 'co2-scrubbers',
-      title: 'The air is running out',
+      id: 'deadline',
+      title: 'The deadline',
       situation:
-        'Carbon dioxide is building up in the Lunar Module. The square ' +
-        'Command Module filters do not fit its round sockets.',
-      prompt: 'What do you tell the crew?',
+        'The UN Security Council is split. Inspectors want months; your ' +
+        'military commanders say the window for action is closing.',
+      prompt: 'What is your next move?',
       options: [
         {
-          id: 'improvise-adapter',
-          label:
-            'Have engineers build an adapter from onboard items and talk the crew through it',
-          impact: { vision: 10, empathy: 10, control: 5, courage: 5 },
+          id: 'invade',
+          label: 'Launch the invasion with a coalition of willing allies',
+          impact: { vision: 10, courage: 10, risk: 15, empathy: -10 },
         },
         {
-          id: 'share-the-truth',
-          label:
-            'Tell the crew the full situation and ration activity while a fix is found',
-          impact: { ethics: 15, empathy: 5, control: -5 },
+          id: 'extend-inspections',
+          label: 'Give the inspectors more time and keep pressure on Iraq',
+          impact: { empathy: 10, ethics: 10, risk: -10, vision: -5 },
         },
         {
-          id: 'return-to-cm',
-          label:
-            'Move the crew back to the cold Command Module for fresh filters',
-          impact: { risk: 10, courage: 5, empathy: -10, control: -5 },
+          id: 'seek-resolution',
+          label: 'Push for a second UN resolution before any action',
+          impact: { control: 10, ethics: 5, courage: -5 },
         },
       ],
     },
   ],
 };
 
-/** Listed but not playable yet ("Soon"). */
-const upcoming = (
-  id: string,
-  categoryId: CategoryId,
-  title: string,
-): Scenario => ({
-  id,
-  categoryId,
-  title,
-  role: '',
-  summary: '',
+const CUBAN_MISSILE_CRISIS: Scenario = {
+  id: 'cuban-missile-crisis',
+  title: 'Cuban Missile Crisis (1962)',
+  duration: '1:25 min',
+  description:
+    "A World On The Brink Of Nuclear Annihilation. You Are In Kennedy's Seat.",
+  role: 'President of the United States',
   briefing: '',
   playable: false,
   decisions: [],
-});
+};
 
-/** One placeholder per remaining category until more scenarios exist. */
-const comingSoon = (categoryId: CategoryId): Scenario =>
-  upcoming(`${categoryId}-coming-soon`, categoryId, 'Coming Soon');
-
-export const SCENARIOS: Scenario[] = [
-  APOLLO_13,
-  upcoming('cuban-missile-crisis', 'history-war', 'Cuban Missile Crisis'),
-  upcoming('iraq-war', 'history-war', 'Iraq War'),
-  comingSoon('business-world'),
-  comingSoon('crisis-security'),
-  comingSoon('science'),
-];
-
-export function scenariosIn(categoryId: CategoryId): Scenario[] {
-  return SCENARIOS.filter(scenario => scenario.categoryId === categoryId);
-}
-
-/** A category opens only when it has at least one playable scenario. */
-export function isCategoryAvailable(categoryId: CategoryId): boolean {
-  return scenariosIn(categoryId).some(scenario => scenario.playable);
-}
+export const SCENARIOS: Scenario[] = [IRAQ_WAR, CUBAN_MISSILE_CRISIS];
 
 export function findScenario(id: string): Scenario | undefined {
   return SCENARIOS.find(scenario => scenario.id === id);

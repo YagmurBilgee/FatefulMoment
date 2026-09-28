@@ -5,9 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { AudioStatusPill } from './AudioStatusPill';
 
-// Measured from the landscape container frame (1.png): the separator sits
-// 47pt below the top edge and spans the full width.
-const BAR_HEIGHT = 47;
+// The 48pt audio pill (Figma) fills the bar, so its bottom edge sits flush
+// on the full-width separator. Was 47pt, measured from 1.png.
+const BAR_HEIGHT = 48;
 export const LANDSCAPE_SIDE_PADDING = 24;
 
 /** Horizontal padding for landscape screens: 24pt, or more beside a notch. */

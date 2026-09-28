@@ -189,3 +189,30 @@ test('password visibility toggles', async () => {
   expect(secure()).toBe(false);
   expect(() => byLabel('Hide password')).not.toThrow();
 });
+
+test('Home lists Iraq War and Cuban Missile Crisis; only Iraq War starts', async () => {
+  await openSignIn();
+  await type('Email address', MOCK_USER.email);
+  await type('Password', MOCK_USER.password);
+  await submit();
+  expect(hasText('Iraq War')).toBe(true);
+  expect(hasText('Cuban Missile Crisis (1962)')).toBe(true);
+  expect(hasText('1:37 min')).toBe(true);
+  expect(hasText('1:25 min')).toBe(true);
+  expect(hasText('Apollo 13')).toBe(false);
+
+  // The carousel repeats each card, so take the first of each.
+  const startButton = (title: string) =>
+    root.findAll(
+      n => n.props.accessibilityLabel === `Start ${title}` && n.props.onPress,
+    )[0];
+  expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(true);
+  expect(startButton('Iraq War').props.disabled).toBe(false);
+
+  await act(async () => {
+    startButton('Iraq War').props.onPress();
+  });
+  expect(hasText('President of the United States · Decision 1 of 2')).toBe(
+    true,
+  );
+});

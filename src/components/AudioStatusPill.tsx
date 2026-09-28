@@ -5,7 +5,15 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts, monoFont } from '../theme/typography';
 
 const MARQUEE_TEXT = 'THIS IS THE FATEFUL MOMENT...';
-const MARQUEE_WIDTH = 150; // est.
+
+// Figma inspect: 289×48 with the default 24pt screen margin inside on the
+// right. A wider margin (notch) widens the pill instead of squeezing it.
+const PILL_WIDTH = 289;
+const PILL_HEIGHT = 48;
+const PILL_PADDING_LEFT = 16; // est.
+const DEFAULT_EDGE_PADDING = 24;
+const GAP = 12; // est.
+const PLAYLIST_ICON = 13.98; // Figma
 const MARQUEE_SPEED = 30; // pt per second
 // Room for the text to lay out at its natural width; only the visible
 // MARQUEE_WIDTH window is shown, so this just has to exceed the text.
@@ -20,6 +28,16 @@ const icons = {
   play: require('../assets/images/icon-player-play.png'),
 };
 const PLAY_RING = 32;
+
+// The marquee takes whatever the pill has left after the fixed items.
+const MARQUEE_WIDTH =
+  PILL_WIDTH -
+  PILL_PADDING_LEFT -
+  DEFAULT_EDGE_PADDING -
+  (48 / 3) * 2 - // prev + next
+  PLAY_RING -
+  PLAYLIST_ICON -
+  GAP * 4;
 
 /** Scrolls its text from right to left forever (native driver). */
 function Marquee({ text }: { text: string }) {
@@ -63,7 +81,7 @@ function Marquee({ text }: { text: string }) {
 
 /**
  * Top-right audio / status pill of the landscape header. Playback is not
- * implemented; the controls are visual only. Pill sizes are estimates.
+ * implemented; the controls are visual only.
  */
 type AudioStatusPillProps = {
   /**
@@ -76,7 +94,13 @@ type AudioStatusPillProps = {
 export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
   return (
     <View
-      style={[styles.pill, { paddingRight: edgePadding }]}
+      style={[
+        styles.pill,
+        {
+          width: PILL_WIDTH - DEFAULT_EDGE_PADDING + edgePadding,
+          paddingRight: edgePadding,
+        },
+      ]}
       accessible
       accessibilityLabel={`Standby. ${MARQUEE_TEXT}`}
     >
@@ -90,26 +114,28 @@ export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
         <Text style={styles.status}>STANDBY</Text>
         <Marquee text={MARQUEE_TEXT} />
       </View>
-      <View style={styles.playlistButton}>
-        <Image source={icons.playlist} style={styles.playlist} />
-      </View>
+      <Image
+        source={icons.playlist}
+        resizeMode="contain"
+        style={styles.playlist}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   pill: {
-    height: 40, // est.
-    paddingLeft: 16,
+    height: PILL_HEIGHT,
+    paddingLeft: PILL_PADDING_LEFT,
     // Rounded on the left only; the right side is square and touches the
-    // screen edge. RN caps each radius at half the height (20pt here).
-    borderTopLeftRadius: 24,
-    borderBottomLeftRadius: 24,
+    // screen edge.
+    borderTopLeftRadius: PILL_HEIGHT / 2,
+    borderBottomLeftRadius: PILL_HEIGHT / 2,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: GAP,
     backgroundColor: colors.secondaryButtonFill,
   },
   skip: {
@@ -127,17 +153,9 @@ const styles = StyleSheet.create({
     width: 186 / 3,
     height: 165 / 3,
   },
-  playlistButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.divider, // est.
-  },
   playlist: {
-    width: 42 / 3,
-    height: 42 / 3,
+    width: PLAYLIST_ICON,
+    height: PLAYLIST_ICON,
   },
   texts: {
     gap: 2, // est.

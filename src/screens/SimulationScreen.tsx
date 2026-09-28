@@ -56,7 +56,7 @@ function OptionCard({
  * Landscape simulation: briefing and the current decision on the left, its
  * options on the right. Both columns scroll on their own if a device is too
  * short, so nothing is clipped. After the last decision the DNA profile
- * replaces this screen, so Back from the profile returns to the category.
+ * replaces this screen, so Back from the profile returns to Scenarios.
  *
  * Layout values are estimates until the simulation Figma frame is provided.
  */

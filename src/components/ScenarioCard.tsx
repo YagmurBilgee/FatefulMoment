@@ -1,16 +1,29 @@
 import React from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import type { Scenario } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 import { usePressScale } from './usePressScale';
 
-// Same Figma tokens as the category cards.
+// Figma card tokens.
 const CARD_WIDTH = 220;
 const CARD_HEIGHT = 176;
 const CARD_RADIUS = 16;
-const DISABLED_OPACITY = 0.35;
+const CARD_PADDING = 14;
+
+/*
+ * Pending: the White House night artwork from Figma is not exported yet, so
+ * every card uses the History & War export (@3x, 660×528) for now.
+ */
+const cardImage = require('../assets/images/card-history-war.png');
 
 /*
  * Pending: stopwatch icon asset from Figma. The "⏱" emoji would render in
@@ -60,67 +73,85 @@ type ScenarioCardProps = {
 };
 
 /**
- * Scenario card in a category carousel. Unplayable scenarios are dimmed,
- * tagged "Soon" and their Start button is disabled. Inner spacing and type
- * sizes are estimates.
+ * Scenario card in the Home carousel: background artwork under a dark
+ * overlay, duration at the top, title and description in the middle and a
+ * Start pill bottom-right that is only enabled for playable scenarios.
+ * Spacing inside the card is estimated.
  */
 export function ScenarioCard({ scenario, onStart }: ScenarioCardProps) {
-  const { playable } = scenario;
   return (
-    <View style={[styles.card, playable ? styles.active : styles.locked]}>
-      {playable && scenario.duration ? (
+    // The shadow sits on an outer view: the card clips to its radius, which
+    // would otherwise clip the shadow too.
+    <View style={styles.shadow}>
+      <View style={styles.card}>
+        {/* ImageBackground is deprecated in RN 0.87; an absolute Image with
+          cover does the same. */}
+        <Image source={cardImage} resizeMode="cover" style={styles.image} />
+        <View style={styles.overlay} />
+
         <View style={styles.tag}>
           <ClockIcon />
           <Text style={styles.duration}>{scenario.duration}</Text>
         </View>
-      ) : (
-        <View style={[styles.tag, styles.soon]}>
-          <Text style={styles.soonText}>Soon</Text>
+
+        <View style={styles.body}>
+          <Text
+            style={styles.title}
+            numberOfLines={2}
+            accessibilityRole="header"
+          >
+            {scenario.title}
+          </Text>
+          <Text style={styles.description} numberOfLines={3}>
+            {scenario.description}
+          </Text>
         </View>
-      )}
 
-      <Text style={styles.title} numberOfLines={1} accessibilityRole="header">
-        {scenario.title}
-      </Text>
-      {scenario.summary ? (
-        <Text style={styles.summary} numberOfLines={3}>
-          {scenario.summary}
-        </Text>
-      ) : null}
-
-      <StartButton
-        scenarioTitle={scenario.title}
-        disabled={!playable}
-        onPress={onStart}
-      />
+        <StartButton
+          scenarioTitle={scenario.title}
+          disabled={!scenario.playable}
+          onPress={onStart}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shadow: {
+    borderRadius: CARD_RADIUS,
+    // Figma drop shadows.
+    boxShadow:
+      '0px 8px 10px -6px rgba(0, 0, 0, 0.1), 0px 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  },
   card: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
     borderRadius: CARD_RADIUS,
     borderWidth: 1,
-    padding: 16, // est.
+    borderColor: colors.cardBorder,
     overflow: 'hidden',
+    padding: CARD_PADDING,
+    justifyContent: 'space-between',
+    backgroundColor: colors.secondaryButtonFill, // shown while the image loads
   },
-  active: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryButtonFill,
+  image: {
+    // Explicit size: an absolute Image with only edge offsets keeps its
+    // intrinsic pixel size on Android instead of filling the card.
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
   },
-  locked: {
-    opacity: DISABLED_OPACITY,
-    borderColor: colors.placeholder,
-    backgroundColor: colors.secondaryButtonFill,
+  overlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(2, 6, 24, 0.35)', // background @ 35%
   },
   tag: {
-    alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    height: 16,
+    gap: 6, // est.
   },
   clock: {
     width: 12,
@@ -139,58 +170,52 @@ const styles = StyleSheet.create({
   duration: {
     ...androidTextFix,
     color: colors.primary,
-    fontFamily: fonts.medium, // est.
+    fontFamily: fonts.bold,
     fontSize: 12,
     lineHeight: 16,
   },
-  soon: {
-    paddingHorizontal: 8,
-    borderRadius: 999,
-    backgroundColor: colors.placeholder,
-  },
-  soonText: {
-    ...androidTextFix,
-    color: colors.white,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 11,
-    lineHeight: 16,
+  body: {
+    // Keeps the last description line clear of the Start pill.
+    marginBottom: 32, // est.
+    gap: 4, // est.
   },
   title: {
     ...androidTextFix,
-    marginTop: 8, // est.
     color: colors.white,
-    fontFamily: fonts.bold, // est.
-    fontSize: 18,
-    lineHeight: 24,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    lineHeight: 18, // est.
   },
-  summary: {
+  description: {
     ...androidTextFix,
-    marginTop: 4, // est.
-    color: colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.7)', // est. — muted white
     fontFamily: fonts.regular, // est.
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 14, // est.
   },
   startWrap: {
     position: 'absolute',
-    right: 16, // est.
-    bottom: 16,
+    right: CARD_PADDING,
+    bottom: CARD_PADDING,
   },
   start: {
-    height: 28, // est.
-    paddingHorizontal: 16,
-    borderRadius: 14,
+    height: 26, // est.
+    paddingHorizontal: 14, // est.
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: colors.primary,
     justifyContent: 'center',
     backgroundColor: colors.primary,
   },
   startDisabled: {
-    backgroundColor: colors.placeholder,
+    borderColor: colors.placeholder,
+    backgroundColor: 'rgba(98, 116, 142, 0.35)', // placeholder @ 35%, est.
   },
   startLabel: {
     ...androidTextFix,
     color: colors.background,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 13,
+    fontFamily: fonts.bold,
+    fontSize: 12,
     lineHeight: 16,
   },
   startLabelOff: {
