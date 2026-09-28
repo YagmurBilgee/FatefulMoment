@@ -82,6 +82,12 @@ export interface DecisionNode {
   options: DecisionOption[];
 }
 
+/**
+ * Applied when the decision timer runs out: hesitating under pressure is
+ * scored as a choice of its own.
+ */
+export const TIMEOUT_IMPACT: DnaImpact = { courage: -10, control: -10 };
+
 export interface Scenario {
   id: string;
   title: string;
@@ -134,6 +140,16 @@ const IRAQ_WAR: Scenario = {
           label: 'Share the uncertainty openly with Congress and the public',
           impact: { ethics: 15, empathy: 5, control: -10 },
         },
+        {
+          id: 'leak-doubts',
+          label: "Quietly leak the analysts' doubts to slow the rush to war",
+          impact: { ethics: 5, risk: 10, control: -15 },
+        },
+        {
+          id: 'defer',
+          label: 'Let the National Security Council decide and back their call',
+          impact: { empathy: 5, courage: -10, control: -10 },
+        },
       ],
     },
     {
@@ -158,6 +174,16 @@ const IRAQ_WAR: Scenario = {
           id: 'seek-resolution',
           label: 'Push for a second UN resolution before any action',
           impact: { control: 10, ethics: 5, courage: -5 },
+        },
+        {
+          id: 'targeted-strikes',
+          label: 'Order limited air strikes on the suspected weapon sites',
+          impact: { courage: 5, risk: 10, control: 5, empathy: -5 },
+        },
+        {
+          id: 'back-channel',
+          label: 'Open a secret back channel to negotiate with Baghdad',
+          impact: { vision: 10, empathy: 5, risk: 5, control: -5 },
         },
       ],
     },

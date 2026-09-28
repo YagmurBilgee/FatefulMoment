@@ -13,6 +13,7 @@ import {
   COMING_SOON_TITLE,
 } from '../src/screens/ScenariosScreen';
 import { WRONG_PASSWORD_MESSAGE } from '../src/screens/SignInScreen';
+import { SELECT_HOLD_MS } from '../src/screens/SimulationScreen';
 import { INVALID_EMAIL_MESSAGE } from '../src/utils/validation';
 
 const { act } = ReactTestRenderer;
@@ -36,6 +37,27 @@ const hasText = (text: string) =>
   ).length > 0;
 
 const signInButton = () => byLabel('Sign In');
+
+const video = () =>
+  root.findAll(
+    n =>
+      typeof n.type === 'string' &&
+      n.props.testID === 'scenario-video' &&
+      n.props.onEnd,
+  );
+
+/** Plays the (mocked) scenario clip to its end. */
+const endVideo = () =>
+  act(async () => {
+    video()[0].props.onEnd();
+  });
+
+// Runs the (fake) clock forward so animations and timeouts such as the
+// card glow hold and the step fades finish.
+const wait = (ms: number) =>
+  act(async () => {
+    jest.advanceTimersByTime(ms);
+  });
 
 async function openSignIn() {
   await act(async () => {
@@ -228,17 +250,31 @@ test('Home lists both scenarios active until one is completed', async () => {
   await act(async () => {
     byLabel('Start Simulation').props.onPress();
   });
-  expect(hasText('President of the United States · Decision 1 of 2')).toBe(
-    true,
-  );
+  // Video phase: the clip and Back only; nothing moves on until it ends.
+  expect(video()).toHaveLength(1);
+  expect(top('Skip video')).toBeUndefined();
+  expect(hasText('Decision 1 of 2')).toBe(false);
+  await wait(30000);
+  expect(hasText('Decision 1 of 2')).toBe(false);
+  await endVideo();
+  expect(hasText('Decision 1 of 2')).toBe(true);
+  expect(
+    hasText('Share the uncertainty openly with Congress and the public'),
+  ).toBe(true);
   await act(async () => {
     top('Accept the dossier and prepare for military action').props.onPress();
   });
+  // The picked card glows, then the next decision fades in; the clip
+  // played once and is gone after the cross-fade.
+  await wait(SELECT_HOLD_MS + 600);
+  expect(hasText('Decision 2 of 2')).toBe(true);
+  expect(video()).toHaveLength(0);
   await act(async () => {
     top(
       'Launch the invasion with a coalition of willing allies',
     ).props.onPress();
   });
+  await wait(SELECT_HOLD_MS + 100);
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
 
   await act(async () => {
@@ -250,6 +286,30 @@ test('Home lists both scenarios active until one is completed', async () => {
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(false);
   expect(startButton('Iraq War').props.disabled).toBe(true);
   expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(false);
+});
+
+test('running out of decision time moves on to the next decision', async () => {
+  await openSignIn();
+  await type('Email address', MOCK_USER.email);
+  await type('Password', MOCK_USER.password);
+  await submit();
+  await act(async () => {
+    // The carousel repeats cards; only the first Iraq War is playable.
+    root
+      .findAll(
+        n => n.props.accessibilityLabel === 'Start Iraq War' && n.props.onPress,
+      )[0]
+      .props.onPress();
+  });
+  await act(async () => {
+    byLabel('Start Simulation').props.onPress();
+  });
+  await endVideo();
+  expect(hasText('Decision 1 of 2')).toBe(true);
+  // Cross-fade, then the full 15 s window, then the step fade.
+  await wait(1200 + 15000 + 400);
+  expect(hasText('Decision 1 of 2')).toBe(false);
+  expect(hasText('Decision 2 of 2')).toBe(true);
 });
 
 test('cards after the first show a coming soon alert and stay on Home', async () => {

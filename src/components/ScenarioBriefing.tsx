@@ -19,8 +19,9 @@ const CARD_MAX_WIDTH = 728;
 const CARD_HEIGHT = 292;
 
 // Figma @3x exports, full landscape frame (2436×1125). Scenarios without
-// one fall back to the plain background.
-const BRIEFING_IMAGES: Record<string, ImageSourcePropType> = {
+// one fall back to the plain background. The simulation reuses them as its
+// scene.
+export const BRIEFING_IMAGES: Record<string, ImageSourcePropType> = {
   'iraq-war': require('../assets/images/briefing-iraq-war.png'),
 };
 

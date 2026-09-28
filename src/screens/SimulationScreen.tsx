@@ -1,12 +1,5 @@
-import React, { useState } from 'react';
-import {
-  Animated,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackButton } from '../components/BackButton';
@@ -14,55 +7,53 @@ import {
   LandscapeHeader,
   useLandscapePadding,
 } from '../components/LandscapeHeader';
-import { ScenarioBriefing } from '../components/ScenarioBriefing';
-import { usePressScale } from '../components/usePressScale';
+import { DecisionCard } from '../components/DecisionCard';
+import {
+  BRIEFING_IMAGES,
+  ScenarioBriefing,
+} from '../components/ScenarioBriefing';
+import { SCENARIO_VIDEOS, ScenarioVideo } from '../components/ScenarioVideo';
+import { TensionTimer, UrgencyVignette } from '../components/TensionTimer';
 import {
   applyImpacts,
   BASELINE_DNA,
-  DecisionOption,
   DnaImpact,
   findScenario,
+  TIMEOUT_IMPACT,
 } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-const COLUMN_GAP = 24; // est.
+/** Video out, decisions in, once the clip has ended. */
+const CROSS_FADE_MS = 1200;
+/** A finished decision fading out before the next one fades in. */
+const STEP_FADE_MS = 300;
+const DECISION_MS = 15000;
+/** How long a picked card glows before the flow moves on. */
+export const SELECT_HOLD_MS = 450;
 
-function OptionCard({
-  option,
-  onPress,
-}: {
-  option: DecisionOption;
-  onPress: () => void;
-}) {
-  const press = usePressScale();
-  return (
-    <Animated.View style={press.style}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={option.label}
-        onPress={onPress}
-        onPressIn={press.onPressIn}
-        onPressOut={press.onPressOut}
-        style={styles.option}
-      >
-        <Text style={styles.optionLabel}>{option.label}</Text>
-      </Pressable>
-    </Animated.View>
-  );
-}
+// Room kept clear at the top for the back button (16 + 40 + 12).
+const TOP_SPACE = 68;
+const GRID_GAP = 12; // est.
+
+type Phase = 'briefing' | 'video' | 'decision';
 
 /**
- * Landscape simulation. It opens on the scenario briefing card; Start
- * Simulation moves on to the decisions (a video phase is not built yet).
- * Decisions show the briefing and the current decision on the left, its
- * options on the right. Both columns scroll on their own if a device is too
- * short, so nothing is clipped. After the last decision the DNA profile
- * replaces this screen, so Back from the profile returns to Scenarios.
+ * Landscape simulation. Phases:
+ * - briefing: the scenario briefing card; Start Simulation plays the video.
+ * - video: the full-screen scenario clip, played to its end, with only the
+ *   back button on top (Figma). When it ends, the video slowly fades out
+ *   while the darkened scene, the decision cards and the timer fade in. A
+ *   scenario without a clip goes straight to the decisions.
+ * - decision: five options (two left, two right, one bottom center) around
+ *   the question, with a 15 s tension timer. Picking a card makes it glow
+ *   for a moment; running out of time scores `TIMEOUT_IMPACT`. Either way
+ *   the next decision fades in, and after the last decision the DNA profile
+ *   replaces this screen, so Back from it returns to Scenarios.
  *
- * Layout values are estimates until the simulation Figma frame is provided.
+ * Decision layout values are estimates until the Figma frame is inspected.
  */
 export function SimulationScreen({
   navigation,
@@ -72,8 +63,30 @@ export function SimulationScreen({
   const padding = useLandscapePadding();
   const scenario = findScenario(route.params.scenarioId);
   const [impacts, setImpacts] = useState<DnaImpact[]>([]);
-  const [phase, setPhase] = useState<'briefing' | 'decisions'>('briefing');
+  const [phase, setPhase] = useState<Phase>('briefing');
+  const [selectedId, setSelectedId] = useState<string>();
+  // The clip stays mounted through the cross-fade, then is released.
+  const [videoMounted, setVideoMounted] = useState(true);
   const { markCompleted } = useScenarioProgress();
+
+  const videoOpacity = useRef(new Animated.Value(1)).current;
+  const decisionOpacity = useRef(new Animated.Value(0)).current;
+  /** Share of the decision window left, 1 → 0. */
+  const remaining = useRef(new Animated.Value(1)).current;
+  const timer = useRef<Animated.CompositeAnimation | null>(null);
+  const holdTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Guards against a double end (end + error) and double decisions (tap +
+  // timeout, or two quick taps).
+  const videoEnded = useRef(false);
+  const decided = useRef(false);
+
+  useEffect(
+    () => () => {
+      timer.current?.stop();
+      clearTimeout(holdTimeout.current);
+    },
+    [],
+  );
 
   const header = (title = '') => (
     <LandscapeHeader
@@ -103,6 +116,90 @@ export function SimulationScreen({
     );
   }
 
+  const step = impacts.length;
+  const decision = scenario.decisions[step];
+  const scene = BRIEFING_IMAGES[scenario.id];
+  const video = SCENARIO_VIDEOS[scenario.id];
+
+  const fadeInDecision = (duration: number) => {
+    decided.current = false;
+    remaining.setValue(1);
+    Animated.timing(decisionOpacity, {
+      toValue: 1,
+      duration,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) {
+        startTimer();
+      }
+    });
+  };
+
+  const commit = (impact: DnaImpact) => {
+    const next = [...impacts, impact];
+    if (next.length === scenario.decisions.length) {
+      markCompleted(scenario.id);
+      navigation.replace('DnaProfile', {
+        score: applyImpacts(BASELINE_DNA, next),
+      });
+      return;
+    }
+    Animated.timing(decisionOpacity, {
+      toValue: 0,
+      duration: STEP_FADE_MS,
+      useNativeDriver: true,
+    }).start(() => {
+      setImpacts(next);
+      setSelectedId(undefined);
+      fadeInDecision(STEP_FADE_MS);
+    });
+  };
+
+  const decide = (impact: DnaImpact, optionId?: string) => {
+    if (decided.current) {
+      return;
+    }
+    decided.current = true;
+    timer.current?.stop();
+    if (!optionId) {
+      commit(impact); // timed out
+      return;
+    }
+    setSelectedId(optionId);
+    holdTimeout.current = setTimeout(() => commit(impact), SELECT_HOLD_MS);
+  };
+
+  const startTimer = () => {
+    timer.current = Animated.timing(remaining, {
+      toValue: 0,
+      duration: DECISION_MS,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    });
+    timer.current.start(({ finished }) => {
+      if (finished) {
+        decide(TIMEOUT_IMPACT);
+      }
+    });
+  };
+
+  const endVideo = () => {
+    if (videoEnded.current) {
+      return;
+    }
+    videoEnded.current = true;
+    decisionOpacity.setValue(0);
+    setPhase('decision');
+    Animated.timing(videoOpacity, {
+      toValue: 0,
+      duration: CROSS_FADE_MS,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start(() => setVideoMounted(false));
+    fadeInDecision(CROSS_FADE_MS);
+  };
+
   if (phase === 'briefing') {
     return (
       <View style={styles.root}>
@@ -110,66 +207,95 @@ export function SimulationScreen({
         <View style={styles.briefingArea}>
           <ScenarioBriefing
             scenario={scenario}
-            onStart={() => setPhase('decisions')}
+            onStart={() =>
+              SCENARIO_VIDEOS[scenario.id] ? setPhase('video') : endVideo()
+            }
           />
         </View>
       </View>
     );
   }
 
-  const step = impacts.length;
-  const decision = scenario.decisions[step];
-
-  const choose = (impact: DnaImpact) => {
-    const next = [...impacts, impact];
-    if (next.length < scenario.decisions.length) {
-      setImpacts(next);
-      return;
+  const card = (index: number) => {
+    const option = decision.options[index];
+    if (!option) {
+      return null;
     }
-    markCompleted(scenario.id);
-    navigation.replace('DnaProfile', {
-      score: applyImpacts(BASELINE_DNA, next),
-    });
+    return (
+      <DecisionCard
+        option={option}
+        selected={selectedId === option.id}
+        dimmed={selectedId !== undefined && selectedId !== option.id}
+        onPress={() => decide(option.impact, option.id)}
+      />
+    );
   };
-
-  const columnPadding = { paddingTop: 20, paddingBottom: insets.bottom + 16 };
 
   return (
     <View style={styles.root}>
-      {header(scenario.title)}
+      {/* The scene the video ends on, left behind once the video fades. */}
+      {scene ? (
+        <Image source={scene} resizeMode="cover" style={styles.scene} />
+      ) : null}
 
-      <View style={[styles.columns, padding]}>
-        <ScrollView
-          style={styles.briefing}
-          contentContainerStyle={[styles.briefingContent, columnPadding]}
-          showsVerticalScrollIndicator={false}
+      {video && videoMounted ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { opacity: videoOpacity }]}
         >
-          <Text style={styles.meta}>
-            {scenario.role} · Decision {step + 1} of {scenario.decisions.length}
-          </Text>
-          {step === 0 ? (
-            <Text style={styles.body}>{scenario.briefing}</Text>
-          ) : null}
-          <Text style={styles.decisionTitle} accessibilityRole="header">
-            {decision.title}
-          </Text>
-          <Text style={styles.body}>{decision.situation}</Text>
-          <Text style={styles.prompt}>{decision.prompt}</Text>
-        </ScrollView>
+          <ScenarioVideo source={video} onEnd={endVideo} />
+        </Animated.View>
+      ) : null}
 
-        <ScrollView
-          style={styles.options}
-          contentContainerStyle={[styles.optionsContent, columnPadding]}
-          showsVerticalScrollIndicator={false}
+      {/* Mounted for the whole decision phase, which includes both fades,
+          so nothing of it is reachable while the video plays. */}
+      {phase === 'decision' ? (
+        <Animated.View
+          pointerEvents="box-none"
+          style={[StyleSheet.absoluteFill, { opacity: decisionOpacity }]}
         >
-          {decision.options.map(option => (
-            <OptionCard
-              key={option.id}
-              option={option}
-              onPress={() => choose(option.impact)}
-            />
-          ))}
-        </ScrollView>
+          <View style={styles.scrim} />
+          <UrgencyVignette remaining={remaining} />
+          <View
+            style={[
+              styles.decision,
+              padding,
+              { paddingTop: insets.top + TOP_SPACE },
+              { paddingBottom: insets.bottom + 12 },
+            ]}
+          >
+            <View style={styles.grid}>
+              <View style={styles.column}>
+                {card(0)}
+                {card(1)}
+              </View>
+              <View style={styles.question}>
+                <Text style={styles.meta}>
+                  Decision {step + 1} of {scenario.decisions.length}
+                </Text>
+                <Text style={styles.decisionTitle} accessibilityRole="header">
+                  {decision.title}
+                </Text>
+                <Text style={styles.prompt}>{decision.prompt}</Text>
+              </View>
+              <View style={styles.column}>
+                {card(2)}
+                {card(3)}
+              </View>
+            </View>
+            <View style={styles.bottomCard}>{card(4)}</View>
+            <TensionTimer remaining={remaining} />
+          </View>
+        </Animated.View>
+      ) : null}
+
+      <View
+        style={[
+          styles.back,
+          { top: insets.top + 16, left: padding.paddingLeft },
+        ]}
+      >
+        <BackButton />
       </View>
     </View>
   );
@@ -199,37 +325,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  columns: {
+  scene: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+  },
+  scrim: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: colors.decisionScrim,
+  },
+  decision: {
     flex: 1,
+    justifyContent: 'flex-end',
+    gap: GRID_GAP,
+  },
+  grid: {
     flexDirection: 'row',
-    gap: COLUMN_GAP,
+    gap: 20, // est.
   },
-  briefing: {
+  column: {
+    width: '30%', // est.
+    gap: GRID_GAP,
+  },
+  question: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
-  briefingContent: {
-    gap: 8,
+  bottomCard: {
+    width: '30%',
+    alignSelf: 'center',
   },
-  options: {
-    flex: 1,
-  },
-  optionsContent: {
-    gap: 12,
+  back: {
+    position: 'absolute',
   },
   meta: {
     ...androidTextFix,
     color: colors.primary,
-    fontFamily: fonts.medium, // est.
-    fontSize: 13,
-    lineHeight: 18,
+    fontFamily: fonts.bold, // est.
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1,
+    textAlign: 'center',
+    textTransform: 'uppercase',
   },
   decisionTitle: {
     ...androidTextFix,
-    marginTop: 4,
     color: colors.white,
     fontFamily: fonts.bold, // est.
     fontSize: 20,
     lineHeight: 25,
+    textAlign: 'center',
   },
   body: {
     ...androidTextFix,
@@ -240,25 +387,10 @@ const styles = StyleSheet.create({
   },
   prompt: {
     ...androidTextFix,
-    marginTop: 4,
-    color: colors.white,
+    color: colors.screenTitle,
     fontFamily: fonts.semiBold, // est.
     fontSize: 15,
     lineHeight: 22,
-  },
-  option: {
-    paddingVertical: 12, // est.
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.primaryButtonBorder,
-    backgroundColor: colors.primaryButtonFill,
-  },
-  optionLabel: {
-    ...androidTextFix,
-    color: colors.white,
-    fontFamily: fonts.regular, // est.
-    fontSize: 14,
-    lineHeight: 20,
+    textAlign: 'center',
   },
 });

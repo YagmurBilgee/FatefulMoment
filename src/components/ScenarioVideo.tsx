@@ -1,0 +1,39 @@
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import Video, { type ReactVideoSource } from 'react-native-video';
+
+/** Local scenario clips. Scenarios without one skip the video phase. */
+export const SCENARIO_VIDEOS: Record<string, ReactVideoSource> = {
+  'iraq-war': { uri: require('../assets/images/iraq-war.mp4') },
+};
+
+type ScenarioVideoProps = {
+  source: ReactVideoSource;
+  /** Called once when the clip has played to the end, or fails to play. */
+  onEnd: () => void;
+};
+
+/**
+ * Full-screen scenario clip. Plays once from start to finish with no
+ * controls; the screen moves on to the decisions from `onEnd`. A clip that
+ * cannot play also ends, so the player is never stuck on a black screen.
+ */
+export function ScenarioVideo({ source, onEnd }: ScenarioVideoProps) {
+  return (
+    <Video
+      source={source}
+      style={styles.video}
+      resizeMode="cover"
+      repeat={false}
+      controls={false}
+      onEnd={onEnd}
+      onError={onEnd}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  video: {
+    ...StyleSheet.absoluteFill,
+  },
+});

@@ -56,4 +56,13 @@ export const colors = {
   drawerItemActiveFill: 'rgba(0, 184, 219, 0.1)', // [Figma] #00B8DB1A
 
   cardBorder: '#1D293D', // [Figma] scenario card
+
+  // Simulation decision phase
+  decisionScrim: 'rgba(2, 6, 24, 0.72)', // [Unverified] darkened scene
+  decisionCardFill: 'rgba(15, 23, 43, 0.72)', // [Unverified]
+  decisionCardBorder: 'rgba(255, 255, 255, 0.12)', // [Unverified]
+  timerStart: '#EAB308', // [Unverified] tension timer at full time (brief)
+  timerMid: '#FF6900', // [Unverified] tension timer halfway (orange)
+  timerEnd: '#FB2C36', // [Unverified] tension timer running out (brief)
+  timerTrack: 'rgba(255, 255, 255, 0.1)', // [Unverified]
 } as const;
