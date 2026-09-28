@@ -15,6 +15,17 @@ export const fonts = {
 } as const;
 
 /**
+ * Secondary face, Bold (Figma token: typography/font-family/font-secondary,
+ * Helvetica Neue). Helvetica Neue ships with iOS; Android has no Helvetica,
+ * so Inter Bold stands in. Weight is baked into the face; do not combine
+ * with fontWeight.
+ */
+export const fontSecondaryBold = Platform.select({
+  ios: 'HelveticaNeue-Bold',
+  default: fonts.bold,
+});
+
+/**
  * Monospace face for small status labels (Figma: Menlo). Menlo ships with
  * iOS; Android falls back to its system monospace font.
  */

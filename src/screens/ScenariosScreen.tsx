@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -9,14 +16,13 @@ import {
 import { MenuButton } from '../components/MenuButton';
 import { NavigationDrawer } from '../components/NavigationDrawer';
 import { ScenarioCard } from '../components/ScenarioCard';
-import { SCENARIOS } from '../data/simulation';
+import { Scenario, SCENARIOS } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
+import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
-import { androidTextFix, fonts } from '../theme/typography';
+import { androidTextFix, fontSecondaryBold, fonts } from '../theme/typography';
 
 const CARD_GAP = 16; // Figma token
-// Figma: the card group starts 66pt from the left screen edge.
-const CAROUSEL_LEFT = 66;
 // Room below the 176pt cards so their drop shadow (20pt offset + 25pt blur
 // - 5pt spread) is not clipped by the list.
 const SHADOW_SPACE = 40;
@@ -27,6 +33,12 @@ const SCENARIO_COUNT_LABEL = '30 Scenarios';
 // Figma Home V2 repeats the two scenarios to fill the carousel.
 const CAROUSEL = [...SCENARIOS, ...SCENARIOS];
 
+export const COMING_SOON_TITLE = 'Yakında Gelecek';
+export const COMING_SOON_MESSAGE = 'Bu senaryo çok yakında eklenecektir.';
+
+const showComingSoon = () =>
+  Alert.alert(COMING_SOON_TITLE, COMING_SOON_MESSAGE);
+
 /**
  * Landscape Scenarios (Home V2) screen: header, then a horizontal carousel
  * of scenario cards. Only Iraq War is playable in the demo.
@@ -34,9 +46,15 @@ const CAROUSEL = [...SCENARIOS, ...SCENARIOS];
 export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
   const insets = useSafeAreaInsets();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { completedScenarioIds } = useScenarioProgress();
   const { paddingLeft, paddingRight } = useLandscapePadding();
-  // Never closer to the edge than the notch-aware screen margin.
-  const carouselLeft = Math.max(paddingLeft, CAROUSEL_LEFT);
+
+  // Only playable scenarios open the simulation; the rest show feedback
+  // from the Start button or anywhere on the card.
+  const start = (scenario: Scenario) =>
+    scenario.playable
+      ? navigation.navigate('Simulation', { scenarioId: scenario.id })
+      : showComingSoon();
 
   return (
     <View style={styles.root}>
@@ -67,16 +85,17 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
             gap: CARD_GAP,
-            paddingLeft: carouselLeft,
+            // Same margin as the title block, so both share one left edge.
+            paddingLeft,
             paddingRight,
             paddingBottom: SHADOW_SPACE,
           }}
           renderItem={({ item }) => (
             <ScenarioCard
               scenario={item}
-              onStart={() =>
-                navigation.navigate('Simulation', { scenarioId: item.id })
-              }
+              isCompleted={completedScenarioIds.includes(item.id)}
+              onStart={() => start(item)}
+              onCardPress={item.playable ? undefined : showComingSoon}
             />
           )}
         />
@@ -111,10 +130,10 @@ const styles = StyleSheet.create({
   subtitle: {
     ...androidTextFix,
     color: colors.primary,
-    fontFamily: fonts.bold, // 700
+    fontFamily: fontSecondaryBold, // Helvetica Neue 700
     fontSize: 12,
     lineHeight: 16,
-    textTransform: 'capitalize',
+    letterSpacing: 0,
     marginBottom: 14,
   },
   count: {

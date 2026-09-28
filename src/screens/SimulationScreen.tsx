@@ -23,6 +23,7 @@ import {
   findScenario,
 } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
+import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
@@ -68,6 +69,7 @@ export function SimulationScreen({
   const padding = useLandscapePadding();
   const scenario = findScenario(route.params.scenarioId);
   const [impacts, setImpacts] = useState<DnaImpact[]>([]);
+  const { markCompleted } = useScenarioProgress();
 
   const header = (title: string) => (
     <LandscapeHeader
@@ -106,6 +108,7 @@ export function SimulationScreen({
       setImpacts(next);
       return;
     }
+    markCompleted(scenario.id);
     navigation.replace('DnaProfile', {
       score: applyImpacts(BASELINE_DNA, next),
     });

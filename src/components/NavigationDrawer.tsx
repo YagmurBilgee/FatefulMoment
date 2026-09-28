@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
@@ -126,6 +127,7 @@ export function NavigationDrawer({
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
+  const { resetProgress } = useScenarioProgress();
   const progress = useRef(new Animated.Value(visible ? 1 : 0)).current;
   // Stays mounted until the close animation has finished.
   const [mounted, setMounted] = useState(visible);
@@ -199,6 +201,7 @@ export function NavigationDrawer({
 
   const signOut = () => {
     onClose();
+    resetProgress();
     navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
   };
 

@@ -13,7 +13,9 @@ const PILL_HEIGHT = 48;
 const PILL_PADDING_LEFT = 16; // est.
 const DEFAULT_EDGE_PADDING = 24;
 const GAP = 12; // est.
-const PLAYLIST_ICON = 13.98; // Figma
+// Figma has 13.98pt; enlarged to match the hamburger icon's visual weight.
+// The export is 42px (14pt @3x), so it is upscaled slightly.
+const PLAYLIST_ICON = 20;
 const MARQUEE_SPEED = 30; // pt per second
 // Room for the text to lay out at its natural width; only the visible
 // MARQUEE_WIDTH window is shown, so this just has to exceed the text.

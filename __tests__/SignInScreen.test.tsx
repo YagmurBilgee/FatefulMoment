@@ -3,10 +3,15 @@
  */
 
 import React from 'react';
+import { Alert } from 'react-native';
 import ReactTestRenderer, { ReactTestInstance } from 'react-test-renderer';
 
 import App from '../App';
 import { MOCK_USER } from '../src/services/mockAuth';
+import {
+  COMING_SOON_MESSAGE,
+  COMING_SOON_TITLE,
+} from '../src/screens/ScenariosScreen';
 import { WRONG_PASSWORD_MESSAGE } from '../src/screens/SignInScreen';
 import { INVALID_EMAIL_MESSAGE } from '../src/utils/validation';
 
@@ -190,7 +195,7 @@ test('password visibility toggles', async () => {
   expect(() => byLabel('Hide password')).not.toThrow();
 });
 
-test('Home lists Iraq War and Cuban Missile Crisis; only Iraq War starts', async () => {
+test('Home lists both scenarios active until one is completed', async () => {
   await openSignIn();
   await type('Email address', MOCK_USER.email);
   await type('Password', MOCK_USER.password);
@@ -201,13 +206,20 @@ test('Home lists Iraq War and Cuban Missile Crisis; only Iraq War starts', async
   expect(hasText('1:25 min')).toBe(true);
   expect(hasText('Apollo 13')).toBe(false);
 
-  // The carousel repeats each card, so take the first of each.
+  // Stacked screens stay mounted and the carousel repeats each card, so
+  // take the first match; `top` picks the topmost screen's control.
   const startButton = (title: string) =>
     root.findAll(
       n => n.props.accessibilityLabel === `Start ${title}` && n.props.onPress,
     )[0];
-  expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(true);
+  const top = (label: string) => {
+    const matches = root.findAll(
+      n => n.props.accessibilityLabel === label && n.props.onPress,
+    );
+    return matches[matches.length - 1];
+  };
   expect(startButton('Iraq War').props.disabled).toBe(false);
+  expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(false);
 
   await act(async () => {
     startButton('Iraq War').props.onPress();
@@ -215,4 +227,48 @@ test('Home lists Iraq War and Cuban Missile Crisis; only Iraq War starts', async
   expect(hasText('President of the United States · Decision 1 of 2')).toBe(
     true,
   );
+  await act(async () => {
+    top('Accept the dossier and prepare for military action').props.onPress();
+  });
+  await act(async () => {
+    top(
+      'Launch the invasion with a coalition of willing allies',
+    ).props.onPress();
+  });
+  expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
+
+  await act(async () => {
+    top('Open menu').props.onPress();
+  });
+  await act(async () => {
+    top('SCENARIOS').props.onPress();
+  });
+  expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(false);
+  expect(startButton('Iraq War').props.disabled).toBe(true);
+  expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(false);
+});
+
+test('Cuban Missile Crisis shows a coming soon alert and stays on Home', async () => {
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  await openSignIn();
+  await type('Email address', MOCK_USER.email);
+  await type('Password', MOCK_USER.password);
+  await submit();
+  // The carousel repeats each card; take the first.
+  const first = (label: string) =>
+    root.findAll(
+      n => n.props.accessibilityLabel === label && n.props.onPress,
+    )[0];
+
+  await act(async () => {
+    first('Start Cuban Missile Crisis (1962)').props.onPress();
+  });
+  await act(async () => {
+    first('Cuban Missile Crisis (1962)').props.onPress();
+  });
+  expect(alert).toHaveBeenCalledTimes(2);
+  expect(alert).toHaveBeenCalledWith(COMING_SOON_TITLE, COMING_SOON_MESSAGE);
+  expect(hasText('This scenario is coming soon.')).toBe(false);
+  expect(hasText('30 Scenarios')).toBe(true);
+  alert.mockRestore();
 });
