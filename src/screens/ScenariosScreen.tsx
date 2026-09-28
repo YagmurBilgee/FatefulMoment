@@ -18,6 +18,7 @@ import {
 import { MenuButton } from '../components/MenuButton';
 import { NavigationDrawer } from '../components/NavigationDrawer';
 import { ScenarioCard } from '../components/ScenarioCard';
+import { useTranslation } from '../context/LanguageContext';
 import { Scenario, SCENARIOS } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { useScenarioProgress } from '../state/ScenarioProgress';
@@ -29,17 +30,8 @@ const CARD_GAP = 16; // Figma token
 // - 5pt spread) is not clipped by the list.
 const SHADOW_SPACE = 40;
 
-// Figma copy; the total is a design figure, not derived from local data.
-const SCENARIO_COUNT_LABEL = '30 Scenarios';
-
 // Figma Home V2 repeats the two scenarios to fill the carousel.
 const CAROUSEL = [...SCENARIOS, ...SCENARIOS];
-
-export const COMING_SOON_TITLE = 'Yakında Gelecek';
-export const COMING_SOON_MESSAGE = 'Bu senaryo çok yakında eklenecektir.';
-
-const showComingSoon = () =>
-  Alert.alert(COMING_SOON_TITLE, COMING_SOON_MESSAGE);
 
 /**
  * Landscape Scenarios (Home V2) screen: header, then a horizontal carousel
@@ -50,6 +42,10 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { completedScenarioIds } = useScenarioProgress();
   const { paddingLeft, paddingRight } = useLandscapePadding();
+  const { t } = useTranslation();
+
+  const showComingSoon = () =>
+    Alert.alert(t('comingSoonTitle'), t('comingSoonMessage'));
 
   // Sign-in focus can outlive the auth screens on iOS and leave the
   // keyboard's AutoFill bar showing here; drop it whenever Home is shown.
@@ -78,13 +74,10 @@ export function ScenariosScreen({ navigation }: RootScreenProps<'Scenarios'>) {
       >
         <View style={[styles.intro, { paddingLeft, paddingRight }]}>
           <Text style={styles.title} accessibilityRole="header">
-            Scenarios
+            {t('scenariosTitle')}
           </Text>
-          <Text style={styles.subtitle}>
-            Choose A Scenario And Ask Yourself, "If You Were In That Situation,
-            What Would You Do?"
-          </Text>
-          <Text style={styles.count}>{SCENARIO_COUNT_LABEL}</Text>
+          <Text style={styles.subtitle}>{t('scenariosSubtitle')}</Text>
+          <Text style={styles.count}>{t('scenarioCount')}</Text>
         </View>
 
         <FlatList

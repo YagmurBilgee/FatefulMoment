@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 
+import { useTranslation } from '../context/LanguageContext';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts, monoFont } from '../theme/typography';
 
@@ -94,6 +95,7 @@ type AudioStatusPillProps = {
 };
 
 export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
+  const { t } = useTranslation();
   return (
     <View
       style={[
@@ -104,7 +106,7 @@ export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
         },
       ]}
       accessible
-      accessibilityLabel={`Standby. ${MARQUEE_TEXT}`}
+      accessibilityLabel={`${t('standby')}. ${MARQUEE_TEXT}`}
     >
       <Image source={icons.prev} style={styles.skip} />
       {/* The ring fills this slot; the glow spills outside it. */}
@@ -113,7 +115,7 @@ export function AudioStatusPill({ edgePadding }: AudioStatusPillProps) {
       </View>
       <Image source={icons.next} style={styles.skip} />
       <View style={styles.texts}>
-        <Text style={styles.status}>STANDBY</Text>
+        <Text style={styles.status}>{t('standby')}</Text>
         <Marquee text={MARQUEE_TEXT} />
       </View>
       <Image

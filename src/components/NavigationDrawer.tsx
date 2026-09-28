@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useTranslation } from '../context/LanguageContext';
+import { LANGUAGES, TranslationKey } from '../locales';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
@@ -56,6 +58,12 @@ const SHADOW_RADIUS = 16;
 
 export type DrawerRoute = 'SCENARIOS' | 'DNA' | 'SETTINGS';
 
+const TITLES: Record<DrawerRoute, TranslationKey> = {
+  SCENARIOS: 'drawerScenarios',
+  DNA: 'drawerDna',
+  SETTINGS: 'drawerSettings',
+};
+
 type NavigationDrawerProps = {
   visible: boolean;
   /** Item for the screen the drawer is opened from. */
@@ -64,7 +72,7 @@ type NavigationDrawerProps = {
 };
 
 type ItemProps = {
-  label: DrawerRoute;
+  route: DrawerRoute;
   active?: boolean;
   expanded?: boolean;
   onPress: () => void;
@@ -91,7 +99,9 @@ function DrawerIcon({ route, color }: { route: DrawerRoute; color: string }) {
   );
 }
 
-function DrawerItem({ label, active = false, expanded, onPress }: ItemProps) {
+function DrawerItem({ route, active = false, expanded, onPress }: ItemProps) {
+  const { t } = useTranslation();
+  const label = t(TITLES[route]);
   const color = active ? colors.primary : colors.textSecondary;
   return (
     <Pressable
@@ -106,7 +116,7 @@ function DrawerItem({ label, active = false, expanded, onPress }: ItemProps) {
       ]}
     >
       <View style={styles.itemLead}>
-        <DrawerIcon route={label} color={color} />
+        <DrawerIcon route={route} color={color} />
         <Text style={[styles.label, { color }]}>{label}</Text>
       </View>
       {active ? <View style={styles.dot} /> : null}
@@ -128,6 +138,7 @@ export function NavigationDrawer({
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const { resetProgress } = useScenarioProgress();
+  const { language, setLanguage, t } = useTranslation();
   const progress = useRef(new Animated.Value(visible ? 1 : 0)).current;
   // Stays mounted until the close animation has finished.
   const [mounted, setMounted] = useState(visible);
@@ -218,7 +229,7 @@ export function NavigationDrawer({
       <Animated.View style={[styles.backdrop, { opacity: progress }]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Close menu"
+          accessibilityLabel={t('closeMenu')}
           style={StyleSheet.absoluteFill}
           onPress={onClose}
         />
@@ -237,31 +248,61 @@ export function NavigationDrawer({
       >
         <View style={styles.items}>
           <DrawerItem
-            label="SCENARIOS"
+            route="SCENARIOS"
             active={activeRoute === 'SCENARIOS'}
             onPress={openScenarios}
           />
           <DrawerItem
-            label="DNA"
+            route="DNA"
             active={activeRoute === 'DNA'}
             onPress={openDna}
           />
           <DrawerItem
-            label="SETTINGS"
+            route="SETTINGS"
             active={activeRoute === 'SETTINGS'}
             expanded={settingsOpen}
             onPress={() => setSettingsOpen(open => !open)}
           />
-          {/* Placeholder until the Settings screen is designed. */}
+          {/* Not in Figma: placeholder until Settings is designed. */}
           {settingsOpen ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Sign Out"
-              onPress={signOut}
-              style={styles.subItem}
-            >
-              <Text style={styles.subItemLabel}>Sign Out</Text>
-            </Pressable>
+            <View style={styles.settings}>
+              <Text style={styles.settingsLabel}>{t('language')}</Text>
+              <View style={styles.languages} accessibilityRole="radiogroup">
+                {LANGUAGES.map(({ code, label }) => {
+                  const selected = code === language;
+                  return (
+                    <Pressable
+                      key={code}
+                      accessibilityRole="radio"
+                      accessibilityLabel={label}
+                      accessibilityState={{ checked: selected }}
+                      onPress={() => setLanguage(code)}
+                      style={[
+                        styles.language,
+                        selected && styles.languageSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.languageLabel,
+                          selected && styles.languageLabelSelected,
+                        ]}
+                      >
+                        {label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('signOut')}
+                onPress={signOut}
+                style={styles.signOut}
+              >
+                <Text style={styles.signOutLabel}>{t('signOut')}</Text>
+              </Pressable>
+            </View>
           ) : null}
         </View>
       </Animated.View>
@@ -343,14 +384,54 @@ const styles = StyleSheet.create({
     borderRadius: DOT_SIZE / 2,
     backgroundColor: colors.primary,
   },
-  // Not in Figma.
-  subItem: {
+  // Settings panel: not in Figma, styled after the drawer items.
+  settings: {
     width: ITEM_WIDTH,
     marginTop: -ITEM_GAP / 2,
-    paddingHorizontal: 16,
+    paddingHorizontal: 4,
+    gap: 8,
+  },
+  settingsLabel: {
+    ...androidTextFix,
+    color: colors.textSecondary,
+    fontFamily: fonts.bold,
+    fontSize: 11,
+    lineHeight: 16,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  languages: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  language: {
+    flex: 1,
+    height: 32,
+    borderRadius: 10,
+    borderWidth: HAIRLINE,
+    borderColor: colors.drawerItemBorder,
+    backgroundColor: colors.drawerItemFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  languageSelected: {
+    borderColor: colors.primary, // #00D3F3
+    backgroundColor: colors.drawerItemActiveFill,
+  },
+  languageLabel: {
+    ...androidTextFix,
+    color: colors.textSecondary,
+    fontFamily: fonts.medium,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  languageLabelSelected: {
+    color: colors.primary,
+  },
+  signOut: {
     paddingVertical: 8,
   },
-  subItemLabel: {
+  signOutLabel: {
     ...androidTextFix,
     color: colors.error,
     fontFamily: fonts.medium,

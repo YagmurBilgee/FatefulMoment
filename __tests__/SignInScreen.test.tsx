@@ -8,10 +8,7 @@ import ReactTestRenderer, { ReactTestInstance } from 'react-test-renderer';
 
 import App from '../App';
 import { MOCK_USER } from '../src/services/mockAuth';
-import {
-  COMING_SOON_MESSAGE,
-  COMING_SOON_TITLE,
-} from '../src/screens/ScenariosScreen';
+import { en } from '../src/locales/en';
 import { WRONG_PASSWORD_MESSAGE } from '../src/screens/SignInScreen';
 import { SELECT_HOLD_MS } from '../src/screens/SimulationScreen';
 import { VIDEOS } from '../src/components/ScenarioVideo';
@@ -326,6 +323,60 @@ test('running out of decision time moves on to the next decision', async () => {
   expect(hasText(DECISION_2)).toBe(true);
 });
 
+test('Settings switches the language in place, keeping state', async () => {
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  await openSignIn();
+  await type('Email address', MOCK_USER.email);
+  await type('Password', MOCK_USER.password);
+  await submit();
+  const first = (label: string) =>
+    root.findAll(
+      n => n.props.accessibilityLabel === label && n.props.onPress,
+    )[0];
+  expect(hasText('Scenarios')).toBe(true);
+
+  await act(async () => {
+    first('Open menu').props.onPress();
+  });
+  await act(async () => {
+    first('SETTINGS').props.onPress();
+  });
+  expect(first('English (EN)').props.accessibilityState.checked).toBe(true);
+  await act(async () => {
+    first('Türkçe (TR)').props.onPress();
+  });
+
+  // Home, the drawer and the cards re-render in Turkish; the drawer and
+  // its Settings panel stay open.
+  expect(first('Türkçe (TR)').props.accessibilityState.checked).toBe(true);
+  expect(hasText('Senaryolar')).toBe(true);
+  expect(hasText('SENARYOLAR')).toBe(true);
+  expect(hasText('Dil')).toBe(true);
+  expect(hasText('Çıkış Yap')).toBe(true);
+  expect(hasText('Irak Savaşı')).toBe(true);
+  expect(hasText('Scenarios')).toBe(false);
+  await act(async () => {
+    first('Menüyü kapat').props.onPress();
+  });
+  await act(async () => {
+    first('Küba Füze Krizi (1962) Başlat').props.onPress();
+  });
+  expect(alert).toHaveBeenCalledWith('Yakında Gelecek', expect.any(String));
+
+  // The simulation follows the language too.
+  await act(async () => {
+    first('Irak Savaşı Başlat').props.onPress();
+  });
+  expect(hasText('Senaryo Brifingi')).toBe(true);
+  await act(async () => {
+    byLabel('Simülasyonu Başlat').props.onPress();
+  });
+  await endVideo();
+  expect(hasText("Moskova'dan Sinyal Bekle")).toBe(true);
+  expect(hasText(DECISION_1)).toBe(false);
+  alert.mockRestore();
+});
+
 test('cards after the first show a coming soon alert and stay on Home', async () => {
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   await openSignIn();
@@ -352,7 +403,7 @@ test('cards after the first show a coming soon alert and stay on Home', async ()
     card3.props.onPress();
   });
   expect(alert).toHaveBeenCalledTimes(3);
-  expect(alert).toHaveBeenCalledWith(COMING_SOON_TITLE, COMING_SOON_MESSAGE);
+  expect(alert).toHaveBeenCalledWith(en.comingSoonTitle, en.comingSoonMessage);
   expect(hasText('This scenario is coming soon.')).toBe(false);
   expect(hasText('30 Scenarios')).toBe(true);
   alert.mockRestore();

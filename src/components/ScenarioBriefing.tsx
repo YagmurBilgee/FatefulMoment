@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 
+import { useTranslation } from '../context/LanguageContext';
 import type { Scenario } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
@@ -37,6 +38,7 @@ type ScenarioBriefingProps = {
  */
 export function ScenarioBriefing({ scenario, onStart }: ScenarioBriefingProps) {
   const press = usePressScale();
+  const { t, localize } = useTranslation();
   const image = BRIEFING_IMAGES[scenario.id];
   return (
     <View style={styles.card}>
@@ -48,23 +50,23 @@ export function ScenarioBriefing({ scenario, onStart }: ScenarioBriefingProps) {
       <View style={styles.gradient} />
 
       <View style={styles.content}>
-        <Text style={styles.tag}>Scenario Briefing</Text>
+        <Text style={styles.tag}>{t('scenarioBriefing')}</Text>
         <Text style={styles.title} accessibilityRole="header">
-          {scenario.title}
+          {localize(scenario.title)}
         </Text>
-        <Text style={styles.description}>{scenario.description}</Text>
+        <Text style={styles.description}>{localize(scenario.description)}</Text>
 
         <Animated.View style={press.style}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Start Simulation"
+            accessibilityLabel={t('startSimulation')}
             onPress={onStart}
             onPressIn={press.onPressIn}
             onPressOut={press.onPressOut}
             style={styles.start}
           >
             <Text style={styles.startLabel} numberOfLines={1}>
-              Start Simulation
+              {t('startSimulation')}
             </Text>
           </Pressable>
         </Animated.View>

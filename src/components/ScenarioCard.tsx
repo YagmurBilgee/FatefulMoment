@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 
+import { useTranslation } from '../context/LanguageContext';
 import type { Scenario } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fontSecondaryBold, fonts } from '../theme/typography';
@@ -50,11 +51,12 @@ function StartButton({
   onPress: () => void;
 }) {
   const press = usePressScale(disabled);
+  const { t } = useTranslation();
   return (
     <Animated.View style={[styles.startWrap, press.style]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Start ${scenarioTitle}`}
+        accessibilityLabel={t('startScenario', { title: scenarioTitle })}
         accessibilityState={{ disabled }}
         disabled={disabled}
         onPress={onPress}
@@ -63,7 +65,7 @@ function StartButton({
         style={[styles.start, disabled && styles.startDisabled]}
       >
         <Text style={[styles.startLabel, disabled && styles.startLabelOff]}>
-          Start
+          {t('start')}
         </Text>
       </Pressable>
     </Animated.View>
@@ -91,6 +93,8 @@ export function ScenarioCard({
   onStart,
   onCardPress,
 }: ScenarioCardProps) {
+  const { localize } = useTranslation();
+  const title = localize(scenario.title);
   return (
     // The shadow sits on an outer view: the card clips to its radius, which
     // would otherwise clip the shadow too.
@@ -98,7 +102,7 @@ export function ScenarioCard({
       <Pressable
         accessible={Boolean(onCardPress)}
         accessibilityRole={onCardPress ? 'button' : undefined}
-        accessibilityLabel={scenario.title}
+        accessibilityLabel={title}
         disabled={!onCardPress}
         onPress={onCardPress}
         style={styles.card}
@@ -115,19 +119,19 @@ export function ScenarioCard({
             style={[styles.clock, isCompleted && styles.clockOff]}
           />
           <Text style={[styles.duration, isCompleted && styles.durationOff]}>
-            {scenario.duration}
+            {localize(scenario.duration)}
           </Text>
         </View>
 
         <Text style={styles.title} numberOfLines={2} accessibilityRole="header">
-          {scenario.title}
+          {title}
         </Text>
         <Text style={styles.description} numberOfLines={4}>
-          {scenario.description}
+          {localize(scenario.description)}
         </Text>
 
         <StartButton
-          scenarioTitle={scenario.title}
+          scenarioTitle={title}
           disabled={isCompleted}
           onPress={onStart}
         />

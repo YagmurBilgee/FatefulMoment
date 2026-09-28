@@ -1,6 +1,7 @@
 import React from 'react';
 import { Animated, Pressable, StyleSheet, Text } from 'react-native';
 
+import { useTranslation } from '../context/LanguageContext';
 import type { DecisionOption } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
@@ -32,6 +33,8 @@ export function DecisionCard({
   onPress,
 }: DecisionCardProps) {
   const press = usePressScale(dimmed);
+  const { localize } = useTranslation();
+  const label = localize(option.label);
   return (
     // The wrapper holds the width so a row can shrink on narrow phones.
     <Animated.View
@@ -39,7 +42,7 @@ export function DecisionCard({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={option.label}
+        accessibilityLabel={label}
         accessibilityState={{ selected, disabled: dimmed }}
         disabled={dimmed}
         onPress={onPress}
@@ -51,7 +54,7 @@ export function DecisionCard({
         ]}
       >
         <Text style={styles.label} numberOfLines={3}>
-          {option.label}
+          {label}
         </Text>
       </Pressable>
     </Animated.View>

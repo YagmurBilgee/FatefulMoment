@@ -1,6 +1,8 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet } from 'react-native';
 
+import { useTranslation } from '../context/LanguageContext';
+
 // Figma @3x export, 60×60px.
 const menuIcon = require('../assets/images/icon-menu-hamburger.png');
 
@@ -12,10 +14,11 @@ type MenuButtonProps = {
 
 /** Top-left hamburger button that opens the navigation drawer. */
 export function MenuButton({ expanded, onPress }: MenuButtonProps) {
+  const { t } = useTranslation();
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Open menu"
+      accessibilityLabel={t('openMenu')}
       accessibilityState={{ expanded }}
       hitSlop={8}
       onPress={onPress}

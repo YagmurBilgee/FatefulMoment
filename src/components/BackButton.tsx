@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Animated, Image, Pressable, StyleSheet } from 'react-native';
 
+import { useTranslation } from '../context/LanguageContext';
 import { colors } from '../theme/colors';
 import { usePressScale } from './usePressScale';
 
@@ -15,6 +16,7 @@ const arrowIcon = require('../assets/images/icon-back.png');
 export function BackButton() {
   const navigation = useNavigation();
   const press = usePressScale();
+  const { t } = useTranslation();
   const goBack = () => {
     // Nothing to return to, e.g. after a reset or a deep link.
     if (navigation.canGoBack()) {
@@ -25,7 +27,7 @@ export function BackButton() {
     <Animated.View style={press.style}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Go back"
+        accessibilityLabel={t('goBack')}
         hitSlop={8}
         onPress={goBack}
         onPressIn={press.onPressIn}

@@ -9,6 +9,7 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
+import { LanguageProvider } from '../context/LanguageContext';
 import type { DnaScore } from '../data/simulation';
 import { CheckEmailScreen } from '../screens/CheckEmailScreen';
 import { CreateAccountScreen } from '../screens/CreateAccountScreen';
@@ -64,46 +65,48 @@ const theme: Theme = {
  */
 export function RootNavigator() {
   return (
-    <ScenarioProgressProvider>
-      <NavigationContainer theme={theme}>
-        <Stack.Navigator
-          initialRouteName="Welcome"
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: colors.background },
-          }}
-        >
-          <Stack.Group screenOptions={{ orientation: 'portrait_up' }}>
-            <Stack.Screen
-              name="Welcome"
-              component={WelcomeScreen}
-              options={{ animation: 'fade' }}
-            />
-            <Stack.Screen name="SignIn" component={SignInScreen} />
-            <Stack.Screen
-              name="CreateAccount"
-              component={CreateAccountScreen}
-            />
-            <Stack.Screen
-              name="ResetPassword"
-              component={ResetPasswordScreen}
-            />
-            <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
-          </Stack.Group>
-
-          <Stack.Group
-            screenOptions={{ orientation: 'landscape', animation: 'fade' }}
+    <LanguageProvider>
+      <ScenarioProgressProvider>
+        <NavigationContainer theme={theme}>
+          <Stack.Navigator
+            initialRouteName="Welcome"
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.background },
+            }}
           >
-            <Stack.Screen
-              name="Scenarios"
-              component={ScenariosScreen}
-              options={{ gestureEnabled: false }}
-            />
-            <Stack.Screen name="Simulation" component={SimulationScreen} />
-            <Stack.Screen name="DnaProfile" component={DnaProfileScreen} />
-          </Stack.Group>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </ScenarioProgressProvider>
+            <Stack.Group screenOptions={{ orientation: 'portrait_up' }}>
+              <Stack.Screen
+                name="Welcome"
+                component={WelcomeScreen}
+                options={{ animation: 'fade' }}
+              />
+              <Stack.Screen name="SignIn" component={SignInScreen} />
+              <Stack.Screen
+                name="CreateAccount"
+                component={CreateAccountScreen}
+              />
+              <Stack.Screen
+                name="ResetPassword"
+                component={ResetPasswordScreen}
+              />
+              <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
+            </Stack.Group>
+
+            <Stack.Group
+              screenOptions={{ orientation: 'landscape', animation: 'fade' }}
+            >
+              <Stack.Screen
+                name="Scenarios"
+                component={ScenariosScreen}
+                options={{ gestureEnabled: false }}
+              />
+              <Stack.Screen name="Simulation" component={SimulationScreen} />
+              <Stack.Screen name="DnaProfile" component={DnaProfileScreen} />
+            </Stack.Group>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ScenarioProgressProvider>
+    </LanguageProvider>
   );
 }

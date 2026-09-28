@@ -7,6 +7,8 @@
  * the Simulation Briefing frames are provided.
  */
 
+import type { Localized } from '../locales';
+
 // ---------------------------------------------------------------------------
 // DNA model
 // ---------------------------------------------------------------------------
@@ -69,7 +71,7 @@ export function applyImpacts(base: DnaScore, impacts: DnaImpact[]): DnaScore {
 
 export interface DecisionOption {
   id: string;
-  label: string;
+  label: Localized;
   impact: DnaImpact;
   /** Consequence clip for this choice; overrides the decision's clip. */
   outcomeVideo?: string;
@@ -96,13 +98,18 @@ export interface DecisionNode {
  */
 export const TIMEOUT_IMPACT: DnaImpact = { courage: -10, control: -10 };
 
+/*
+ * Copy shown on screen (scenario title, duration, description and option
+ * labels) is kept per language. Fields the UI no longer shows (role,
+ * briefing, decision title, situation and prompt) stay English only.
+ */
 export interface Scenario {
   id: string;
-  title: string;
+  title: Localized;
   /** Estimated play time shown on the card, e.g. "1:37 min". */
-  duration: string;
+  duration: Localized;
   /** Teaser on the scenario card. */
-  description: string;
+  description: Localized;
   /** The player's role in the scenario. */
   role: string;
   briefing: string;
@@ -115,11 +122,16 @@ export interface Scenario {
 
 const IRAQ_WAR: Scenario = {
   id: 'iraq-war',
-  title: 'Iraq War',
-  duration: '1:37 min',
-  description:
-    '2003. The Chemical Weapon Allegations Are On Your Desk. Your Decision ' +
-    'Will Determine The Fate Of Millions.',
+  title: { en: 'Iraq War', tr: 'Irak Savaşı' },
+  duration: { en: '1:37 min', tr: '1:37 dk' },
+  description: {
+    en:
+      '2003. The Chemical Weapon Allegations Are On Your Desk. Your Decision ' +
+      'Will Determine The Fate Of Millions.',
+    tr:
+      '2003. Kimyasal Silah İddiaları Masanızda. Kararınız Milyonların ' +
+      'Kaderini Belirleyecek.',
+  },
   role: 'President of the United States',
   briefing:
     'March 2003. Intelligence reports claim Iraq holds chemical weapons. ' +
@@ -137,36 +149,50 @@ const IRAQ_WAR: Scenario = {
       prompt: 'How do you treat the intelligence?',
       // Consequence scene; the same clip follows every option for now.
       outcomeVideo: 'iraq-war-2',
-      // Option copy is verbatim from the Figma decision frame, in row
-      // order (1 left, 1 right, 2 left, 2 right, 3). Impacts are
-      // placeholders.
+      // Option copy follows the Figma decision frame, in row order (1 left,
+      // 1 right, 2 left, 2 right, 3); Figma mixes the two languages, so
+      // each line keeps its Figma wording in that language and is
+      // translated for the other. Impacts are placeholders.
       options: [
         {
           id: 'naval-quarantine',
-          label:
-            "Deniz Karantinası: Küba'yı kuşatıp Sovyet gemilerini engelleyerek gizli pazarlık yürütmek.",
+          label: {
+            en: 'Naval Quarantine: Blockade Cuba and stop Soviet ships while negotiating in secret.',
+            tr: "Deniz Karantinası: Küba'yı kuşatıp Sovyet gemilerini engelleyerek gizli pazarlık yürütmek.",
+          },
           impact: { control: 10, courage: 5, risk: 5, ethics: 5 },
         },
         {
           id: 'wait-for-moscow',
-          label: 'Wait for Signal from Moscow',
+          label: {
+            en: 'Wait for Signal from Moscow',
+            tr: "Moskova'dan Sinyal Bekle",
+          },
           impact: { empathy: 5, courage: -10, risk: -5 },
         },
         {
           id: 'launch-on-schedule',
-          label:
-            'Zaman Baskısına Uyum: Siyasi ve medya baskısı nedeniyle risklere rağmen belirlenen takvimde fırlatmayı başlat.',
+          label: {
+            en: 'Bow to Time Pressure: Launch on the set schedule despite the risks, under political and media pressure.',
+            tr: 'Zaman Baskısına Uyum: Siyasi ve medya baskısı nedeniyle risklere rağmen belirlenen takvimde fırlatmayı başlat.',
+          },
           impact: { courage: 10, risk: 15, ethics: -10 },
         },
         {
           id: 'sonar-signal',
-          label: 'Signal US Ships with Sonar',
+          label: {
+            en: 'Signal US Ships with Sonar',
+            tr: 'ABD Gemilerine Sonarla Sinyal Ver',
+          },
           impact: { control: 5, risk: 5, vision: 5 },
         },
         {
           // Same copy as the card above in Figma.
           id: 'sonar-signal-2',
-          label: 'Signal US Ships with Sonar',
+          label: {
+            en: 'Signal US Ships with Sonar',
+            tr: 'ABD Gemilerine Sonarla Sinyal Ver',
+          },
           impact: { control: 5, risk: 5, vision: 5 },
         },
       ],
@@ -182,27 +208,42 @@ const IRAQ_WAR: Scenario = {
       options: [
         {
           id: 'invade',
-          label: 'Launch the invasion with a coalition of willing allies',
+          label: {
+            en: 'Launch the invasion with a coalition of willing allies',
+            tr: 'Gönüllü müttefiklerden oluşan bir koalisyonla işgali başlat',
+          },
           impact: { vision: 10, courage: 10, risk: 15, empathy: -10 },
         },
         {
           id: 'extend-inspections',
-          label: 'Give the inspectors more time and keep pressure on Iraq',
+          label: {
+            en: 'Give the inspectors more time and keep pressure on Iraq',
+            tr: 'Denetçilere daha fazla zaman ver ve Irak üzerindeki baskıyı sürdür',
+          },
           impact: { empathy: 10, ethics: 10, risk: -10, vision: -5 },
         },
         {
           id: 'seek-resolution',
-          label: 'Push for a second UN resolution before any action',
+          label: {
+            en: 'Push for a second UN resolution before any action',
+            tr: 'Herhangi bir adımdan önce ikinci bir BM kararı için bastır',
+          },
           impact: { control: 10, ethics: 5, courage: -5 },
         },
         {
           id: 'targeted-strikes',
-          label: 'Order limited air strikes on the suspected weapon sites',
+          label: {
+            en: 'Order limited air strikes on the suspected weapon sites',
+            tr: 'Şüpheli silah tesislerine sınırlı hava saldırısı emri ver',
+          },
           impact: { courage: 5, risk: 10, control: 5, empathy: -5 },
         },
         {
           id: 'back-channel',
-          label: 'Open a secret back channel to negotiate with Baghdad',
+          label: {
+            en: 'Open a secret back channel to negotiate with Baghdad',
+            tr: 'Bağdat ile pazarlık için gizli bir kanal aç',
+          },
           impact: { vision: 10, empathy: 5, risk: 5, control: -5 },
         },
       ],
@@ -212,10 +253,15 @@ const IRAQ_WAR: Scenario = {
 
 const CUBAN_MISSILE_CRISIS: Scenario = {
   id: 'cuban-missile-crisis',
-  title: 'Cuban Missile Crisis (1962)',
-  duration: '1:25 min',
-  description:
-    "A World On The Brink Of Nuclear Annihilation. You Are In Kennedy's Seat.",
+  title: {
+    en: 'Cuban Missile Crisis (1962)',
+    tr: 'Küba Füze Krizi (1962)',
+  },
+  duration: { en: '1:25 min', tr: '1:25 dk' },
+  description: {
+    en: "A World On The Brink Of Nuclear Annihilation. You Are In Kennedy's Seat.",
+    tr: "Dünya Nükleer Yok Oluşun Eşiğinde. Kennedy'nin Koltuğundasınız.",
+  },
   role: 'President of the United States',
   briefing: '',
   playable: false,

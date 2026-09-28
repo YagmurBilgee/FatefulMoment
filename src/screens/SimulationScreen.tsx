@@ -14,6 +14,7 @@ import {
 } from '../components/ScenarioBriefing';
 import { ScenarioVideo, VIDEOS } from '../components/ScenarioVideo';
 import { TensionTimer, UrgencyVignette } from '../components/TensionTimer';
+import { useTranslation } from '../context/LanguageContext';
 import {
   applyImpacts,
   BASELINE_DNA,
@@ -76,6 +77,7 @@ export function SimulationScreen({
   const padding = useLandscapePadding();
   const scenario = findScenario(route.params.scenarioId);
   const { markCompleted } = useScenarioProgress();
+  const { t } = useTranslation();
 
   const [phase, setPhase] = useState<Phase>('briefing');
   /** Decisions answered so far; drives which options are shown. */
@@ -129,9 +131,9 @@ export function SimulationScreen({
   if (!scenario || !scenario.playable) {
     return (
       <View style={styles.root}>
-        {header('Scenario unavailable')}
+        {header(t('scenarioUnavailable'))}
         <Text style={[styles.body, styles.unavailable, padding]}>
-          This scenario is coming soon.
+          {t('scenarioComingSoon')}
         </Text>
       </View>
     );
