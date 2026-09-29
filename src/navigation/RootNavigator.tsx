@@ -36,8 +36,11 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   Scenarios: { user: MockProfile };
   Simulation: { scenarioId: string };
-  /** `score` is absent when the profile is opened before playing. */
-  DnaProfile: { score?: DnaScore };
+  /**
+   * `score` is absent when the profile is opened before playing;
+   * `timedOut` is set when a decision timer ran out.
+   */
+  DnaProfile: { score?: DnaScore; timedOut?: boolean };
 };
 
 export type RootStackParamList = AuthStackParamList & MainStackParamList;

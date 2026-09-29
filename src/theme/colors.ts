@@ -42,7 +42,8 @@ export const colors = {
   headerSeparator: '#314158', // [Measured] 1pt line under the header bar
 
   // Scenarios (home) screen, from Figma inspect
-  screenTitle: '#E2E8F0', // [Figma] "Scenarios" title
+  // [Figma token] brand/secondary/sec-200 — "Scenarios", "Karar DNAsı"
+  screenTitle: '#E2E8F0',
   cardTitle: '#F8FAFC', // [Figma] category card title
   marqueeText: '#F1F5F9', // [Figma] audio pill marquee
   standbyText: 'rgba(0, 211, 243, 0.8)', // [Figma] #00D3F3CC, "STANDBY"
@@ -71,4 +72,12 @@ export const colors = {
   yourChoiceBadge: '#FFD230', // [Figma] "Your Choice" pill fill
   yourChoiceBorder: '#FFB900', // [Figma] pill border
   yourChoiceText: '#FFFFFF', // [Figma] pill label
+
+  // DNA profile, archetype card, from Figma inspect
+  dnaCardBorder: '#1D293D', // [Figma]
+  dnaCardFill: 'rgba(15, 23, 43, 0.4)', // [Figma] #0F172B66
+  avatarBorder: 'rgba(0, 184, 219, 0.2)', // [Figma] #00B8DB33
+  avatarFill: '#020618', // [Figma]
+  archetypeTitle: '#F1F5F9', // [Figma]
+  quoteRule: 'rgba(0, 184, 219, 0.4)', // [Figma] #00B8DB66
 } as const;

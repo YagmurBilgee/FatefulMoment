@@ -12,6 +12,8 @@ export const fonts = {
   medium: 'Inter-Medium',
   semiBold: 'Inter-SemiBold',
   bold: 'Inter-Bold',
+  /** Weight 900, italic; the only italic face bundled. */
+  blackItalic: 'Inter-BlackItalic',
 } as const;
 
 /**

@@ -66,6 +66,139 @@ export function applyImpacts(base: DnaScore, impacts: DnaImpact[]): DnaScore {
 }
 
 // ---------------------------------------------------------------------------
+// DNA profiles
+// ---------------------------------------------------------------------------
+
+/*
+ * Mock archetype profiles shown on the DNA screen. Brave Visionary is the
+ * Figma frame's copy; the other two are placeholders in the same shape.
+ * Scores are fixed per profile, not the raw sum of the player's impacts.
+ */
+export type DnaProfileId =
+  | 'brave-visionary'
+  | 'pragmatic-strategist'
+  | 'crisis-survivor';
+
+export interface DnaProfile {
+  id: DnaProfileId;
+  archetype: string;
+  quote: string;
+  scores: DnaScore;
+  /** Pattern detection cards, numbered 01, 02, 03 on screen. */
+  patterns: string[];
+  /** The lowest-scoring dimension. */
+  blindSpot: DnaDimension;
+  blindSpotQuestion: string;
+  blindSpotBody: string;
+}
+
+export const DNA_PROFILES: Record<DnaProfileId, DnaProfile> = {
+  'brave-visionary': {
+    id: 'brave-visionary',
+    archetype: 'BRAVE VISIONARY',
+    quote:
+      'You see the big picture and walk towards it - no matter the cost. ' +
+      'Ethics sometimes take a back seat, but few surpass you in the ' +
+      'courage to take action.',
+    scores: {
+      vision: 88,
+      courage: 82,
+      risk: 79,
+      control: 55,
+      empathy: 38,
+      ethics: 31,
+    },
+    patterns: [
+      'You are not afraid to take action under pressure. While others hesitate, you have already taken a step. This positions you as a natural leader in crisis moments.',
+      'You prioritize long-term impact over short-term costs. You see the big picture — but this sometimes makes it difficult for you to see the people in front of you.',
+      'When ethics conflict with interests, your tendency is clear: you choose the interest. This pattern repeated in 5 out of 8 scenarios. It works in the short term — but creates erosion of trust in the long term.',
+    ],
+    blindSpot: 'ethics',
+    blindSpotQuestion: 'How much will you pay to win?',
+    blindSpotBody:
+      'Your vision and courage are strong — but your ethics score is your lowest dimension. While reaching big goals, you often overlook how those around you feel and what they sacrifice. Your leadership capacity is high, but the mark you leave is not always positive.',
+  },
+  'pragmatic-strategist': {
+    id: 'pragmatic-strategist',
+    archetype: 'PRAGMATIC STRATEGIST',
+    quote:
+      'You calculate every risk and move with cold precision. Speed takes ' +
+      'a back seat, but your plans rarely fail.',
+    scores: {
+      vision: 65,
+      courage: 60,
+      risk: 34,
+      control: 86,
+      empathy: 42,
+      ethics: 58,
+    },
+    patterns: [
+      'You keep options open until the last responsible moment. You gather leverage first and act only when the outcome is under your control.',
+      'You prefer negotiation and pressure over open confrontation. Your moves are measured — rarely spectacular, rarely disastrous.',
+      'When the stakes rise, you narrow the risk instead of taking it. This protects you from big losses — but also from big wins.',
+    ],
+    blindSpot: 'risk',
+    blindSpotQuestion: 'What will you miss while you wait?',
+    blindSpotBody:
+      'Your control is exceptional — but your risk score is your lowest dimension. Some windows close before the plan is perfect. Your caution keeps you safe, but it can leave the initiative to those willing to move first.',
+  },
+  'crisis-survivor': {
+    id: 'crisis-survivor',
+    archetype: 'CRISIS SURVIVOR',
+    quote:
+      'You let events unfold and react only when forced. Survival was ' +
+      'achieved, but the initiative was lost.',
+    scores: {
+      vision: 35,
+      courage: 40,
+      risk: 28,
+      control: 45,
+      empathy: 60,
+      ethics: 65,
+    },
+    patterns: [
+      'When the clock ran out, you had not decided yet. Under pressure your first instinct is to wait for more information.',
+      'You avoid choices that could hurt others. Your ethics and empathy stay intact — but events decide in your place.',
+      'Hesitation is also a decision. In a crisis, the side that moves first sets the terms everyone else must accept.',
+    ],
+    blindSpot: 'risk',
+    blindSpotQuestion: 'Who decides when you do not?',
+    blindSpotBody:
+      'Your ethics and empathy are your strongest dimensions — but your risk score is your lowest. Avoiding every risk left the outcome to others. You survived the crisis, but you did not shape it.',
+  },
+};
+
+/** How the player got to the DNA screen. */
+export interface SimulationPath {
+  /** Summed score from the player's picks; absent before playing. */
+  score?: DnaScore;
+  /** A decision timer ran out at least once. */
+  timedOut?: boolean;
+}
+
+/**
+ * Picks the profile for a simulation path: any timeout makes a Crisis
+ * Survivor; otherwise bold picks (courage and risk) outweighing control
+ * make a Brave Visionary, and cautious ones a Pragmatic Strategist.
+ * Without a played path the Figma default is shown.
+ */
+export function selectDnaProfile({
+  score,
+  timedOut,
+}: SimulationPath): DnaProfile {
+  if (timedOut) {
+    return DNA_PROFILES['crisis-survivor'];
+  }
+  if (!score) {
+    return DNA_PROFILES['brave-visionary'];
+  }
+  const boldness = (score.courage + score.risk) / 2;
+  return boldness >= score.control
+    ? DNA_PROFILES['brave-visionary']
+    : DNA_PROFILES['pragmatic-strategist'];
+}
+
+// ---------------------------------------------------------------------------
 // Scenario content
 // ---------------------------------------------------------------------------
 
