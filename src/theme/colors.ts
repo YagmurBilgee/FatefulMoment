@@ -58,7 +58,7 @@ export const colors = {
   cardBorder: '#1D293D', // [Figma] scenario card
 
   // Simulation decision phase
-  decisionScrim: 'rgba(2, 6, 24, 0.72)', // [Unverified] darkened scene
+  decisionScrim: 'rgba(2, 6, 24, 0.85)', // [Brief] over the held last frame
   optionCardFill: 'rgba(15, 23, 43, 0.63)', // [Figma] #0F172BA1
   optionCardBorder: 'rgba(248, 250, 252, 0.2)', // [Figma] #F8FAFC @ 20%
   optionCardBorderTop: '#F8FAFC', // [Figma] lit top edge
@@ -68,6 +68,7 @@ export const colors = {
   timerTrack: 'rgba(255, 255, 255, 0.1)', // [Unverified]
 
   // Simulation consequence review
-  yourChoiceBadge: '#FACC15', // [Brief] "Your Choice" pill
-  yourChoiceText: '#0F172B', // [Brief] dark pill text
+  yourChoiceBadge: '#FFD230', // [Figma] "Your Choice" pill fill
+  yourChoiceBorder: '#FFB900', // [Figma] pill border
+  yourChoiceText: '#FFFFFF', // [Figma] pill label
 } as const;

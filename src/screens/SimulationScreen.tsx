@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackButton } from '../components/BackButton';
@@ -8,10 +8,7 @@ import {
   useLandscapePadding,
 } from '../components/LandscapeHeader';
 import { DecisionCard } from '../components/DecisionCard';
-import {
-  BRIEFING_IMAGES,
-  ScenarioBriefing,
-} from '../components/ScenarioBriefing';
+import { ScenarioBriefing } from '../components/ScenarioBriefing';
 import { ScenarioVideo, VIDEOS } from '../components/ScenarioVideo';
 import { TensionTimer, UrgencyVignette } from '../components/TensionTimer';
 import { useTranslation } from '../context/LanguageContext';
@@ -28,8 +25,10 @@ import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-/** Video ↔ decisions cross-fade, both ways. */
+/** Decisions → the next clip cross-fade. */
 const CROSS_FADE_MS = 1200;
+/** Cards emerging over a clip's held last frame. */
+const DECISION_FADE_MS = 700;
 /** A decision fading out before the next one when there is no clip. */
 const STEP_FADE_MS = 300;
 const DECISION_MS = 15000;
@@ -59,7 +58,8 @@ const playable = (id: string | undefined) =>
  * Landscape simulation, alternating full-screen clips and decisions:
  * - briefing: the scenario briefing card; Start Simulation plays the intro.
  * - video: a full-screen clip played to its end, with only the back button
- *   on top (Figma). Its end cross-fades into the next decision.
+ *   on top (Figma). Its last frame then stays, darkened, as the backdrop of
+ *   the next decision, whose cards fade in gently over it.
  * - decision: only the back button, five Option Cards in three rows (2, 2,
  *   1) and the 15 s tension timer (Figma). A picked card glows, then the
  *   decision cross-fades into its consequence clip (the option's, else the
@@ -69,11 +69,11 @@ const playable = (id: string | undefined) =>
  *   screen so Back from it returns to Scenarios. Without a clip the flow
  *   moves straight on.
  * - review: for a decision with a `reviewVideo`, its clip ends in a
- *   consequence review instead: the same five cards in the same places
- *   under an "Unselected Options" title, the first pick glowing, locked
- *   and badged "Your Choice" (none after a timeout), the others open and
- *   untimed. The second pick glows, the cards cross-fade into the review
- *   clip, and its end moves on as above.
+ *   consequence review instead: the same five cards in the same places,
+ *   the first pick glowing, locked and badged "Your Choice" (none after a
+ *   timeout), the others open, with the timer running as in any decision.
+ *   The second pick (or the timeout) glows, the cards cross-fade into the
+ *   review clip, and its end moves on as above.
  */
 export function SimulationScreen({
   navigation,
@@ -154,7 +154,6 @@ export function SimulationScreen({
   }
 
   const decisions = scenario.decisions;
-  const scene = BRIEFING_IMAGES[scenario.id];
 
   const finish = () => {
     markCompleted(scenario.id);
@@ -188,18 +187,10 @@ export function SimulationScreen({
     setSelectedId(undefined);
     setDecisionMounted(true);
     setPhase('decision');
-    const duration = fromVideo ? CROSS_FADE_MS : STEP_FADE_MS;
-    if (fromVideo) {
-      // Only a completed fade releases the clip: an interrupted one means a
-      // new clip has started on top of it.
-      fade(videoOpacity, 0, duration).start(({ finished }) => {
-        if (finished) {
-          setClip(undefined);
-        }
-      });
-    }
+    // An ended clip stays on screen, its last frame the backdrop.
+    const duration = fromVideo ? DECISION_FADE_MS : STEP_FADE_MS;
     fade(decisionOpacity, 1, duration).start(({ finished }) => {
-      if (finished && !review) {
+      if (finished) {
         startTimer();
       }
     });
@@ -322,11 +313,6 @@ export function SimulationScreen({
 
   return (
     <View style={styles.root}>
-      {/* The scene behind the decisions once a clip has faded. */}
-      {scene ? (
-        <Image source={scene} resizeMode="cover" style={styles.scene} />
-      ) : null}
-
       {clip ? (
         <Animated.View
           pointerEvents="none"
@@ -347,15 +333,9 @@ export function SimulationScreen({
           style={[StyleSheet.absoluteFill, { opacity: decisionOpacity }]}
         >
           <View style={styles.scrim} />
-          {reviewing ? null : <UrgencyVignette remaining={remaining} />}
+          <UrgencyVignette remaining={remaining} />
 
           <View style={[styles.options, padding]}>
-            {/* Grows the column upward, so the cards keep their places. */}
-            {reviewing ? (
-              <Text style={styles.reviewTitle} accessibilityRole="header">
-                {t('unselectedOptions')}
-              </Text>
-            ) : null}
             <View style={styles.row}>
               {card(0)}
               {card(1)}
@@ -367,13 +347,9 @@ export function SimulationScreen({
             <View style={styles.row}>{card(4)}</View>
           </View>
 
-          {reviewing ? null : (
-            <View
-              style={[styles.timer, padding, { bottom: insets.bottom + 12 }]}
-            >
-              <TensionTimer remaining={remaining} />
-            </View>
-          )}
+          <View style={[styles.timer, padding, { bottom: insets.bottom + 12 }]}>
+            <TensionTimer remaining={remaining} />
+          </View>
         </Animated.View>
       ) : null}
 
@@ -413,11 +389,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scene: {
-    ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-  },
   scrim: {
     ...StyleSheet.absoluteFill,
     backgroundColor: colors.decisionScrim,
@@ -429,16 +400,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: OPTIONS_BOTTOM,
     gap: OPTIONS_GAP,
-  },
-  // Clears the "Your Choice" badge that rises above a first-row card.
-  reviewTitle: {
-    ...androidTextFix,
-    marginBottom: 10,
-    color: colors.textSecondary,
-    fontFamily: fonts.medium, // est.
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',

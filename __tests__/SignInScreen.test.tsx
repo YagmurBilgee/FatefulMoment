@@ -264,9 +264,10 @@ test('Home lists both scenarios active until one is completed', async () => {
   await endVideo();
   expect(hasText(DECISION_1)).toBe(true);
   expect(hasText('Signal US Ships with Sonar')).toBe(true);
-  // The intro clip is gone after the cross-fade.
+  // The ended intro clip stays behind the cards as their backdrop.
   await wait(1300);
-  expect(video()).toHaveLength(0);
+  expect(video()).toHaveLength(1);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war']);
   await act(async () => {
     top(DECISION_1).props.onPress();
   });
@@ -275,17 +276,17 @@ test('Home lists both scenarios active until one is completed', async () => {
   await wait(SELECT_HOLD_MS + 1200);
   expect(video()).toHaveLength(1);
   expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
-  expect(hasText('Unselected Options')).toBe(false);
+  expect(hasText('Your Choice')).toBe(false);
   await endVideo();
   // Consequence review: the same cards, the first pick locked and badged,
-  // no timer.
-  expect(hasText('Unselected Options')).toBe(true);
+  // over the ended clip, which stays as the backdrop.
   expect(hasText('Your Choice')).toBe(true);
   expect(top(DECISION_1).props.disabled).toBe(true);
   expect(top(DECISION_1).props.accessibilityState.selected).toBe(true);
   expect(top(DECISION_2).props.disabled).toBe(false);
-  await wait(1200 + 15000);
-  expect(hasText('Unselected Options')).toBe(true);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
+  await wait(3000);
+  expect(hasText('Your Choice')).toBe(true);
   await act(async () => {
     top(DECISION_2).props.onPress();
   });
@@ -294,7 +295,7 @@ test('Home lists both scenarios active until one is completed', async () => {
   expect(video()[0].props.source).toBe(VIDEOS['iraq-war-3']);
   // The cards are gone once the cross-fade into the clip completes.
   await wait(100);
-  expect(hasText('Unselected Options')).toBe(false);
+  expect(hasText(DECISION_2)).toBe(false);
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(false);
   await endVideo();
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
@@ -310,7 +311,7 @@ test('Home lists both scenarios active until one is completed', async () => {
   expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(false);
 });
 
-test('running out of decision time moves on to the review', async () => {
+test('running out of decision time moves on, in the review too', async () => {
   await openSignIn();
   await type('Email address', MOCK_USER.email);
   await type('Password', MOCK_USER.password);
@@ -328,14 +329,14 @@ test('running out of decision time moves on to the review', async () => {
   });
   await endVideo();
   expect(hasText(DECISION_1)).toBe(true);
-  // Cross-fade, the full 15 s window, then the decision's clip fades in.
-  await wait(1200 + 15000 + 1300);
+  // Fade-in, the full 15 s window, then the decision's clip fades in.
+  await wait(700 + 15000 + 1300);
   expect(hasText(DECISION_1)).toBe(false);
   expect(video()).toHaveLength(1);
   expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
   await endVideo();
   // Nothing was picked, so no card is badged and all five stay open.
-  expect(hasText('Unselected Options')).toBe(true);
+  expect(hasText(DECISION_1)).toBe(true);
   expect(hasText('Your Choice')).toBe(false);
   expect(
     root
@@ -344,6 +345,14 @@ test('running out of decision time moves on to the review', async () => {
       )
       .pop()!.props.disabled,
   ).toBe(false);
+  // The review is timed as well: its fade-in, the full window, then the
+  // review clip, whose end opens the profile.
+  await wait(700 + 15000 + 1300);
+  expect(hasText(DECISION_1)).toBe(false);
+  expect(video()).toHaveLength(1);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war-3']);
+  await endVideo();
+  expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
 });
 
 test('Settings switches the language in place, keeping state', async () => {

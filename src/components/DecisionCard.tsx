@@ -11,7 +11,10 @@ import { usePressScale } from './usePressScale';
 const CARD_WIDTH = 345;
 const CARD_HEIGHT = 66;
 const LABEL_MAX_WIDTH = 309;
-const BADGE_HEIGHT = 20; // est.
+// Figma "Your Choice" badge: 106×32 pill, 8/16 padding, 74×16 label.
+const BADGE_WIDTH = 106;
+const BADGE_HEIGHT = 32;
+const BADGE_LABEL_WIDTH = 74;
 
 type DecisionCardProps = {
   option: DecisionOption;
@@ -70,7 +73,7 @@ export function DecisionCard({
       </Pressable>
       {badge ? (
         <View pointerEvents="none" style={styles.badge}>
-          <Text style={styles.badgeText} numberOfLines={1}>
+          <Text style={styles.badgeText} numberOfLines={1} adjustsFontSizeToFit>
             {badge}
           </Text>
         </View>
@@ -118,18 +121,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -BADGE_HEIGHT / 2,
     alignSelf: 'center',
+    width: BADGE_WIDTH,
     height: BADGE_HEIGHT,
-    paddingHorizontal: 12,
-    borderRadius: BADGE_HEIGHT / 2,
-    backgroundColor: colors.yourChoiceBadge, // #FACC15
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    gap: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.yourChoiceBorder, // #FFB900
+    backgroundColor: colors.yourChoiceBadge, // #FFD230
+    alignItems: 'center',
     justifyContent: 'center',
   },
+  // Figma asks for Inter 900; Bold is the heaviest bundled face. The
+  // label shrinks to fit its 74pt box when a translation runs longer.
   badgeText: {
     ...androidTextFix,
-    color: colors.yourChoiceText,
+    width: BADGE_LABEL_WIDTH,
+    height: 16,
+    color: colors.yourChoiceText, // #FFFFFF
     fontFamily: fonts.bold,
-    fontSize: 11,
-    lineHeight: 14,
+    fontSize: 12,
+    lineHeight: 16,
     textAlign: 'center',
   },
   // Figma caption01. Inter-Medium carries the 500 weight; the project does
