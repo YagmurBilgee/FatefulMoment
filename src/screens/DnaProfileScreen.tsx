@@ -1,10 +1,13 @@
 import React, { ReactNode, useState } from 'react';
 import {
   Image,
+  ImageStyle,
   Platform,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,6 +42,15 @@ const METRIC_ICONS: Record<DnaDimension, number> = {
 };
 
 const COLUMN_GAP = 16; // est.
+/** Figma: between stacked cards in each column. */
+const CARD_GAP = 16;
+
+// Drawer DNA icon, 48×48px @3x.
+const dnaIcon = require('../assets/images/icon-drawer-dna.png');
+const DNA_ICON_SIZE = 11; // est., one header line
+// Figma exports @3x, already coloured: 33×33px and 36×36px.
+const patternIcon = require('../assets/images/icon-pattern-detection.png');
+const blindSpotIcon = require('../assets/images/icon-blind-spot.png');
 
 // Figma: the "Karar DNAsı" text box, positioned on the screen frame.
 const TITLE_TOP = 33.04;
@@ -60,9 +72,11 @@ const METRIC_WIDTH = 62; // est.
 const METRIC_HEIGHT = 40; // est.
 const METRIC_GAP = 8; // est.
 const GRID_WIDTH = 2 * METRIC_WIDTH + METRIC_GAP;
-const GRID_HEIGHT = 3 * METRIC_HEIGHT + 2 * METRIC_GAP;
-const RADAR_WIDTH =
-  LEFT_COLUMN_WIDTH - 2 * (1 + CARD_PADDING) - MATRIX_GAP - GRID_WIDTH;
+// Figma radar canvas and its offset inside the matrix section.
+const RADAR_WIDTH = 149;
+const RADAR_HEIGHT = 115;
+const RADAR_TOP = 8.68;
+const RADAR_LEFT = 22;
 
 function Card({
   children,
@@ -94,27 +108,39 @@ function MetricCard({
         <Image source={METRIC_ICONS[dimension]} style={styles.metricIcon} />
         <Text style={styles.metricValue}>{value}</Text>
       </View>
-      <Text style={styles.metricLabel} numberOfLines={1}>
-        {DNA_LABELS[dimension].toUpperCase()}
-      </Text>
-      <View style={styles.track}>
-        <View style={[styles.fill, { width: `${(value / DNA_MAX) * 100}%` }]} />
+      <View style={styles.metricBottom}>
+        <Text style={styles.metricLabel} numberOfLines={1}>
+          {DNA_LABELS[dimension].toUpperCase()}
+        </Text>
+        <View style={styles.track}>
+          <View
+            style={[styles.fill, { width: `${(value / DNA_MAX) * 100}%` }]}
+          />
+        </View>
       </View>
     </View>
   );
 }
 
-function SectionLabel({
+/** Card title row: an icon and an 8pt mono title (Figma). */
+function CardHeader({
+  icon,
+  iconStyle,
+  titleStyle,
   children,
-  color,
 }: {
-  children: string;
-  color?: string;
+  icon: number;
+  iconStyle: StyleProp<ImageStyle>;
+  titleStyle: StyleProp<TextStyle>;
+  children: ReactNode;
 }) {
   return (
-    <Text style={[styles.sectionLabel, color ? { color } : null]}>
-      {children}
-    </Text>
+    <View style={styles.cardHeader}>
+      <Image source={icon} style={iconStyle} />
+      <Text style={[styles.cardTitle, titleStyle]} numberOfLines={1}>
+        {children}
+      </Text>
+    </View>
   );
 }
 
@@ -142,9 +168,6 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
 
   return (
     <View style={styles.root}>
-      <View style={styles.menuButton}>
-        <MenuButton expanded={menuOpen} onPress={() => setMenuOpen(true)} />
-      </View>
       <View style={styles.titleBox}>
         <Text style={styles.title} accessibilityRole="header">
           Karar DNAsı
@@ -179,15 +202,25 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
           </View>
 
           <Card>
-            <SectionLabel>PSYCHOLOGICAL MATRIX</SectionLabel>
+            <CardHeader
+              icon={dnaIcon}
+              iconStyle={styles.matrixIcon}
+              titleStyle={styles.matrixTitle}
+            >
+              PSYCHOLOGICAL MATRIX
+            </CardHeader>
             <View style={styles.matrixBody}>
-              <RadarChart
-                values={DNA_DIMENSIONS.map(dimension => score[dimension])}
-                labels={DNA_DIMENSIONS.map(dimension => DNA_LABELS[dimension])}
-                max={DNA_MAX}
-                width={RADAR_WIDTH}
-                height={GRID_HEIGHT}
-              />
+              <View style={styles.radar}>
+                <RadarChart
+                  values={DNA_DIMENSIONS.map(dimension => score[dimension])}
+                  labels={DNA_DIMENSIONS.map(
+                    dimension => DNA_LABELS[dimension],
+                  )}
+                  max={DNA_MAX}
+                  width={RADAR_WIDTH}
+                  height={RADAR_HEIGHT}
+                />
+              </View>
               {/* Row by row: Vision | Courage, Risk | Control,
                   Empathy | Ethics. */}
               <View style={styles.metricGrid}>
@@ -209,7 +242,13 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
           showsVerticalScrollIndicator={false}
         >
           <Card>
-            <SectionLabel>PATTERN DETECTION</SectionLabel>
+            <CardHeader
+              icon={patternIcon}
+              iconStyle={styles.patternIcon}
+              titleStyle={styles.patternTitle}
+            >
+              PATTERN DETECTION
+            </CardHeader>
             <View style={styles.patterns}>
               {profile.patterns.map((pattern, index) => (
                 <View key={pattern} style={styles.pattern}>
@@ -223,17 +262,25 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
           </Card>
 
           <Card accent>
-            <View style={styles.blindSpotTag}>
-              <Text style={styles.blindSpotTagText}>
-                BLIND SPOT — {profile.blindSpot.toUpperCase()}
-              </Text>
-            </View>
+            <CardHeader
+              icon={blindSpotIcon}
+              iconStyle={styles.blindSpotIcon}
+              titleStyle={styles.blindSpotTitle}
+            >
+              BLIND SPOT — {profile.blindSpot.toUpperCase()}
+            </CardHeader>
             <Text style={styles.blindSpotQuestion}>
               {profile.blindSpotQuestion}
             </Text>
             <Text style={styles.blindSpotBody}>{profile.blindSpotBody}</Text>
           </Card>
         </ScrollView>
+      </View>
+
+      {/* After the columns so it takes taps over their padding, before the
+          drawer so the open drawer covers it. */}
+      <View style={styles.menuButton}>
+        <MenuButton expanded={menuOpen} onPress={() => setMenuOpen(true)} />
       </View>
 
       <NavigationDrawer
@@ -254,7 +301,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: TITLE_TOP + (TITLE_HEIGHT - MENU_BUTTON_SIZE) / 2,
     left: MENU_BUTTON_LEFT,
-    zIndex: 1,
   },
   titleBox: {
     position: 'absolute',
@@ -291,7 +337,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   columnContent: {
-    gap: 10, // est.
+    gap: CARD_GAP,
   },
   card: {
     // Compact so the matrix fits a ~330pt tall landscape viewport unscrolled.
@@ -305,13 +351,21 @@ const styles = StyleSheet.create({
   cardAccent: {
     borderColor: colors.error,
   },
-  sectionLabel: {
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6, // est.
+  },
+  // Figma: Menlo Regular 8/11, uppercase; widths follow the text.
+  cardTitle: {
     ...androidTextFix,
-    color: colors.textSecondary,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 1,
+    height: 11,
+    fontFamily: monoFont,
+    fontWeight: '400',
+    fontSize: 8,
+    lineHeight: 11,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
   },
   archetypeCard: {
     width: LEFT_COLUMN_WIDTH,
@@ -379,10 +433,24 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 11,
   },
+  matrixIcon: {
+    width: DNA_ICON_SIZE,
+    height: DNA_ICON_SIZE,
+    tintColor: colors.dnaIcon,
+  },
+  matrixTitle: {
+    width: 97,
+    color: colors.screenTitle,
+  },
   matrixBody: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     gap: MATRIX_GAP,
+  },
+  radar: {
+    marginTop: RADAR_TOP,
+    marginLeft: RADAR_LEFT,
   },
   metricGrid: {
     width: GRID_WIDTH,
@@ -397,9 +465,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5, // est.
     justifyContent: 'space-between',
     borderRadius: 8, // est.
-    borderWidth: 1,
-    borderColor: colors.dnaCardBorder,
-    backgroundColor: colors.dnaCardFill,
+    // Figma: only a hairline top edge, no side or bottom border.
+    borderTopWidth: 0.32,
+    borderTopColor: colors.metricBorderTop,
+    backgroundColor: colors.metricFill,
   },
   metricTop: {
     flexDirection: 'row',
@@ -411,83 +480,99 @@ const styles = StyleSheet.create({
     height: 10,
     tintColor: colors.textSecondary,
   },
+  // Figma sizes; widths are left to the text (Figma: 7 and 18, but
+  // "COURAGE" needs ~20.6pt at these metrics).
   metricValue: {
     ...androidTextFix,
+    height: 7,
     color: colors.primary,
-    fontFamily: fonts.blackItalic, // est.
-    fontSize: 9, // est.
-    lineHeight: 11,
+    // Weight and style are baked into the face; see `archetype`.
+    fontFamily: fonts.blackItalic,
+    fontSize: 5.05,
+    lineHeight: 6.73,
+    letterSpacing: 0,
   },
   metricLabel: {
     ...androidTextFix,
-    color: colors.textSecondary,
+    height: 7,
+    color: colors.metricLabel,
     fontFamily: monoFont,
-    fontSize: 6.5, // est.
-    lineHeight: 8,
-    letterSpacing: 0.5,
+    fontWeight: '400',
+    fontSize: 4.21,
+    lineHeight: 6.31,
+    letterSpacing: 0.42,
+    textTransform: 'uppercase',
   },
+  metricBottom: {
+    gap: 4, // label to bar
+  },
+  // Figma: a 1.68pt bar with 1pt caps; the fill is clipped to the track.
   track: {
-    height: 3, // est.
-    borderRadius: 1.5,
-    backgroundColor: colors.divider,
+    height: 1.68,
+    borderRadius: 1,
+    backgroundColor: colors.metricTrack,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    borderRadius: 1.5,
+    borderRadius: 1,
     backgroundColor: colors.primary,
   },
+  patternIcon: {
+    width: 33 / 3,
+    height: 33 / 3,
+  },
+  patternTitle: {
+    color: colors.textSecondary,
+  },
   patterns: {
-    gap: 10,
+    gap: 10, // est.
   },
   pattern: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 6, // est.
   },
   patternIndex: {
     ...androidTextFix,
-    width: 20,
-    color: colors.primary,
-    fontFamily: fonts.bold, // est.
-    fontSize: 13,
-    lineHeight: 18,
+    width: 13,
+    height: 15,
+    color: colors.patternIndex,
+    fontFamily: monoFont,
+    fontWeight: '700',
+    fontSize: 10,
+    lineHeight: 15,
   },
+  // Same type as the archetype quote.
   patternText: {
     ...androidTextFix,
     flex: 1,
-    color: colors.white,
-    fontFamily: fonts.regular, // est.
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  blindSpotTag: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: colors.error,
-  },
-  blindSpotTagText: {
-    ...androidTextFix,
-    color: colors.error,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 1,
-  },
-  blindSpotBody: {
-    ...androidTextFix,
     color: colors.textSecondary,
-    fontFamily: fonts.regular, // est.
-    fontSize: 13,
-    lineHeight: 18,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    lineHeight: 11,
   },
+  blindSpotIcon: {
+    width: 36 / 3,
+    height: 36 / 3,
+  },
+  blindSpotTitle: {
+    color: colors.error,
+  },
+  // The card's 6pt gap already sits between the question and the
+  // paragraph, so neither needs a margin.
   blindSpotQuestion: {
     ...androidTextFix,
     color: colors.white,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 16,
-    lineHeight: 22,
+    fontFamily: fonts.medium,
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  // Pattern text size, with a looser line for the longer paragraph.
+  blindSpotBody: {
+    ...androidTextFix,
+    color: colors.textSecondary,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    lineHeight: 14,
   },
 });

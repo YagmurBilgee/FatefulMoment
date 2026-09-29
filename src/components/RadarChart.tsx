@@ -17,9 +17,9 @@ export interface Point {
 
 /** Grid rings as shares of the full radius. */
 const RINGS = [0.2, 0.4, 0.6, 0.8, 1];
-// Fits "Courage" and "Empathy" at the 8pt label size.
-const LABEL_WIDTH = 40; // est.
-const LABEL_HEIGHT = 12;
+// Figma label box; "Empathy", the widest, is ~25pt at Inter Bold 6.
+const LABEL_WIDTH = 28;
+const LABEL_HEIGHT = 7;
 /** Gap between the outer ring and the axis labels. */
 const LABEL_OFFSET = 6; // est.
 const FILL_OPACITY = 0.25; // with colors.primary: rgba(0, 211, 243, 0.25)
@@ -341,11 +341,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: LABEL_WIDTH,
     height: LABEL_HEIGHT,
-    color: colors.textSecondary,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 8,
-    lineHeight: LABEL_HEIGHT,
-    letterSpacing: 0.5,
+    color: colors.radarLabel,
+    fontFamily: fonts.bold,
+    fontSize: 6,
+    lineHeight: 6,
+    letterSpacing: 0,
   },
   labelCenter: { textAlign: 'center' },
   labelLeft: { textAlign: 'left' },

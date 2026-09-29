@@ -29,9 +29,15 @@ import { DnaProfileScreen } from '../src/screens/DnaProfileScreen';
 import { ScenarioProgressProvider } from '../src/state/ScenarioProgress';
 
 // The screen's drawer navigates; outside a navigator a stub will do.
+const mockNavigation = {
+  navigate: jest.fn(),
+  reset: jest.fn(),
+  popTo: jest.fn(),
+  getState: jest.fn(() => ({ routes: [{ name: 'DnaProfile' }] })),
+};
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({ navigate: jest.fn(), reset: jest.fn() }),
+  useNavigation: () => mockNavigation,
 }));
 
 const { act } = ReactTestRenderer;
@@ -253,8 +259,9 @@ describe('RadarChart', () => {
 });
 
 test('axis labels stay inside the chart box', async () => {
-  const width = 180;
-  const height = 136;
+  // The Figma canvas on the DNA screen.
+  const width = 149;
+  const height = 115;
   let renderer!: ReactTestRenderer.ReactTestRenderer;
   await act(() => {
     renderer = ReactTestRenderer.create(
@@ -282,6 +289,81 @@ test('axis labels stay inside the chart box', async () => {
     expect(style.top + style.height).toBeLessThanOrEqual(height);
   }
   await act(() => renderer.unmount());
+});
+
+describe('DNA screen drawer', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  const pressable = (root: ReactTestInstance, label: string) =>
+    root.find(n => n.props.accessibilityLabel === label && n.props.onPress);
+
+  const openMenu = async (root: ReactTestInstance) => {
+    await act(() => pressable(root, 'Open menu').props.onPress());
+  };
+
+  test('tapping the backdrop closes the drawer', async () => {
+    const renderer = await render({});
+    const root = renderer.root;
+    await openMenu(root);
+    expect(pressable(root, 'Open menu').props.accessibilityState.expanded).toBe(
+      true,
+    );
+
+    await act(() => pressable(root, 'Close menu').props.onPress());
+    expect(pressable(root, 'Open menu').props.accessibilityState.expanded).toBe(
+      false,
+    );
+    await act(() => renderer.unmount());
+  });
+
+  test('the open drawer covers the menu button', async () => {
+    const renderer = await render({});
+    const root = renderer.root;
+    await openMenu(root);
+    // Siblings paint in order, so the button must come before the panel and
+    // must not be lifted above it.
+    const hosts = root.findAll(n => typeof n.type === 'string');
+    const button = pressable(root, 'Open menu');
+    const panel = root.find(
+      n => typeof n.type === 'string' && n.props.accessibilityViewIsModal,
+    );
+    expect(hosts.indexOf(button)).toBeLessThan(hosts.indexOf(panel));
+    for (let n: ReactTestInstance | null = button; n; n = n.parent) {
+      if (typeof n.type === 'string') {
+        expect(StyleSheet.flatten(n.props.style)?.zIndex).toBeUndefined();
+      }
+    }
+    await act(() => renderer.unmount());
+  });
+
+  test('Scenarios pops back when it is under the DNA screen', async () => {
+    mockNavigation.getState.mockReturnValueOnce({
+      routes: [
+        { name: 'Scenarios', params: { user: 'u' } },
+        { name: 'DnaProfile' },
+      ],
+    } as never);
+    const renderer = await render({});
+    await openMenu(renderer.root);
+    await act(() => pressable(renderer.root, 'SCENARIOS').props.onPress());
+    expect(mockNavigation.popTo).toHaveBeenCalledWith('Scenarios', {
+      user: 'u',
+    });
+    expect(mockNavigation.reset).not.toHaveBeenCalled();
+    await act(() => renderer.unmount());
+  });
+
+  test('Scenarios becomes the root when the stack has no Scenarios', async () => {
+    const renderer = await render({});
+    await openMenu(renderer.root);
+    await act(() => pressable(renderer.root, 'SCENARIOS').props.onPress());
+    expect(mockNavigation.popTo).not.toHaveBeenCalled();
+    expect(mockNavigation.reset).toHaveBeenCalledWith({
+      index: 0,
+      routes: [{ name: 'Scenarios', params: {} }],
+    });
+    await act(() => renderer.unmount());
+  });
 });
 
 describe('DnaProfileScreen', () => {

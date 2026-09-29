@@ -80,4 +80,11 @@ export const colors = {
   avatarFill: '#020618', // [Figma]
   archetypeTitle: '#F1F5F9', // [Figma]
   quoteRule: 'rgba(0, 184, 219, 0.4)', // [Figma] #00B8DB66
+  dnaIcon: '#00D3F2', // [Figma] matrix header DNA icon tint
+  metricLabel: '#62748E', // [Figma] matrix mini card labels
+  metricFill: 'rgba(2, 6, 24, 0.6)', // [Figma] #02061899, mini card
+  metricBorderTop: '#1D293D', // [Figma] mini card top edge
+  radarLabel: '#64748B', // [Figma] radar axis labels
+  metricTrack: '#1D293D', // [Unverified] mini card bar track
+  patternIndex: '#00B8DB', // [Figma] pattern detection 01/02/03
 } as const;

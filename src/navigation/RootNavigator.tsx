@@ -34,7 +34,8 @@ export type AuthStackParamList = {
 
 /** Signed-in screens; entered with `navigation.reset` so Back cannot leave. */
 export type MainStackParamList = {
-  Scenarios: { user: MockProfile };
+  /** `user` is absent when the drawer rebuilds the stack from Scenarios. */
+  Scenarios: { user?: MockProfile };
   Simulation: { scenarioId: string };
   /**
    * `score` is absent when the profile is opened before playing;

@@ -200,6 +200,13 @@ export function NavigationDrawer({
         'Scenarios',
         scenarios.params as RootStackParamList['Scenarios'],
       );
+    } else {
+      // Nothing to pop back to (e.g. a stack restored by Fast Refresh with
+      // only this screen): make Scenarios the root instead.
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Scenarios', params: {} }],
+      });
     }
   };
 
