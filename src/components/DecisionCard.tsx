@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, Pressable, StyleSheet, Text } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTranslation } from '../context/LanguageContext';
 import type { DecisionOption } from '../data/simulation';
@@ -11,12 +11,17 @@ import { usePressScale } from './usePressScale';
 const CARD_WIDTH = 345;
 const CARD_HEIGHT = 66;
 const LABEL_MAX_WIDTH = 309;
+const BADGE_HEIGHT = 20; // est.
 
 type DecisionCardProps = {
   option: DecisionOption;
   selected: boolean;
   /** Another option was picked; this one fades back and stops responding. */
   dimmed: boolean;
+  /** Locked at full strength, e.g. the earlier pick in the review. */
+  disabled?: boolean;
+  /** Pill straddling the card's top edge, e.g. "Your Choice". */
+  badge?: string;
   onPress: () => void;
 };
 
@@ -24,27 +29,33 @@ type DecisionCardProps = {
  * Decision option card (Figma "Option Card"): translucent navy with a thin
  * border lit along the top edge. While pressed or once selected it takes
  * the Figma cyan glow: a navy → cyan → navy gradient, cyan border and a
- * soft cyan shadow. Values are from Figma inspect.
+ * soft cyan shadow. Values are from Figma inspect. A badge sits on the top
+ * edge without moving the card, so the grid keeps its geometry.
  */
 export function DecisionCard({
   option,
   selected,
   dimmed,
+  disabled = false,
+  badge,
   onPress,
 }: DecisionCardProps) {
-  const press = usePressScale(dimmed);
+  const inactive = dimmed || disabled;
+  const press = usePressScale(inactive);
   const { localize } = useTranslation();
   const label = localize(option.label);
   return (
     // The wrapper holds the width so a row can shrink on narrow phones.
     <Animated.View
+      pointerEvents={disabled ? 'none' : 'auto'}
       style={[styles.wrapper, press.style, dimmed && styles.dimmed]}
     >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityState={{ selected, disabled: dimmed }}
-        disabled={dimmed}
+        accessibilityHint={badge}
+        accessibilityState={{ selected, disabled: inactive }}
+        disabled={inactive}
         onPress={onPress}
         onPressIn={press.onPressIn}
         onPressOut={press.onPressOut}
@@ -57,6 +68,13 @@ export function DecisionCard({
           {label}
         </Text>
       </Pressable>
+      {badge ? (
+        <View pointerEvents="none" style={styles.badge}>
+          <Text style={styles.badgeText} numberOfLines={1}>
+            {badge}
+          </Text>
+        </View>
+      ) : null}
     </Animated.View>
   );
 }
@@ -94,6 +112,25 @@ const styles = StyleSheet.create({
   },
   dimmed: {
     opacity: 0.4,
+  },
+  // Centered on the top edge, half above the card.
+  badge: {
+    position: 'absolute',
+    top: -BADGE_HEIGHT / 2,
+    alignSelf: 'center',
+    height: BADGE_HEIGHT,
+    paddingHorizontal: 12,
+    borderRadius: BADGE_HEIGHT / 2,
+    backgroundColor: colors.yourChoiceBadge, // #FACC15
+    justifyContent: 'center',
+  },
+  badgeText: {
+    ...androidTextFix,
+    color: colors.yourChoiceText,
+    fontFamily: fonts.bold,
+    fontSize: 11,
+    lineHeight: 14,
+    textAlign: 'center',
   },
   // Figma caption01. Inter-Medium carries the 500 weight; the project does
   // not combine custom faces with fontWeight.

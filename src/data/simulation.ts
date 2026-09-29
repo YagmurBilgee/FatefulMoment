@@ -90,6 +90,13 @@ export interface DecisionNode {
    * follows directly.
    */
   outcomeVideo?: string;
+  /**
+   * Turns the decision into two picks. After the outcome clip the same
+   * options return in place as a consequence review: the first pick is
+   * marked "Your Choice" and locked, the others stay open, and the second
+   * pick plays this clip before the flow moves on. Both picks are scored.
+   */
+  reviewVideo?: string;
 }
 
 /**
@@ -149,6 +156,8 @@ const IRAQ_WAR: Scenario = {
       prompt: 'How do you treat the intelligence?',
       // Consequence scene; the same clip follows every option for now.
       outcomeVideo: 'iraq-war-2',
+      // The review's second pick, whichever option it is, then the profile.
+      reviewVideo: 'iraq-war-3',
       // Option copy follows the Figma decision frame, in row order (1 left,
       // 1 right, 2 left, 2 right, 3); Figma mixes the two languages, so
       // each line keeps its Figma wording in that language and is
@@ -194,57 +203,6 @@ const IRAQ_WAR: Scenario = {
             tr: 'ABD Gemilerine Sonarla Sinyal Ver',
           },
           impact: { control: 5, risk: 5, vision: 5 },
-        },
-      ],
-    },
-    {
-      id: 'deadline',
-      title: 'The deadline',
-      situation:
-        'The UN Security Council is split. Inspectors want months; your ' +
-        'military commanders say the window for action is closing.',
-      prompt: 'What is your next move?',
-      outcomeVideo: 'iraq-war-2',
-      options: [
-        {
-          id: 'invade',
-          label: {
-            en: 'Launch the invasion with a coalition of willing allies',
-            tr: 'Gönüllü müttefiklerden oluşan bir koalisyonla işgali başlat',
-          },
-          impact: { vision: 10, courage: 10, risk: 15, empathy: -10 },
-        },
-        {
-          id: 'extend-inspections',
-          label: {
-            en: 'Give the inspectors more time and keep pressure on Iraq',
-            tr: 'Denetçilere daha fazla zaman ver ve Irak üzerindeki baskıyı sürdür',
-          },
-          impact: { empathy: 10, ethics: 10, risk: -10, vision: -5 },
-        },
-        {
-          id: 'seek-resolution',
-          label: {
-            en: 'Push for a second UN resolution before any action',
-            tr: 'Herhangi bir adımdan önce ikinci bir BM kararı için bastır',
-          },
-          impact: { control: 10, ethics: 5, courage: -5 },
-        },
-        {
-          id: 'targeted-strikes',
-          label: {
-            en: 'Order limited air strikes on the suspected weapon sites',
-            tr: 'Şüpheli silah tesislerine sınırlı hava saldırısı emri ver',
-          },
-          impact: { courage: 5, risk: 10, control: 5, empathy: -5 },
-        },
-        {
-          id: 'back-channel',
-          label: {
-            en: 'Open a secret back channel to negotiate with Baghdad',
-            tr: 'Bağdat ile pazarlık için gizli bir kanal aç',
-          },
-          impact: { vision: 10, empathy: 5, risk: 5, control: -5 },
         },
       ],
     },

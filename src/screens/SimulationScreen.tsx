@@ -68,6 +68,12 @@ const playable = (id: string | undefined) =>
  *   appear, or, after the last one, the DNA profile, which replaces this
  *   screen so Back from it returns to Scenarios. Without a clip the flow
  *   moves straight on.
+ * - review: for a decision with a `reviewVideo`, its clip ends in a
+ *   consequence review instead: the same five cards in the same places
+ *   under an "Unselected Options" title, the first pick glowing, locked
+ *   and badged "Your Choice" (none after a timeout), the others open and
+ *   untimed. The second pick glows, the cards cross-fade into the review
+ *   clip, and its end moves on as above.
  */
 export function SimulationScreen({
   navigation,
@@ -83,6 +89,10 @@ export function SimulationScreen({
   /** Decisions answered so far; drives which options are shown. */
   const [step, setStep] = useState(0);
   const [selectedId, setSelectedId] = useState<string>();
+  /** The decision on screen is its consequence review. */
+  const [reviewing, setReviewing] = useState(false);
+  /** The first pick, badged in the review; unset after a timeout. */
+  const [choiceId, setChoiceId] = useState<string>();
   /** Clip on screen; `key` remounts it, so the same clip can play again. */
   const [clip, setClip] = useState<{ id: string; key: number }>();
   /** The decision layer stays mounted while it fades out. */
@@ -97,6 +107,10 @@ export function SimulationScreen({
   // Read by callbacks that outlive a render (timer, clip end), so they
   // always see the latest answers.
   const impacts = useRef<DnaImpact[]>([]);
+  /** Decisions finished, their review included. */
+  const answered = useRef(0);
+  /** The current decision's review comes next. */
+  const reviewPending = useRef(false);
   const clipCount = useRef(0);
   // Guards against a double end (end + error) and double decisions (tap +
   // timeout, or two quick taps).
@@ -165,10 +179,12 @@ export function SimulationScreen({
 
   /** Fades the next decision in, from a clip or from the previous one. */
   const showDecision = (fromVideo: boolean) => {
+    const review = reviewPending.current;
     decided.current = false;
     remaining.setValue(1);
     decisionOpacity.setValue(0);
-    setStep(impacts.current.length);
+    setStep(answered.current);
+    setReviewing(review);
     setSelectedId(undefined);
     setDecisionMounted(true);
     setPhase('decision');
@@ -183,15 +199,18 @@ export function SimulationScreen({
       });
     }
     fade(decisionOpacity, 1, duration).start(({ finished }) => {
-      if (finished) {
+      if (finished && !review) {
         startTimer();
       }
     });
   };
 
-  /** After a clip or a decision: the next decision, or the profile. */
+  const done = () =>
+    !reviewPending.current && answered.current === decisions.length;
+
+  /** After a clip or a decision: the review, next decision or profile. */
   const advance = (fromVideo: boolean) => {
-    if (impacts.current.length === decisions.length) {
+    if (done()) {
       finish();
     } else {
       showDecision(fromVideo);
@@ -231,15 +250,25 @@ export function SimulationScreen({
     }
     decided.current = true;
     timer.current?.stop();
-    const node = decisions[impacts.current.length];
-    const outcome = playable(option?.outcomeVideo ?? node.outcomeVideo);
+    const node = decisions[answered.current];
+    const review = reviewPending.current;
+    const outcome = playable(
+      review ? node.reviewVideo : option?.outcomeVideo ?? node.outcomeVideo,
+    );
     const commit = () => {
       impacts.current = [...impacts.current, impact];
+      if (!review && node.reviewVideo) {
+        reviewPending.current = true;
+        setChoiceId(option?.id);
+      } else {
+        reviewPending.current = false;
+        answered.current += 1;
+      }
       if (outcome) {
         playClip(outcome, true);
         return;
       }
-      if (impacts.current.length === decisions.length) {
+      if (done()) {
         finish();
         return;
       }
@@ -278,11 +307,14 @@ export function SimulationScreen({
     if (!option) {
       return null;
     }
+    const chosen = reviewing && choiceId === option.id;
     return (
       <DecisionCard
         option={option}
-        selected={selectedId === option.id}
-        dimmed={selectedId !== undefined && selectedId !== option.id}
+        selected={chosen || selectedId === option.id}
+        dimmed={!chosen && selectedId !== undefined && selectedId !== option.id}
+        disabled={chosen}
+        badge={chosen ? t('yourChoice') : undefined}
         onPress={() => decide(option.impact, option)}
       />
     );
@@ -315,9 +347,15 @@ export function SimulationScreen({
           style={[StyleSheet.absoluteFill, { opacity: decisionOpacity }]}
         >
           <View style={styles.scrim} />
-          <UrgencyVignette remaining={remaining} />
+          {reviewing ? null : <UrgencyVignette remaining={remaining} />}
 
           <View style={[styles.options, padding]}>
+            {/* Grows the column upward, so the cards keep their places. */}
+            {reviewing ? (
+              <Text style={styles.reviewTitle} accessibilityRole="header">
+                {t('unselectedOptions')}
+              </Text>
+            ) : null}
             <View style={styles.row}>
               {card(0)}
               {card(1)}
@@ -329,9 +367,13 @@ export function SimulationScreen({
             <View style={styles.row}>{card(4)}</View>
           </View>
 
-          <View style={[styles.timer, padding, { bottom: insets.bottom + 12 }]}>
-            <TensionTimer remaining={remaining} />
-          </View>
+          {reviewing ? null : (
+            <View
+              style={[styles.timer, padding, { bottom: insets.bottom + 12 }]}
+            >
+              <TensionTimer remaining={remaining} />
+            </View>
+          )}
         </Animated.View>
       ) : null}
 
@@ -387,6 +429,16 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: OPTIONS_BOTTOM,
     gap: OPTIONS_GAP,
+  },
+  // Clears the "Your Choice" badge that rises above a first-row card.
+  reviewTitle: {
+    ...androidTextFix,
+    marginBottom: 10,
+    color: colors.textSecondary,
+    fontFamily: fonts.medium, // est.
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',

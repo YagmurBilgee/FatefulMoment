@@ -20,6 +20,8 @@ export const en = {
   startSimulation: 'Start Simulation',
   scenarioUnavailable: 'Scenario unavailable',
   scenarioComingSoon: 'This scenario is coming soon.',
+  unselectedOptions: 'Unselected Options',
+  yourChoice: 'Your Choice',
 
   // Navigation drawer and settings
   drawerScenarios: 'SCENARIOS',

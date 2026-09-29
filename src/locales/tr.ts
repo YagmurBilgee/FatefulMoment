@@ -17,6 +17,8 @@ export const tr: Dictionary = {
   startSimulation: 'Simülasyonu Başlat',
   scenarioUnavailable: 'Senaryo kullanılamıyor',
   scenarioComingSoon: 'Bu senaryo yakında geliyor.',
+  unselectedOptions: 'Seçilmeyen Seçenekler',
+  yourChoice: 'Senin Seçimin',
 
   // Navigation drawer and settings
   drawerScenarios: 'SENARYOLAR',

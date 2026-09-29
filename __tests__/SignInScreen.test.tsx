@@ -36,10 +36,11 @@ const hasText = (text: string) =>
 
 const signInButton = () => byLabel('Sign In');
 
-// One option of each Iraq War decision; the decision screen shows no
-// question text (Figma), so the options identify the decision on screen.
+// Iraq War options; the decision screen shows no question text (Figma),
+// so the options identify it. The review offers the same cards again.
 const DECISION_1 = 'Wait for Signal from Moscow';
-const DECISION_2 = 'Launch the invasion with a coalition of willing allies';
+const DECISION_2 =
+  'Naval Quarantine: Blockade Cuba and stop Soviet ships while negotiating in secret.';
 
 const video = () =>
   root.findAll(
@@ -274,13 +275,26 @@ test('Home lists both scenarios active until one is completed', async () => {
   await wait(SELECT_HOLD_MS + 1200);
   expect(video()).toHaveLength(1);
   expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
-  expect(hasText(DECISION_2)).toBe(false);
+  expect(hasText('Unselected Options')).toBe(false);
   await endVideo();
-  expect(hasText(DECISION_2)).toBe(true);
+  // Consequence review: the same cards, the first pick locked and badged,
+  // no timer.
+  expect(hasText('Unselected Options')).toBe(true);
+  expect(hasText('Your Choice')).toBe(true);
+  expect(top(DECISION_1).props.disabled).toBe(true);
+  expect(top(DECISION_1).props.accessibilityState.selected).toBe(true);
+  expect(top(DECISION_2).props.disabled).toBe(false);
+  await wait(1200 + 15000);
+  expect(hasText('Unselected Options')).toBe(true);
   await act(async () => {
     top(DECISION_2).props.onPress();
   });
   await wait(SELECT_HOLD_MS + 1200);
+  expect(video()).toHaveLength(1);
+  expect(video()[0].props.source).toBe(VIDEOS['iraq-war-3']);
+  // The cards are gone once the cross-fade into the clip completes.
+  await wait(100);
+  expect(hasText('Unselected Options')).toBe(false);
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(false);
   await endVideo();
   expect(hasText('PSYCHOLOGICAL MATRIX')).toBe(true);
@@ -296,7 +310,7 @@ test('Home lists both scenarios active until one is completed', async () => {
   expect(startButton('Cuban Missile Crisis (1962)').props.disabled).toBe(false);
 });
 
-test('running out of decision time moves on to the next decision', async () => {
+test('running out of decision time moves on to the review', async () => {
   await openSignIn();
   await type('Email address', MOCK_USER.email);
   await type('Password', MOCK_USER.password);
@@ -320,7 +334,16 @@ test('running out of decision time moves on to the next decision', async () => {
   expect(video()).toHaveLength(1);
   expect(video()[0].props.source).toBe(VIDEOS['iraq-war-2']);
   await endVideo();
-  expect(hasText(DECISION_2)).toBe(true);
+  // Nothing was picked, so no card is badged and all five stay open.
+  expect(hasText('Unselected Options')).toBe(true);
+  expect(hasText('Your Choice')).toBe(false);
+  expect(
+    root
+      .findAll(
+        n => n.props.accessibilityLabel === DECISION_1 && n.props.onPress,
+      )
+      .pop()!.props.disabled,
+  ).toBe(false);
 });
 
 test('Settings switches the language in place, keeping state', async () => {

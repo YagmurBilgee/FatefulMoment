@@ -6,6 +6,7 @@ import Video, { type ReactVideoSource } from 'react-native-video';
 export const VIDEOS: Record<string, ReactVideoSource> = {
   'iraq-war': { uri: require('../assets/images/iraq-war.mp4') },
   'iraq-war-2': { uri: require('../assets/images/irac-war-2.mp4') },
+  'iraq-war-3': { uri: require('../assets/images/iraq-war-3.mp4') },
 };
 
 type ScenarioVideoProps = {

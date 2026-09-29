@@ -66,4 +66,8 @@ export const colors = {
   timerMid: '#FF6900', // [Unverified] tension timer halfway (orange)
   timerEnd: '#FB2C36', // [Unverified] tension timer running out (brief)
   timerTrack: 'rgba(255, 255, 255, 0.1)', // [Unverified]
+
+  // Simulation consequence review
+  yourChoiceBadge: '#FACC15', // [Brief] "Your Choice" pill
+  yourChoiceText: '#0F172B', // [Brief] dark pill text
 } as const;
