@@ -9,6 +9,17 @@ export const VIDEOS: Record<string, ReactVideoSource> = {
   'iraq-war-3': { uri: require('../assets/images/iraq-war-3.mp4') },
 };
 
+/** Scrim opacity over a clip's last frame held behind the decisions. */
+export const DEFAULT_BACKDROP_DIM = 0.85;
+
+/**
+ * Clips whose last frame is already dark take a lighter scrim, so the
+ * scene stays visible. `iraq-war` fades out to a mean luma of ~0.06.
+ */
+export const BACKDROP_DIM: Record<string, number> = {
+  'iraq-war': 0.2,
+};
+
 type ScenarioVideoProps = {
   source: ReactVideoSource;
   /** Called once when the clip has played to the end, or fails to play. */

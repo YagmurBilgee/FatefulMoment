@@ -9,7 +9,12 @@ import {
 } from '../components/LandscapeHeader';
 import { DecisionCard } from '../components/DecisionCard';
 import { ScenarioBriefing } from '../components/ScenarioBriefing';
-import { ScenarioVideo, VIDEOS } from '../components/ScenarioVideo';
+import {
+  BACKDROP_DIM,
+  DEFAULT_BACKDROP_DIM,
+  ScenarioVideo,
+  VIDEOS,
+} from '../components/ScenarioVideo';
 import { TensionTimer, UrgencyVignette } from '../components/TensionTimer';
 import { useTranslation } from '../context/LanguageContext';
 import {
@@ -97,6 +102,11 @@ export function SimulationScreen({
   const [clip, setClip] = useState<{ id: string; key: number }>();
   /** The decision layer stays mounted while it fades out. */
   const [decisionMounted, setDecisionMounted] = useState(false);
+  /**
+   * Scrim opacity for the held clip, fixed when the decision appears so it
+   * does not jump when the next clip starts under the fading cards.
+   */
+  const [backdropDim, setBackdropDim] = useState(DEFAULT_BACKDROP_DIM);
 
   const videoOpacity = useRef(new Animated.Value(1)).current;
   const decisionOpacity = useRef(new Animated.Value(0)).current;
@@ -185,6 +195,7 @@ export function SimulationScreen({
     setStep(answered.current);
     setReviewing(review);
     setSelectedId(undefined);
+    setBackdropDim((clip && BACKDROP_DIM[clip.id]) ?? DEFAULT_BACKDROP_DIM);
     setDecisionMounted(true);
     setPhase('decision');
     // An ended clip stays on screen, its last frame the backdrop.
@@ -332,7 +343,7 @@ export function SimulationScreen({
           pointerEvents={phase === 'decision' ? 'box-none' : 'none'}
           style={[StyleSheet.absoluteFill, { opacity: decisionOpacity }]}
         >
-          <View style={styles.scrim} />
+          <View style={[styles.scrim, { opacity: backdropDim }]} />
           <UrgencyVignette remaining={remaining} />
 
           <View style={[styles.options, padding]}>

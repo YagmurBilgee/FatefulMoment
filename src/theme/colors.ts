@@ -58,7 +58,7 @@ export const colors = {
   cardBorder: '#1D293D', // [Figma] scenario card
 
   // Simulation decision phase
-  decisionScrim: 'rgba(2, 6, 24, 0.85)', // [Brief] over the held last frame
+  decisionScrim: '#020618', // [Brief] over the held last frame; opacity per clip
   optionCardFill: 'rgba(15, 23, 43, 0.63)', // [Figma] #0F172BA1
   optionCardBorder: 'rgba(248, 250, 252, 0.2)', // [Figma] #F8FAFC @ 20%
   optionCardBorderTop: '#F8FAFC', // [Figma] lit top edge
