@@ -71,13 +71,14 @@ export function applyImpacts(base: DnaScore, impacts: DnaImpact[]): DnaScore {
 
 /*
  * Mock archetype profiles shown on the DNA screen. Brave Visionary is the
- * Figma frame's copy; the other two are placeholders in the same shape.
- * Scores are fixed per profile, not the raw sum of the player's impacts.
+ * Figma frame's copy; the other two follow the brief (title and quote) with
+ * placeholder patterns and blind spots. Scores are fixed per profile, not
+ * the raw sum of the player's impacts.
  */
 export type DnaProfileId =
   | 'brave-visionary'
   | 'pragmatic-strategist'
-  | 'crisis-survivor';
+  | 'empathetic-leader';
 
 export interface DnaProfile {
   id: DnaProfileId;
@@ -142,60 +143,66 @@ export const DNA_PROFILES: Record<DnaProfileId, DnaProfile> = {
     blindSpotBody:
       'Your control is exceptional — but your risk score is your lowest dimension. Some windows close before the plan is perfect. Your caution keeps you safe, but it can leave the initiative to those willing to move first.',
   },
-  'crisis-survivor': {
-    id: 'crisis-survivor',
-    archetype: 'CRISIS SURVIVOR',
+  'empathetic-leader': {
+    id: 'empathetic-leader',
+    archetype: 'EMPATHETIC LEADER',
     quote:
-      'You let events unfold and react only when forced. Survival was ' +
-      'achieved, but the initiative was lost.',
+      'When the pressure peaks, you put people and principles first. ' +
+      'Results follow trust, and you never leave your crew behind.',
     scores: {
-      vision: 35,
-      courage: 40,
-      risk: 28,
-      control: 45,
-      empathy: 60,
-      ethics: 65,
+      vision: 57,
+      courage: 36,
+      risk: 41,
+      control: 52,
+      empathy: 86,
+      ethics: 81,
     },
     patterns: [
-      'When the clock ran out, you had not decided yet. Under pressure your first instinct is to wait for more information.',
-      'You avoid choices that could hurt others. Your ethics and empathy stay intact — but events decide in your place.',
-      'Hesitation is also a decision. In a crisis, the side that moves first sets the terms everyone else must accept.',
+      'You read the room before you read the report. Under pressure you check who will carry the cost of a decision before you make it.',
+      'You refuse options that cross a line, even when they would work. Your team trusts you because your principles do not bend with the stakes.',
+      'You build consensus before you act. It keeps everyone with you — but in a crisis, the clock does not always wait for agreement.',
     ],
-    blindSpot: 'risk',
-    blindSpotQuestion: 'Who decides when you do not?',
+    blindSpot: 'courage',
+    blindSpotQuestion: 'Can you make the call nobody likes?',
     blindSpotBody:
-      'Your ethics and empathy are your strongest dimensions — but your risk score is your lowest. Avoiding every risk left the outcome to others. You survived the crisis, but you did not shape it.',
+      'Your empathy and ethics are your strongest dimensions — but your courage score is your lowest. Some decisions hurt someone whichever way you choose. Protecting everyone can mean deciding too late for anyone.',
   },
 };
 
-/** How the player got to the DNA screen. */
-export interface SimulationPath {
-  /** Summed score from the player's picks; absent before playing. */
-  score?: DnaScore;
-  /** A decision timer ran out at least once. */
-  timedOut?: boolean;
-}
+/** The dimension pair each archetype is defined by. */
+export const DNA_PROFILE_DIMENSIONS: Record<
+  DnaProfileId,
+  [DnaDimension, DnaDimension]
+> = {
+  'brave-visionary': ['vision', 'courage'],
+  'pragmatic-strategist': ['risk', 'control'],
+  'empathetic-leader': ['empathy', 'ethics'],
+};
+
+const PROFILE_ORDER = Object.keys(DNA_PROFILE_DIMENSIONS) as DnaProfileId[];
 
 /**
- * Picks the profile for a simulation path: any timeout makes a Crisis
- * Survivor; otherwise bold picks (courage and risk) outweighing control
- * make a Brave Visionary, and cautious ones a Pragmatic Strategist.
- * Without a played path the Figma default is shown.
+ * Picks the archetype whose dimension pair scores highest in a played
+ * path. Ties go to the earlier profile (Brave Visionary first).
  */
-export function selectDnaProfile({
-  score,
-  timedOut,
-}: SimulationPath): DnaProfile {
-  if (timedOut) {
-    return DNA_PROFILES['crisis-survivor'];
-  }
-  if (!score) {
-    return DNA_PROFILES['brave-visionary'];
-  }
-  const boldness = (score.courage + score.risk) / 2;
-  return boldness >= score.control
-    ? DNA_PROFILES['brave-visionary']
-    : DNA_PROFILES['pragmatic-strategist'];
+export function selectDnaProfile(score: DnaScore): DnaProfile {
+  const pairScore = (id: DnaProfileId) =>
+    DNA_PROFILE_DIMENSIONS[id].reduce((sum, d) => sum + score[d], 0);
+  const best = PROFILE_ORDER.reduce((top, id) =>
+    pairScore(id) > pairScore(top) ? id : top,
+  );
+  return DNA_PROFILES[best];
+}
+
+// Starts at a random archetype each launch, then takes the next one on
+// every visit, so repeated visits never show the same one twice in a row.
+let drawerTurn = Math.floor(Math.random() * PROFILE_ORDER.length);
+
+/** Archetype for the DNA screen opened without a played path. */
+export function nextBrowsedProfile(): DnaProfile {
+  const id = PROFILE_ORDER[drawerTurn % PROFILE_ORDER.length];
+  drawerTurn += 1;
+  return DNA_PROFILES[id];
 }
 
 // ---------------------------------------------------------------------------

@@ -37,11 +37,8 @@ export type MainStackParamList = {
   /** `user` is absent when the drawer rebuilds the stack from Scenarios. */
   Scenarios: { user?: MockProfile };
   Simulation: { scenarioId: string };
-  /**
-   * `score` is absent when the profile is opened before playing;
-   * `timedOut` is set when a decision timer ran out.
-   */
-  DnaProfile: { score?: DnaScore; timedOut?: boolean };
+  /** `score` is absent when the profile is opened from the drawer. */
+  DnaProfile: { score?: DnaScore };
 };
 
 export type RootStackParamList = AuthStackParamList & MainStackParamList;

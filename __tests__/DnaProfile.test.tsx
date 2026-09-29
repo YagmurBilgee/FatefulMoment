@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import ReactTestRenderer, { ReactTestInstance } from 'react-test-renderer';
 
 import {
@@ -23,6 +23,7 @@ import {
   DnaProfile,
   DnaScore,
   applyImpacts,
+  nextBrowsedProfile,
   selectDnaProfile,
 } from '../src/data/simulation';
 import { DnaProfileScreen } from '../src/screens/DnaProfileScreen';
@@ -53,7 +54,7 @@ const texts = (root: ReactTestInstance) =>
 const area = ([a, b, c]: Point[]) =>
   Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2;
 
-async function render(params: { score?: DnaScore; timedOut?: boolean }) {
+async function render(params: { score?: DnaScore }) {
   let renderer!: ReactTestRenderer.ReactTestRenderer;
   await act(() => {
     renderer = ReactTestRenderer.create(
@@ -81,28 +82,30 @@ const vertexCentres = (root: ReactTestInstance): Point[] =>
   });
 
 describe('selectDnaProfile', () => {
-  test('shows the Figma default before playing', () => {
-    expect(selectDnaProfile({}).id).toBe('brave-visionary');
+  test.each([
+    ['vision and courage', { vision: 20, courage: 20 }, 'brave-visionary'],
+    ['risk and control', { risk: 20, control: 20 }, 'pragmatic-strategist'],
+    ['empathy and ethics', { empathy: 20, ethics: 20 }, 'empathetic-leader'],
+  ] as const)('a lead in %s picks %s', (_, impact, id) => {
+    expect(selectDnaProfile(applyImpacts(BASELINE_DNA, [impact])).id).toBe(id);
   });
 
-  test('a timeout makes a Crisis Survivor whatever the score', () => {
-    const bold = applyImpacts(BASELINE_DNA, [{ courage: 20, risk: 20 }]);
-    expect(selectDnaProfile({ score: bold, timedOut: true }).id).toBe(
-      'crisis-survivor',
-    );
+  test('the highest pair wins, not the highest single dimension', () => {
+    // Courage alone is the top score, but risk + control sums higher.
+    const score = applyImpacts(BASELINE_DNA, [
+      { courage: 25, vision: -10, risk: 12, control: 12 },
+    ]);
+    expect(selectDnaProfile(score).id).toBe('pragmatic-strategist');
   });
 
-  test('bold picks make a visionary, cautious ones a strategist', () => {
-    const bold = applyImpacts(BASELINE_DNA, [
-      { courage: 10, risk: 15, ethics: -10 },
-    ]);
-    const cautious = applyImpacts(BASELINE_DNA, [
-      { control: 10, courage: 5, risk: 5, ethics: 5 },
-    ]);
-    expect(selectDnaProfile({ score: bold }).id).toBe('brave-visionary');
-    expect(selectDnaProfile({ score: cautious }).id).toBe(
-      'pragmatic-strategist',
-    );
+  test('ties go to Brave Visionary', () => {
+    expect(selectDnaProfile(BASELINE_DNA).id).toBe('brave-visionary');
+  });
+
+  test('drawer visits cycle through every archetype', () => {
+    const visits = [1, 2, 3, 4].map(() => nextBrowsedProfile().id);
+    expect(new Set(visits.slice(0, 3)).size).toBe(3);
+    expect(visits[3]).toBe(visits[0]);
   });
 
   test.each(Object.values(DNA_PROFILES))(
@@ -368,16 +371,20 @@ describe('DNA screen drawer', () => {
 
 describe('DnaProfileScreen', () => {
   test.each([
-    ['no play', {}, DNA_PROFILES['brave-visionary']],
+    [
+      'bold',
+      { score: applyImpacts(BASELINE_DNA, [{ vision: 20 }]) },
+      DNA_PROFILES['brave-visionary'],
+    ],
     [
       'cautious',
       { score: applyImpacts(BASELINE_DNA, [{ control: 20 }]) },
       DNA_PROFILES['pragmatic-strategist'],
     ],
     [
-      'timed out',
-      { score: BASELINE_DNA, timedOut: true },
-      DNA_PROFILES['crisis-survivor'],
+      'caring',
+      { score: applyImpacts(BASELINE_DNA, [{ empathy: 20 }]) },
+      DNA_PROFILES['empathetic-leader'],
     ],
   ])('draws the %s path as its profile', async (_, params, profile) => {
     const renderer = await render(params);
@@ -385,6 +392,21 @@ describe('DnaProfileScreen', () => {
     const shown = texts(root);
 
     expect(shown).toContain(profile.archetype);
+    const avatar = root.find(
+      n =>
+        typeof n.type === 'string' &&
+        n.props.style?.width === 64 &&
+        n.props.source,
+    );
+    expect(avatar.props.source).toEqual(
+      Image.resolveAssetSource(
+        {
+          'brave-visionary': require('../src/assets/images/avatar-brave-visionary.png'),
+          'pragmatic-strategist': require('../src/assets/images/avatar-pragmatic-strategist.png'),
+          'empathetic-leader': require('../src/assets/images/avatar-empathetic-leader.png'),
+        }[profile.id],
+      ),
+    );
     expect(shown).toContain(`BLIND SPOT — ${profile.blindSpot.toUpperCase()}`);
     for (const dimension of DNA_DIMENSIONS) {
       const row = root.find(
@@ -430,17 +452,36 @@ describe('DnaProfileScreen', () => {
   });
 
   test('switching profiles reshapes the polygon', async () => {
-    const first = await render({});
+    const first = await render({ score: BASELINE_DNA });
     const visionary = vertexCentres(first.root);
     await act(() => first.unmount());
 
-    const second = await render({ score: BASELINE_DNA, timedOut: true });
-    const survivor = vertexCentres(second.root);
+    const second = await render({
+      score: applyImpacts(BASELINE_DNA, [{ empathy: 20 }]),
+    });
+    const leader = vertexCentres(second.root);
     await act(() => second.unmount());
 
-    // Vision drops from 88 to 35, so the top vertex moves down.
-    expect(survivor[0].y).toBeGreaterThan(visionary[0].y);
-    // Ethics rises from 31 to 65, so its vertex moves outwards.
-    expect(survivor[5].x).toBeLessThan(visionary[5].x);
+    // Vision drops from 88 to 57, so the top vertex moves down.
+    expect(leader[0].y).toBeGreaterThan(visionary[0].y);
+    // Ethics rises from 31 to 81, so its vertex moves outwards.
+    expect(leader[5].x).toBeLessThan(visionary[5].x);
+  });
+
+  test('a drawer visit shows the next archetype and keeps it', async () => {
+    const archetypes = Object.values(DNA_PROFILES).map(p => p.archetype);
+    const renderer = await render({});
+    const shownBefore = texts(renderer.root).find(t => archetypes.includes(t));
+    expect(shownBefore).toBeDefined();
+    // Opening and closing the menu re-renders; the archetype must not change.
+    await act(() =>
+      renderer.root
+        .find(
+          n => n.props.accessibilityLabel === 'Open menu' && n.props.onPress,
+        )
+        .props.onPress(),
+    );
+    expect(texts(renderer.root)).toContain(shownBefore);
+    await act(() => renderer.unmount());
   });
 });

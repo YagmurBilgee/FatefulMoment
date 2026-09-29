@@ -169,8 +169,6 @@ export function SimulationScreen({
     markCompleted(scenario.id);
     navigation.replace('DnaProfile', {
       score: applyImpacts(BASELINE_DNA, impacts.current),
-      // A timeout records TIMEOUT_IMPACT itself, so identity finds it.
-      timedOut: impacts.current.includes(TIMEOUT_IMPACT),
     });
   };
 

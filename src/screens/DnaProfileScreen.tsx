@@ -21,15 +21,21 @@ import {
   DNA_LABELS,
   DNA_MAX,
   DnaDimension,
+  DnaProfileId,
+  nextBrowsedProfile,
   selectDnaProfile,
 } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts, monoFont } from '../theme/typography';
 
-// Placeholder cropped from the Figma screenshot (128×128, @2x); the same
-// portrait stands in for every archetype until the exports are provided.
-const avatar = require('../assets/images/avatar-brave-visionary.png');
+// Brave Visionary is cropped from the Figma screenshot (128×128, @2x); the
+// others are the provided portraits scaled to 192×192 (64pt @3x).
+const AVATARS: Record<DnaProfileId, number> = {
+  'brave-visionary': require('../assets/images/avatar-brave-visionary.png'),
+  'pragmatic-strategist': require('../assets/images/avatar-pragmatic-strategist.png'),
+  'empathetic-leader': require('../assets/images/avatar-empathetic-leader.png'),
+};
 
 // Lucide icons (ISC licence) exported at @3x, tinted in code.
 const METRIC_ICONS: Record<DnaDimension, number> = {
@@ -158,7 +164,13 @@ function CardHeader({
 export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
   const insets = useSafeAreaInsets();
   const padding = useLandscapePadding();
-  const profile = selectDnaProfile(route.params);
+  // Fixed for the visit: a played path decides the archetype, a visit from
+  // the drawer takes the next one in turn.
+  const [profile] = useState(() =>
+    route.params?.score
+      ? selectDnaProfile(route.params.score)
+      : nextBrowsedProfile(),
+  );
   const score = profile.scores;
   const columnPadding = {
     paddingTop: TITLE_TO_CARDS,
@@ -187,7 +199,11 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
         >
           <View style={styles.archetypeCard}>
             <View style={styles.avatarBox}>
-              <Image source={avatar} style={styles.avatar} resizeMode="cover" />
+              <Image
+                source={AVATARS[profile.id]}
+                style={styles.avatar}
+                resizeMode="cover"
+              />
             </View>
             <View style={styles.archetypeText}>
               <Text style={styles.archetype} numberOfLines={1}>
