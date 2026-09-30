@@ -301,7 +301,10 @@ const IRAQ_WAR: Scenario = {
       // Option copy follows the Figma decision frame, in row order (1 left,
       // 1 right, 2 left, 2 right, 3); Figma mixes the two languages, so
       // each line keeps its Figma wording in that language and is
-      // translated for the other. Impacts are placeholders.
+      // translated for the other. Impacts are placeholders, balanced so
+      // the bold path (launch on schedule, then signal with sonar) lands
+      // on Brave Visionary with vision and courage at 80, while naval
+      // quarantine followed by waiting or sonar stays Pragmatic Strategist.
       options: [
         {
           id: 'naval-quarantine',
@@ -325,7 +328,7 @@ const IRAQ_WAR: Scenario = {
             en: 'Bow to Time Pressure: Launch on the set schedule despite the risks, under political and media pressure.',
             tr: 'Zaman Baskısına Uyum: Siyasi ve medya baskısı nedeniyle risklere rağmen belirlenen takvimde fırlatmayı başlat.',
           },
-          impact: { courage: 10, risk: 15, ethics: -10 },
+          impact: { vision: 15, courage: 25, risk: 15, ethics: -10 },
         },
         {
           id: 'sonar-signal',
@@ -333,7 +336,7 @@ const IRAQ_WAR: Scenario = {
             en: 'Signal US Ships with Sonar',
             tr: 'ABD Gemilerine Sonarla Sinyal Ver',
           },
-          impact: { control: 5, risk: 5, vision: 5 },
+          impact: { vision: 15, courage: 5, control: 10, risk: 5 },
         },
         {
           // Same copy as the card above in Figma.
@@ -342,7 +345,7 @@ const IRAQ_WAR: Scenario = {
             en: 'Signal US Ships with Sonar',
             tr: 'ABD Gemilerine Sonarla Sinyal Ver',
           },
-          impact: { control: 5, risk: 5, vision: 5 },
+          impact: { vision: 15, courage: 5, control: 10, risk: 5 },
         },
       ],
     },

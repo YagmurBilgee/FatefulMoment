@@ -23,6 +23,7 @@ import {
   DnaProfile,
   DnaScore,
   applyImpacts,
+  findScenario,
   nextBrowsedProfile,
   selectDnaProfile,
 } from '../src/data/simulation';
@@ -50,6 +51,15 @@ const texts = (root: ReactTestInstance) =>
   root
     .findAll(n => typeof n.type === 'string' && n.props.children != null)
     .map(n => textOf(n.props.children));
+
+/** Score after picking these Iraq War options, first pick then review. */
+const iraqPath = (...ids: string[]): DnaScore => {
+  const options = findScenario('iraq-war')!.decisions[0].options;
+  return applyImpacts(
+    BASELINE_DNA,
+    ids.map(id => options.find(option => option.id === id)!.impact),
+  );
+};
 
 const area = ([a, b, c]: Point[]) =>
   Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2;
@@ -96,6 +106,23 @@ describe('selectDnaProfile', () => {
       { courage: 25, vision: -10, risk: 12, control: 12 },
     ]);
     expect(selectDnaProfile(score).id).toBe('pragmatic-strategist');
+  });
+
+  test.each([
+    ['launch-on-schedule', 'sonar-signal'],
+    ['sonar-signal', 'launch-on-schedule'],
+  ])('the bold Iraq War path %s → %s reaches Brave Visionary', (a, b) => {
+    const score = iraqPath(a, b);
+    expect(score.vision).toBeGreaterThanOrEqual(80);
+    expect(score.courage).toBeGreaterThanOrEqual(80);
+    expect(selectDnaProfile(score).id).toBe('brave-visionary');
+  });
+
+  test.each([
+    ['naval-quarantine', 'wait-for-moscow'],
+    ['naval-quarantine', 'sonar-signal'],
+  ])('the cautious Iraq War path %s → %s stays Pragmatic', (a, b) => {
+    expect(selectDnaProfile(iraqPath(a, b)).id).toBe('pragmatic-strategist');
   });
 
   test('ties go to Brave Visionary', () => {
@@ -373,7 +400,7 @@ describe('DnaProfileScreen', () => {
   test.each([
     [
       'bold',
-      { score: applyImpacts(BASELINE_DNA, [{ vision: 20 }]) },
+      { score: iraqPath('launch-on-schedule', 'sonar-signal') },
       DNA_PROFILES['brave-visionary'],
     ],
     [
