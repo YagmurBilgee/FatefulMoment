@@ -14,7 +14,6 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fontSecondaryBold, fonts } from '../theme/typography';
 import { usePressScale } from '../hooks';
 
-// Figma card tokens.
 const CARD_WIDTH = 220;
 const CARD_HEIGHT = 176;
 const CARD_RADIUS = 16;
@@ -34,11 +33,10 @@ const DURATION_GAP = 5;
 const TITLE_GAP = 3;
 const COMPLETED_OPACITY = 0.35;
 
-// Figma video first-frame poster (White House at night), @3x 660×528.
-// Home V2 uses it for every scenario card.
+// Shared poster for every scenario card.
 const cardImage = require('../assets/images/card-white-house.png');
 
-// Figma @3x export, 33×30px; tinted cyan.
+// Tinted cyan.
 const clockIcon = require('../assets/images/icon-scenario-clock.png');
 
 function StartButton({
@@ -85,7 +83,7 @@ type ScenarioCardProps = {
  * Scenario card in the Home carousel: background artwork under a dark
  * gradient, then duration, title and description stacked from the top, and
  * a Start pill bottom-right. Completed scenarios are dimmed, their duration
- * turns gray and Start is disabled. Values are from Figma inspect.
+ * turns gray and Start is disabled.
  */
 export function ScenarioCard({
   scenario,
@@ -143,7 +141,6 @@ export function ScenarioCard({
 const styles = StyleSheet.create({
   shadow: {
     borderRadius: CARD_RADIUS,
-    // Figma drop shadows.
     boxShadow:
       '0px 8px 10px -6px rgba(0, 0, 0, 0.1), 0px 20px 25px -5px rgba(0, 0, 0, 0.1)',
   },
@@ -170,8 +167,6 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
   },
-  // Figma overlay: solid background at the bottom, 60% midway, clear at
-  // the top. Stop positions are est.
   gradient: {
     ...StyleSheet.absoluteFill,
     backgroundImage:
@@ -205,7 +200,7 @@ const styles = StyleSheet.create({
     ...androidTextFix,
     marginBottom: TITLE_GAP,
     color: colors.cardTitle, // #F8FAFC
-    // Figma: 900 italic. Neither Inter Black nor an italic face is bundled,
+    // Neither Inter Black nor an italic face is bundled,
     // and iOS cannot synthesize italic for a custom font, so Bold upright
     // stands in.
     fontFamily: fonts.bold,

@@ -17,11 +17,11 @@ export interface Point {
 
 /** Grid rings as shares of the full radius. */
 const RINGS = [0.2, 0.4, 0.6, 0.8, 1];
-// Figma label box; "Empathy", the widest, is ~25pt at Inter Bold 6.
+// "Empathy", the widest label, is ~25pt at Inter Bold 6.
 const LABEL_WIDTH = 28;
 const LABEL_HEIGHT = 7;
 /** Gap between the outer ring and the axis labels. */
-const LABEL_OFFSET = 6; // est.
+const LABEL_OFFSET = 6;
 const FILL_OPACITY = 0.25; // with colors.primary: rgba(0, 211, 243, 0.25)
 /** Overlap between fill triangles; hidden under the 1.5pt outline. */
 export const FILL_BLEED = 0.5;

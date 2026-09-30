@@ -8,7 +8,7 @@ export const en = {
   scenariosTitle: 'Scenarios',
   scenariosSubtitle:
     'Choose A Scenario And Ask Yourself, "If You Were In That Situation, What Would You Do?"',
-  // Figma copy; the total is a design figure, not derived from local data.
+  // A fixed figure, not derived from local data.
   scenarioCount: '30 Scenarios',
   comingSoonTitle: 'Coming Soon',
   comingSoonMessage: 'This scenario will be added very soon.',

@@ -6,7 +6,7 @@ import { colors } from '../theme/colors';
 /** Share of the time left below which the screen edges tint red. */
 export const URGENT_FRACTION = 0.3;
 
-const BAR_HEIGHT = 6; // est.
+const BAR_HEIGHT = 6;
 
 /**
  * Subtle red edge tint for the last stretch of the decision window. Driven
@@ -29,8 +29,8 @@ export function UrgencyVignette({ remaining }: { remaining: Animated.Value }) {
 
 /**
  * Horizontal countdown bar. `remaining` runs from 1 to 0 and the fill
- * scales down around its center, so it shrinks from both ends at once
- * (Figma). Its color moves yellow → orange (half time) → red (from
+ * scales down around its center, so it shrinks from both ends at once.
+ * Its color moves yellow → orange (half time) → red (from
  * `URGENT_FRACTION`), by fading stacked color layers in on top.
  */
 export function TensionTimer({ remaining }: { remaining: Animated.Value }) {

@@ -7,22 +7,20 @@ import { androidTextFix, fonts, monoFont } from '../theme/typography';
 
 const MARQUEE_TEXT = 'THIS IS THE FATEFUL MOMENT...';
 
-// Figma inspect: 289×48 with the default 24pt screen margin inside on the
-// right. A wider margin (notch) widens the pill instead of squeezing it.
+// A wider right margin (notch) widens the pill instead of squeezing it.
 const PILL_WIDTH = 289;
 const PILL_HEIGHT = 48;
-const PILL_PADDING_LEFT = 16; // est.
+const PILL_PADDING_LEFT = 16;
 const DEFAULT_EDGE_PADDING = 24;
-const GAP = 12; // est.
-// Figma has 13.98pt; enlarged to match the hamburger icon's visual weight.
-// The export is 42px (14pt @3x), so it is upscaled slightly.
+const GAP = 12;
+// Enlarged to match the hamburger icon's visual weight.
 const PLAYLIST_ICON = 20;
 const MARQUEE_SPEED = 30; // pt per second
 // Room for the text to lay out at its natural width; only the visible
 // MARQUEE_WIDTH window is shown, so this just has to exceed the text.
 const MARQUEE_TRACK_WIDTH = 1000;
 
-// Figma @3x exports; point size = pixel size / 3.
+// @3x assets; point size = pixel size / 3.
 const icons = {
   prev: require('../assets/images/icon-player-prev.png'), // 48×42
   next: require('../assets/images/icon-player-next.png'), // 48×42
@@ -162,9 +160,8 @@ const styles = StyleSheet.create({
     height: PLAYLIST_ICON,
   },
   texts: {
-    gap: 2, // est.
+    gap: 2,
   },
-  // Typography below is from Figma inspect.
   status: {
     ...androidTextFix,
     color: colors.standbyText,

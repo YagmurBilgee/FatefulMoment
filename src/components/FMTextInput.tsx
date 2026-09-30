@@ -14,12 +14,10 @@ import {
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-// Box height, radius and width are Figma tokens; the rest are estimates
-// measured from the Sign in frames (~0.66x exports).
 const HEIGHT = 56;
 const RADIUS = 16;
-const PADDING_X = 16; // est.
-const ICON_SIZE = 20; // est.
+const PADDING_X = 16;
+const ICON_SIZE = 20;
 
 export type FMTextInputProps = Omit<TextInputProps, 'style' | 'ref'> & {
   ref?: React.Ref<TextInputInstance>;
@@ -31,10 +29,8 @@ export type FMTextInputProps = Omit<TextInputProps, 'style' | 'ref'> & {
   leftIcon?: ImageSourcePropType;
 };
 
-/*
- * Figma @3x exports. The icon shows the action: the open eye while the value
- * is hidden, the slashed eye while it is visible (Create Account frame g).
- */
+// The icon shows the action: the open eye while the value is hidden, the
+// slashed eye while it is visible.
 const showIcon = require('../assets/images/eye-on.png'); // 50x37px
 const hideIcon = require('../assets/images/eye-off.png'); // 50x50px
 
@@ -143,7 +139,7 @@ const styles = StyleSheet.create({
   leftIcon: {
     width: ICON_SIZE,
     height: ICON_SIZE,
-    marginRight: 12, // est.
+    marginRight: 12,
   },
   input: {
     ...androidTextFix,
@@ -151,13 +147,13 @@ const styles = StyleSheet.create({
     height: '100%',
     padding: 0,
     color: colors.white,
-    fontFamily: fonts.regular, // est.: Inter Regular 16
+    fontFamily: fonts.regular,
     fontSize: 16,
   },
   toggle: {
     width: ICON_SIZE,
     height: ICON_SIZE,
-    marginLeft: 12, // est.
+    marginLeft: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -171,9 +167,9 @@ const styles = StyleSheet.create({
   },
   error: {
     ...androidTextFix,
-    marginTop: 8, // est.
+    marginTop: 8,
     color: colors.error,
-    fontFamily: fonts.medium, // est.: Inter 10
+    fontFamily: fonts.medium,
     fontSize: 10,
     lineHeight: 14,
   },

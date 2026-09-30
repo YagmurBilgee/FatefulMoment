@@ -20,14 +20,10 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 import { INVALID_EMAIL_MESSAGE, isValidEmail } from '../utils/validation';
 
-// Copy from the Figma "Error Cases" frames. Also shown for unknown emails.
+// Also shown for unknown emails.
 export const WRONG_PASSWORD_MESSAGE =
   'Your password is wrong. Please try again.';
 
-/*
- * Layout measured from the Sign in frames (~0.66x exports), relative to the
- * safe area. All spacing values are estimates.
- */
 export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
   const passwordRef = useRef<TextInputInstance>(null);
 
@@ -148,18 +144,18 @@ export function SignInScreen({ navigation }: RootScreenProps<'SignIn'>) {
 
 const styles = StyleSheet.create({
   form: {
-    marginTop: 32, // Figma: subtitle -> email field (AuthHeader has no bottom margin)
-    gap: 32, // Figma: email -> password field
+    marginTop: 32, // AuthHeader has no bottom margin
+    gap: 32,
   },
   submit: {
-    marginTop: 48, // Figma: password field -> Sign In button
+    marginTop: 48,
   },
   forgot: {
     ...androidTextFix,
     alignSelf: 'center',
-    marginTop: 40, // est.
+    marginTop: 40,
     color: colors.secondaryLink,
-    fontFamily: fonts.regular, // est.: Inter Regular 14/20
+    fontFamily: fonts.regular,
     fontSize: 14,
     lineHeight: 20,
   },

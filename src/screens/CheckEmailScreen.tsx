@@ -6,15 +6,11 @@ import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-const BADGE_SIZE = 80; // est.
-const BADGE_ICON_SIZE = 40; // Figma @3x export, 120px
+const BADGE_SIZE = 80;
+const BADGE_ICON_SIZE = 40;
 
 const badgeIcon = require('../assets/images/check-badge.png');
 
-/*
- * Layout measured from the "Check your email" frame (~0.66x export). All
- * values are estimates.
- */
 export function CheckEmailScreen({
   navigation,
   route,
@@ -49,8 +45,8 @@ const styles = StyleSheet.create({
     height: BADGE_SIZE,
     borderRadius: BADGE_SIZE / 2,
     alignSelf: 'center',
-    marginTop: 167, // est.
-    backgroundColor: colors.primaryButtonFill, // est.
+    marginTop: 167,
+    backgroundColor: colors.primaryButtonFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -60,27 +56,27 @@ const styles = StyleSheet.create({
   },
   title: {
     ...androidTextFix,
-    marginTop: 24, // est.
+    marginTop: 24,
     color: colors.white,
-    fontFamily: fonts.bold, // est.: Inter Bold 24/30
+    fontFamily: fonts.bold,
     fontSize: 24,
     lineHeight: 30,
     textAlign: 'center',
   },
   body: {
     ...androidTextFix,
-    marginTop: 8, // est.
-    color: colors.textSecondary, // est.
-    fontFamily: fonts.regular, // est.: Inter Regular 16/24
+    marginTop: 8,
+    color: colors.textSecondary,
+    fontFamily: fonts.regular,
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
   },
   email: {
-    color: colors.white, // est.
-    fontFamily: fonts.semiBold, // est.
+    color: colors.white,
+    fontFamily: fonts.semiBold,
   },
   submit: {
-    marginTop: 32, // est.
+    marginTop: 32,
   },
 });

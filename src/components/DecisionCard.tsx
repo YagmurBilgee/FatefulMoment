@@ -7,11 +7,9 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 import { usePressScale } from '../hooks';
 
-// Figma "Option Card": 345×66, 8/16 padding, label box up to 309pt.
 const CARD_WIDTH = 345;
 const CARD_HEIGHT = 66;
 const LABEL_MAX_WIDTH = 309;
-// Figma "Your Choice" badge: 106×32 pill, 8/16 padding, 74×16 label.
 const BADGE_WIDTH = 106;
 const BADGE_HEIGHT = 32;
 const BADGE_LABEL_WIDTH = 74;
@@ -29,10 +27,10 @@ type DecisionCardProps = {
 };
 
 /**
- * Decision option card (Figma "Option Card"): translucent navy with a thin
+ * Decision option card: translucent navy with a thin
  * border lit along the top edge. While pressed or once selected it takes
- * the Figma cyan glow: a navy → cyan → navy gradient, cyan border and a
- * soft cyan shadow. Values are from Figma inspect. A badge sits on the top
+ * a cyan glow: a navy → cyan → navy gradient, cyan border and a
+ * soft cyan shadow. A badge sits on the top
  * edge without moving the card, so the grid keeps its geometry.
  */
 export function DecisionCard({
@@ -100,8 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Figma selected fill. RN draws CSS gradients natively, so no gradient
-  // package is needed.
+  // RN draws CSS gradients natively, so no gradient package is needed.
   active: {
     borderColor: colors.primary, // #00D3F3
     borderTopColor: colors.primary,
@@ -133,8 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Figma asks for Inter 900; Bold is the heaviest bundled face. The
-  // label shrinks to fit its 74pt box when a translation runs longer.
+  // Bold is the heaviest bundled Inter face. The label shrinks to fit its 74pt box when a translation runs longer.
   badgeText: {
     ...androidTextFix,
     width: BADGE_LABEL_WIDTH,
@@ -145,8 +141,8 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     textAlign: 'center',
   },
-  // Figma caption01. Inter-Medium carries the 500 weight; the project does
-  // not combine custom faces with fontWeight.
+  // Inter-Medium carries the 500 weight; custom faces are never combined
+  // with fontWeight.
   label: {
     ...androidTextFix,
     maxWidth: LABEL_MAX_WIDTH,

@@ -5,8 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { AudioStatusPill } from './AudioStatusPill';
 
-// The 48pt audio pill (Figma) fills the bar, so its bottom edge sits flush
-// on the full-width separator. Was 47pt, measured from 1.png.
+// The 48pt audio pill fills the bar, so its bottom edge sits flush on the
+// full-width separator.
 const BAR_HEIGHT = 48;
 export const LANDSCAPE_SIDE_PADDING = 24;
 

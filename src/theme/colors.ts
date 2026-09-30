@@ -1,90 +1,74 @@
-/**
- * Color tokens.
- *
- * Source legend:
- * - [Figma token]  confirmed from the Figma inspect panel
- * - [Figma]        value confirmed in Figma (token name not provided)
- * - [Measured]     sampled from the up.png export; matches a value in the
- *                  Figma "Selection colors" list but the element mapping is
- *                  not yet confirmed in Figma
- * - [Unverified]   assumed by the designer from appearance; awaiting a
- *                  per-element check in Figma
- * - [Estimated]    sampled from up.png only; not found in the visible
- *                  "Selection colors" list — needs verification in Figma
- */
 export const colors = {
-  background: '#020618', // [Figma token] colors/base/background
-  white: '#FFFFFF', // [Figma token] colors/base/white
+  background: '#020618',
+  white: '#FFFFFF',
 
-  textSecondary: '#90A1B9', // [Figma] welcome subtitle
-  textMuted: '#6A7282', // [Estimated] legal footer text
-  textDivider: '#62748E', // [Measured] "OR" label
+  textSecondary: '#90A1B9',
+  textMuted: '#6A7282',
+  textDivider: '#62748E',
 
-  // [Figma token] colors/on-brand/primary/pri-500 — Email label
   primary: '#00D3F3',
-  // [Unverified] Terms of Use / Privacy Policy; up.png samples #00B8DB
   legalLink: '#00D3F3',
-  primaryButtonFill: 'rgba(0, 211, 243, 0.14)', // [Measured] #00D3F3 @ 14%
-  primaryButtonBorder: '#38596D', // [Estimated] rendered border pixel
+  primaryButtonFill: 'rgba(0, 211, 243, 0.14)',
+  primaryButtonBorder: '#38596D',
 
-  secondaryButtonFill: 'rgba(17, 24, 39, 0.8)', // [Measured] #111827 @ 80%
-  divider: 'rgba(255, 255, 255, 0.1)', // [Measured] #FFFFFF @ 10%
+  secondaryButtonFill: 'rgba(17, 24, 39, 0.8)',
+  divider: 'rgba(255, 255, 255, 0.1)',
 
-  // Sign in frames (5.png / 6.png at ~0.66x); thin strokes are blurred there
-  inputFill: 'rgba(17, 24, 39, 0.8)', // [Measured] same as secondaryButtonFill
-  placeholder: '#62748E', // [Measured] input placeholder
-  focusBorder: '#00B8DB', // [Estimated] focused/filled input border
-  error: '#FB2C36', // [Estimated] error border and message
-  secondaryLink: '#00B8DB', // [Estimated] "Forgot password?"
-  backButtonIcon: '#90A1B9', // [Estimated] back arrow tint
+  // Inputs
+  inputFill: 'rgba(17, 24, 39, 0.8)',
+  placeholder: '#62748E',
+  focusBorder: '#00B8DB',
+  error: '#FB2C36',
+  secondaryLink: '#00B8DB',
+  backButtonIcon: '#90A1B9',
 
-  // Landscape container frame (1.png, 812×375 @3x)
-  headerSeparator: '#314158', // [Measured] 1pt line under the header bar
+  // Landscape header
+  headerSeparator: '#314158',
 
-  // Scenarios (home) screen, from Figma inspect
-  // [Figma token] brand/secondary/sec-200 — "Scenarios", "Karar DNAsı"
+  // Scenarios
+
   screenTitle: '#E2E8F0',
-  cardTitle: '#F8FAFC', // [Figma] category card title
-  marqueeText: '#F1F5F9', // [Figma] audio pill marquee
-  standbyText: 'rgba(0, 211, 243, 0.8)', // [Figma] #00D3F3CC, "STANDBY"
+  cardTitle: '#F8FAFC',
+  marqueeText: '#F1F5F9',
+  standbyText: 'rgba(0, 211, 243, 0.8)',
 
-  // Navigation drawer, from Figma inspect
-  drawerBackground: 'rgba(2, 6, 24, 0.95)', // [Figma] #020618F2
-  drawerBorder: '#1D293D', // [Figma] right edge
-  drawerBackdrop: 'rgba(0, 0, 0, 0.6)', // [Unverified] outside scrim
-  drawerItemFill: 'rgba(15, 23, 43, 0.4)', // [Figma] #0F172B66
-  drawerItemBorder: 'rgba(0, 184, 219, 0.3)', // [Figma] #00B8DB4D, top edge
-  drawerItemActiveFill: 'rgba(0, 184, 219, 0.1)', // [Figma] #00B8DB1A
+  // Navigation drawer
+  drawerBackground: 'rgba(2, 6, 24, 0.95)',
+  drawerBorder: '#1D293D',
+  drawerBackdrop: 'rgba(0, 0, 0, 0.6)',
+  drawerItemFill: 'rgba(15, 23, 43, 0.4)',
+  drawerItemBorder: 'rgba(0, 184, 219, 0.3)',
+  drawerItemActiveFill: 'rgba(0, 184, 219, 0.1)',
 
-  cardBorder: '#1D293D', // [Figma] scenario card
+  cardBorder: '#1D293D',
 
   // Simulation decision phase
-  decisionScrim: '#020618', // [Brief] over the held last frame; opacity per clip
-  optionCardFill: 'rgba(15, 23, 43, 0.63)', // [Figma] #0F172BA1
-  optionCardBorder: 'rgba(248, 250, 252, 0.2)', // [Figma] #F8FAFC @ 20%
-  optionCardBorderTop: '#F8FAFC', // [Figma] lit top edge
-  timerStart: '#EAB308', // [Unverified] tension timer at full time (brief)
-  timerMid: '#FF6900', // [Unverified] tension timer halfway (orange)
-  timerEnd: '#FB2C36', // [Unverified] tension timer running out (brief)
-  timerTrack: 'rgba(255, 255, 255, 0.1)', // [Unverified]
+  decisionScrim: '#020618', // opacity is set per clip
+  optionCardFill: 'rgba(15, 23, 43, 0.63)',
+  optionCardBorder: 'rgba(248, 250, 252, 0.2)',
+  optionCardBorderTop: '#F8FAFC',
+  timerStart: '#EAB308',
+  timerMid: '#FF6900',
+  timerEnd: '#FB2C36',
+  timerTrack: 'rgba(255, 255, 255, 0.1)',
 
   // Simulation consequence review
-  yourChoiceBadge: '#FFD230', // [Figma] "Your Choice" pill fill
-  yourChoiceBorder: '#FFB900', // [Figma] pill border
-  yourChoiceText: '#FFFFFF', // [Figma] pill label
+  yourChoiceBadge: '#FFD230',
+  yourChoiceBorder: '#FFB900',
+  yourChoiceText: '#FFFFFF',
 
-  // DNA profile, archetype card, from Figma inspect
-  dnaCardBorder: '#1D293D', // [Figma]
-  dnaCardFill: 'rgba(15, 23, 43, 0.4)', // [Figma] #0F172B66
-  avatarBorder: 'rgba(0, 184, 219, 0.2)', // [Figma] #00B8DB33
-  avatarFill: '#020618', // [Figma]
-  archetypeTitle: '#F1F5F9', // [Figma]
-  quoteRule: 'rgba(0, 184, 219, 0.4)', // [Figma] #00B8DB66
-  dnaIcon: '#00D3F2', // [Figma] matrix header DNA icon tint
-  metricLabel: '#62748E', // [Figma] matrix mini card labels
-  metricFill: 'rgba(2, 6, 24, 0.6)', // [Figma] #02061899, mini card
-  metricBorderTop: '#1D293D', // [Figma] mini card top edge
-  radarLabel: '#64748B', // [Figma] radar axis labels
-  metricTrack: '#1D293D', // [Unverified] mini card bar track
-  patternIndex: '#00B8DB', // [Figma] pattern detection 01/02/03
+  // DNA profile
+  dnaCardBorder: '#1D293D',
+  dnaCardFill: 'rgba(15, 23, 43, 0.4)',
+  avatarBorder: 'rgba(0, 184, 219, 0.2)',
+  avatarFill: '#020618',
+  archetypeTitle: '#F1F5F9',
+  quoteRule: 'rgba(0, 184, 219, 0.4)',
+  dnaIcon: '#00D3F2',
+  metricLabel: '#62748E',
+  metricFill: 'rgba(2, 6, 24, 0.6)',
+  metricBorderTop: '#1D293D',
+  radarLabel: '#64748B',
+  metricTrack: '#1D293D',
+  patternIndex: '#00B8DB',
 } as const;

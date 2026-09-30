@@ -1,4 +1,3 @@
-// Error copy from the Figma "Error Cases" frames.
 export const INVALID_EMAIL_MESSAGE = 'Please enter a valid email address.';
 export const SHORT_NAME_MESSAGE = 'Enter at least 3 characters.';
 
@@ -13,7 +12,7 @@ export function isValidFullName(name: string): boolean {
   return name.trim().length >= 3;
 }
 
-// Rules shown under the password field on Create Account, in Figma order.
+// Rules shown under the password field on Create Account.
 export const PASSWORD_RULES = [
   {
     label: 'Must be at least 8 characters long',

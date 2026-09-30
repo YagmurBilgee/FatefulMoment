@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 /**
- * Inter font faces (Figma token: typography/font-family/font-primary).
+ * Inter font faces.
  *
  * Each weight is referenced by its PostScript name, which matches the
  * bundled file name, so the same value resolves on iOS (PostScript name)
@@ -17,8 +17,7 @@ export const fonts = {
 } as const;
 
 /**
- * Secondary face, Bold (Figma token: typography/font-family/font-secondary,
- * Helvetica Neue). Helvetica Neue ships with iOS; Android has no Helvetica,
+ * Secondary face, Helvetica Neue Bold. Helvetica Neue ships with iOS; Android has no Helvetica,
  * so Inter Bold stands in. Weight is baked into the face; do not combine
  * with fontWeight.
  */
@@ -28,7 +27,7 @@ export const fontSecondaryBold = Platform.select({
 });
 
 /**
- * Monospace face for small status labels (Figma: Menlo). Menlo ships with
+ * Monospace face for small status labels. Menlo ships with
  * iOS; Android falls back to its system monospace font.
  */
 export const monoFont = Platform.select({

@@ -12,8 +12,7 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 import { usePressScale } from '../hooks';
 
-// Measured: the disabled frame matches the active one at ~35% opacity.
-const DISABLED_OPACITY = 0.35; // est.
+const DISABLED_OPACITY = 0.35;
 
 type PrimaryButtonProps = {
   label: string;
@@ -25,8 +24,7 @@ type PrimaryButtonProps = {
 
 /**
  * Cyan primary action (Sign In, Sign up, Back to Sign in). Fill and border
- * reuse the Welcome "Continue with Email" button values, which are measured
- * estimates. The loading state is not drawn in Figma.
+ * reuse the Welcome "Continue with Email" button values.
  */
 export function PrimaryButton({
   label,
@@ -78,7 +76,7 @@ const styles = StyleSheet.create({
     ...androidTextFix,
     ...Platform.select({ android: { textAlignVertical: 'center' as const } }),
     color: colors.primary,
-    // est.: same as the verified Welcome button labels (Inter Medium 16/24);
+
     // the Sign In frame measures closer to 15.
     fontFamily: fonts.medium,
     fontSize: 16,

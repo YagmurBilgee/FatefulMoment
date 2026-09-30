@@ -30,10 +30,6 @@ import {
 const ruleMetIcon = require('../assets/images/check-circle.png');
 const ruleUnmetIcon = require('../assets/images/check-circle-grey.png');
 
-/*
- * Layout measured from the Create Account frames (~0.66x exports). All
- * spacing values are estimates.
- */
 export function CreateAccountScreen({
   navigation,
 }: RootScreenProps<'CreateAccount'>) {
@@ -53,8 +49,7 @@ export function CreateAccountScreen({
     met: rule.test(password),
   }));
   const passwordValid = rules.every(rule => rule.met);
-  // Figma shows the list while typing the password; keep it visible while a
-  // rule is still unmet so the disabled button is explained.
+  // Shown while typing the password, and kept while a rule is still unmet so the disabled button is explained.
   const showRules = passwordFocused || (password !== '' && !passwordValid);
 
   const canSubmit =
@@ -201,33 +196,33 @@ export function CreateAccountScreen({
 
 const styles = StyleSheet.create({
   form: {
-    marginTop: 32, // est.
-    gap: 16, // Figma token
+    marginTop: 32,
+    gap: 16,
   },
   rule: {
-    height: 20, // est.
+    height: 20,
     flexDirection: 'row',
     alignItems: 'center',
   },
   ruleIcon: {
-    width: 40 / 3, // Figma @3x export, 40px
+    width: 40 / 3,
     height: 40 / 3,
-    marginLeft: 1, // est.
-    marginRight: 10, // est.
+    marginLeft: 1,
+    marginRight: 10,
   },
   ruleText: {
     ...androidTextFix,
-    color: colors.placeholder, // est.
-    fontFamily: fonts.regular, // est.: Inter Regular 11
+    color: colors.placeholder,
+    fontFamily: fonts.regular,
     fontSize: 11,
   },
   ruleTextMet: {
-    color: colors.textSecondary, // est.
+    color: colors.textSecondary,
   },
   submit: {
-    marginTop: 48, // est.
+    marginTop: 48,
   },
   submitAfterRules: {
-    marginTop: 24, // est.
+    marginTop: 24,
   },
 });

@@ -3,7 +3,6 @@ import { Image, Pressable, StyleSheet } from 'react-native';
 
 import { useTranslation } from '../context/LanguageContext';
 
-// Figma @3x export, 60×60px.
 const menuIcon = require('../assets/images/icon-menu-hamburger.png');
 
 type MenuButtonProps = {

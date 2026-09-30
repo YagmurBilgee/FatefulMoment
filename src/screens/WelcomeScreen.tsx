@@ -7,7 +7,7 @@ import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-// Icons are Figma @3x PNG exports; point size = pixel size / 3.
+// @3x assets; point size = pixel size / 3.
 const icons = {
   mail: {
     source: require('../assets/images/mail-icon.png'),
@@ -25,14 +25,6 @@ const icons = {
     height: 66 / 3,
   },
 };
-
-/*
- * Measurements come from the 375×812 up.png export (1x), relative to the
- * iPhone X safe area (top 44, bottom 34). Values marked "est." are derived
- * from pixels and still need confirmation from Figma inspect.
- */
-// Font family is Inter (confirmed). Title, subtitle and button styles are
-// confirmed from Figma; "OR" and legal text styles are estimates.
 
 export function WelcomeScreen({ navigation }: RootScreenProps<'Welcome'>) {
   const insets = useSafeAreaInsets();
@@ -103,7 +95,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   primaryAction: {
-    marginTop: 47, // est.
+    marginTop: 47,
   },
   dividerRow: {
     height: 21,
@@ -120,8 +112,8 @@ const styles = StyleSheet.create({
     ...androidTextFix,
     marginHorizontal: 16,
     color: colors.textDivider,
-    fontFamily: fonts.semiBold, // est.
-    fontSize: 13, // est.
+    fontFamily: fonts.semiBold,
+    fontSize: 13,
   },
   buttonGap: {
     height: 16,
@@ -129,14 +121,14 @@ const styles = StyleSheet.create({
   legal: {
     ...androidTextFix,
     marginTop: 24,
-    marginBottom: 14, // est.
+    marginBottom: 14,
     color: colors.textMuted,
-    fontFamily: fonts.regular, // est.
-    fontSize: 13, // est.
-    lineHeight: 20, // est.
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    lineHeight: 20,
     textAlign: 'center',
   },
   legalLink: {
-    color: colors.legalLink, // unverified
+    color: colors.legalLink,
   },
 });

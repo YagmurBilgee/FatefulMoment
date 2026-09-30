@@ -27,7 +27,7 @@ type AuthButtonProps = {
   onPress?: () => void;
 };
 
-/** Welcome screen action button with a leading icon (Figma tokens). */
+/** Welcome screen action button with a leading icon. */
 export function AuthButton({ label, icon, variant, onPress }: AuthButtonProps) {
   const isPrimary = variant === 'primary';
   const press = usePressScale();
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   label: {
     ...androidTextFix,
     ...Platform.select({ android: { textAlignVertical: 'center' as const } }),
-    fontFamily: fonts.medium, // Figma: Inter Medium 16/24, letter spacing 0
+    fontFamily: fonts.medium,
     fontSize: 16,
     lineHeight: 24,
     letterSpacing: 0,

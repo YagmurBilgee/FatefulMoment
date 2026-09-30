@@ -19,8 +19,8 @@ type AuthScreenLayoutProps = {
 };
 
 /**
- * Scrollable, keyboard-aware page used by the auth screens. Content scrolls
- * with the keyboard open, as in the Figma "Writing ..." frames.
+ * Scrollable, keyboard-aware page used by the auth screens. Content stays
+ * scrollable while the keyboard is open.
  */
 export function AuthScreenLayout({
   children,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 19, // est.
+    top: 19,
     left: 0,
     zIndex: 1,
   },

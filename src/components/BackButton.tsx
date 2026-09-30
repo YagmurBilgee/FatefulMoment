@@ -6,8 +6,8 @@ import { useTranslation } from '../context/LanguageContext';
 import { colors } from '../theme/colors';
 import { usePressScale } from '../hooks';
 
-const SIZE = 40; // est. — measured 39–40pt in the Sign in frames
-// Figma @3x export, 48px -> 16pt. Exported black; tinted to the icon color.
+const SIZE = 40;
+// Exported black; tinted to the icon color.
 const ICON_SIZE = 16;
 
 const arrowIcon = require('../assets/images/icon-back.png');
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     width: SIZE,
     height: SIZE,
     borderRadius: SIZE / 2,
-    backgroundColor: colors.inputFill, // est.
+    backgroundColor: colors.inputFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

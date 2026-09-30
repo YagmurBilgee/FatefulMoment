@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 
 // Shared by every tappable button so the feedback feels consistent.
-// Not specified in Figma.
 export const PRESSED_SCALE = 0.95;
 
 /**

@@ -15,12 +15,11 @@ import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 import { usePressScale } from '../hooks';
 
-// Figma "Scenario Container": 728×292, about 90% of the 812pt frame.
+// About 90% of an 812pt-wide screen.
 const CARD_MAX_WIDTH = 728;
 const CARD_HEIGHT = 292;
 
-// Figma @3x exports, full landscape frame (2436×1125). Scenarios without
-// one fall back to the plain background. The simulation reuses them as its
+// Full landscape artwork. Scenarios without one fall back to the plain background. The simulation reuses them as its
 // scene.
 export const BRIEFING_IMAGES: Record<string, ImageSourcePropType> = {
   'iraq-war': require('../assets/images/briefing-iraq-war.png'),
@@ -32,9 +31,9 @@ type ScenarioBriefingProps = {
 };
 
 /**
- * Scenario briefing card (Figma "Scenario Container", 728×292): background
+ * Scenario briefing card: background
  * artwork under a bottom-up gradient, with the tag, title, description and
- * Start Simulation button centered on top. Values are from Figma inspect.
+ * Start Simulation button centered on top.
  */
 export function ScenarioBriefing({ scenario, onStart }: ScenarioBriefingProps) {
   const press = usePressScale();
@@ -92,7 +91,7 @@ const styles = StyleSheet.create({
   // against the card's content box, so padding would leave a gap.
   content: {
     alignItems: 'center',
-    paddingHorizontal: 24, // est.
+    paddingHorizontal: 24,
   },
   image: {
     position: 'absolute',
@@ -101,7 +100,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  // Figma: bottom-up gradient over the artwork.
   gradient: {
     ...StyleSheet.absoluteFill,
     backgroundImage:
@@ -122,7 +120,7 @@ const styles = StyleSheet.create({
     ...androidTextFix,
     marginBottom: 16,
     color: colors.cardTitle, // #F8FAFC
-    // Figma: 900 italic. Neither Inter Black nor an italic face is bundled,
+    // Neither Inter Black nor an italic face is bundled,
     // and iOS cannot synthesize italic for a custom font, so Bold upright
     // stands in.
     fontFamily: fonts.bold,
@@ -141,9 +139,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
-  // Figma: 179×48 with 12/24 padding around a 131pt label. RN draws the
-  // 1pt border inside the box, so that padding would squeeze the label;
-  // a fixed box with the label centered gives the same result.
+  // RN draws the 1pt border inside the box, so padding would squeeze the
+  // label; a fixed box with the label centered avoids that.
   start: {
     width: 179,
     height: 48,
@@ -157,7 +154,7 @@ const styles = StyleSheet.create({
   startLabel: {
     ...androidTextFix,
     color: colors.primary, // #00D3F3
-    // Figma: Inter 900. Inter Black is not bundled; Bold is the heaviest.
+    // Inter Black is not bundled; Bold is the heaviest face.
     fontFamily: fonts.bold,
     fontSize: 16,
     lineHeight: 24,

@@ -1,10 +1,6 @@
 /**
  * Local scenario data and the DNA scoring model. There is no backend: all
  * content and scores live here and in component state.
- *
- * Card copy (title, duration, description) is from the Figma Home V2 frame.
- * Briefing, decisions and DNA impacts are illustrative placeholders until
- * the Simulation Briefing frames are provided.
  */
 
 import type { Localized } from '../locales';
@@ -61,12 +57,10 @@ export function applyImpacts(base: DnaScore, impacts: DnaImpact[]): DnaScore {
 // ---------------------------------------------------------------------------
 
 /*
- * Mock archetype profiles shown on the DNA screen. Brave Visionary is the
- * Figma frame's copy; the other two follow the brief (title and quote) with
- * placeholder patterns and blind spots. Scores are fixed per profile, not
- * the raw sum of the player's impacts. Copy is kept per language; titles
- * are stored in capitals because Turkish needs "İ", which a plain
- * uppercase transform would not produce.
+ * Mock archetype profiles shown on the DNA screen. Scores are fixed per
+ * profile, not the raw sum of the player's impacts. Copy is kept per
+ * language; titles are stored in capitals because Turkish needs "İ", which
+ * a plain uppercase transform would not produce.
  */
 export type DnaProfileId =
   | 'brave-visionary'
@@ -349,14 +343,12 @@ const IRAQ_WAR: Scenario = {
       outcomeVideo: 'iraq-war-2',
       // The review's second pick, whichever option it is, then the profile.
       reviewVideo: 'iraq-war-3',
-      // Option copy follows the Figma decision frame, in row order (1 left,
-      // 1 right, 2 left, 2 right, 3); Figma mixes the two languages, so
-      // each line keeps its Figma wording in that language and is
-      // translated for the other. Impacts are placeholders, balanced so
-      // the bold path (launch on schedule, then signal with sonar) lands
-      // on Brave Visionary with vision and courage at 80, the diplomatic
-      // path (naval quarantine, then wait for Moscow) on Empathetic Leader,
-      // and naval quarantine followed by sonar on Pragmatic Strategist.
+      // Options are in row order (1 left, 1 right, 2 left, 2 right, 3).
+      // Impacts are balanced so the bold path (launch on schedule, then
+      // signal with sonar) lands on Brave Visionary with vision and courage
+      // at 80, the diplomatic path (naval quarantine, then wait for Moscow)
+      // on Empathetic Leader, and naval quarantine followed by sonar on
+      // Pragmatic Strategist.
       options: [
         {
           id: 'naval-quarantine',
@@ -391,7 +383,6 @@ const IRAQ_WAR: Scenario = {
           impact: { vision: 15, courage: 5, control: 10, risk: 5 },
         },
         {
-          // Same copy as the card above in Figma.
           id: 'sonar-signal-2',
           label: {
             en: 'Signal US Ships with Sonar',

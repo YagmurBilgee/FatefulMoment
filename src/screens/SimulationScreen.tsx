@@ -39,7 +39,7 @@ const DECISION_MS = 15000;
 /** How long a picked card glows before the flow moves on. */
 export const SELECT_HOLD_MS = 300;
 
-// Figma "Options": rows of Option Cards, 12pt apart, the last row's bottom
+// Rows of option cards, 12pt apart, the last row's bottom
 // edge 76.5pt above the screen's bottom edge.
 const OPTIONS_GAP = 12;
 const OPTIONS_BOTTOM = 76.5;
@@ -62,10 +62,10 @@ const playable = (id: string | undefined) =>
  * Landscape simulation, alternating full-screen clips and decisions:
  * - briefing: the scenario briefing card; Start Simulation plays the intro.
  * - video: a full-screen clip played to its end, with only the back button
- *   on top (Figma). Its last frame then stays, darkened, as the backdrop of
+ *   on top. Its last frame then stays, darkened, as the backdrop of
  *   the next decision, whose cards fade in gently over it.
  * - decision: only the back button, five Option Cards in three rows (2, 2,
- *   1) and the 15 s tension timer (Figma). A picked card glows, then the
+ *   1) and the 15 s tension timer. A picked card glows, then the
  *   decision cross-fades into its consequence clip (the option's, else the
  *   decision's); running out of time scores `TIMEOUT_IMPACT` and plays the
  *   decision's clip. Only when that clip ends does the next decision
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: colors.white,
     fontFamily: fonts.bold,
-    fontSize: 20, // est.
+    fontSize: 20,
     lineHeight: 25,
   },
   unavailable: {
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     backgroundColor: colors.decisionScrim,
   },
-  // Figma "Options": Row 1 and Row 2 hold two cards, Row 3 one centered.
+  // Rows 1 and 2 hold two cards, row 3 one centered.
   options: {
     position: 'absolute',
     left: 0,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   body: {
     ...androidTextFix,
     color: colors.textSecondary,
-    fontFamily: fonts.regular, // est.
+    fontFamily: fonts.regular,
     fontSize: 14,
     lineHeight: 20,
   },

@@ -25,12 +25,12 @@ import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fontSecondaryBold, fonts } from '../theme/typography';
 
-const CARD_GAP = 16; // Figma token
+const CARD_GAP = 16;
 // Room below the 176pt cards so their drop shadow (20pt offset + 25pt blur
 // - 5pt spread) is not clipped by the list.
 const SHADOW_SPACE = 40;
 
-// Figma Home V2 repeats the two scenarios to fill the carousel.
+// The two scenarios repeat to fill the carousel.
 const CAROUSEL = [...SCENARIOS, ...SCENARIOS];
 
 /**
@@ -128,16 +128,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   intro: {
-    marginTop: 16, // est.
+    marginTop: 16,
   },
-  // Typography below is from Figma inspect.
   title: {
     ...androidTextFix,
     color: colors.screenTitle,
     fontFamily: fonts.bold, // 700
     fontSize: 20,
     lineHeight: 20,
-    marginBottom: 4, // est.
+    marginBottom: 4,
   },
   subtitle: {
     ...androidTextFix,
@@ -151,8 +150,7 @@ const styles = StyleSheet.create({
   count: {
     ...androidTextFix,
     color: colors.placeholder, // #62748E
-    // Figma: 900 (Black). Inter Black is not bundled yet; Bold is the
-    // heaviest face available.
+    // Inter Black is not bundled; Bold is the heaviest face.
     fontFamily: fonts.bold,
     fontSize: 12,
     lineHeight: 16,

@@ -32,8 +32,6 @@ import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts, monoFont } from '../theme/typography';
 
-// Brave Visionary is cropped from the Figma screenshot (128×128, @2x); the
-// others are the provided portraits scaled to 192×192 (64pt @3x).
 const AVATARS: Record<DnaProfileId, number> = {
   'brave-visionary': require('../assets/images/avatar-brave-visionary.png'),
   'pragmatic-strategist': require('../assets/images/avatar-pragmatic-strategist.png'),
@@ -66,39 +64,37 @@ const DIMENSION_LABELS: Record<DnaDimension, TranslationKey> = {
 const upperCase = (text: string, language: Language) =>
   (language === 'tr' ? text.replace(/i/g, 'İ') : text).toUpperCase();
 
-const COLUMN_GAP = 16; // est.
-/** Figma: between stacked cards in each column. */
+const COLUMN_GAP = 16;
+/** Between stacked cards in each column. */
 const CARD_GAP = 16;
 
 // Drawer DNA icon, 48×48px @3x.
 const dnaIcon = require('../assets/images/icon-drawer-dna.png');
-const DNA_ICON_SIZE = 11; // est., one header line
-// Figma exports @3x, already coloured: 33×33px and 36×36px.
+const DNA_ICON_SIZE = 11; // one header line
+// Already coloured; not tinted.
 const patternIcon = require('../assets/images/icon-pattern-detection.png');
 const blindSpotIcon = require('../assets/images/icon-blind-spot.png');
 
-// Figma: the "Karar DNAsı" text box, positioned on the screen frame; its
-// width follows the text so the English title fits too.
+// The "Karar DNAsı" title box; its width follows the text so the English title fits too.
 const TITLE_TOP = 33.04;
 const TITLE_LEFT = 66;
 const TITLE_HEIGHT = 28;
-/** Figma width of the left column's cards. */
 const LEFT_COLUMN_WIDTH = 355.5;
 /** Title bottom to the first card. */
-const TITLE_TO_CARDS = 16; // est.
-// Not in the Figma frame: keeps the drawer reachable, left of the title.
+const TITLE_TO_CARDS = 16;
+// Keeps the drawer reachable, left of the title.
 const MENU_BUTTON_SIZE = 40;
-const MENU_BUTTON_LEFT = 18; // est.
+const MENU_BUTTON_LEFT = 18;
 
 // Psychological matrix: radar on the left, a 2×3 grid of metric cards on
-// the right (Figma), inside a card as wide as the archetype card.
-const CARD_PADDING = 12; // est.
-const MATRIX_GAP = 12; // est.
-const METRIC_WIDTH = 62; // est.
-const METRIC_HEIGHT = 40; // est.
-const METRIC_GAP = 8; // est.
+// the right, inside a card as wide as the archetype card.
+const CARD_PADDING = 12;
+const MATRIX_GAP = 12;
+const METRIC_WIDTH = 62;
+const METRIC_HEIGHT = 40;
+const METRIC_GAP = 8;
 const GRID_WIDTH = 2 * METRIC_WIDTH + METRIC_GAP;
-// Figma radar canvas and its offset inside the matrix section.
+// Radar canvas and its offset inside the matrix section.
 const RADAR_WIDTH = 149;
 const RADAR_HEIGHT = 115;
 const RADAR_TOP = 8.68;
@@ -154,7 +150,7 @@ function MetricCard({
   );
 }
 
-/** Card title row: an icon and an 8pt mono title (Figma). */
+/** Card title row: an icon and an 8pt mono title. */
 function CardHeader({
   icon,
   iconStyle,
@@ -183,9 +179,6 @@ function CardHeader({
  * own so nothing is clipped on short landscape screens. The profile (copy
  * and scores) is picked from the simulation path; the radar and the bars
  * both draw its scores.
- *
- * The title and archetype card follow Figma inspect values; the other
- * cards' spacing and type sizes are estimates.
  */
 export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
   const insets = useSafeAreaInsets();
@@ -366,7 +359,7 @@ const styles = StyleSheet.create({
     ...androidTextFix,
     color: colors.screenTitle,
     fontFamily: fonts.bold,
-    // Inter Bold 20 sets "Karar DNAsı" at 119pt, the Figma box width;
+    // Inter Bold 20 sets "Karar DNAsı" at 119pt, the title box width;
     // the 20pt line fills the box between its 4pt paddings.
     fontSize: 20,
     lineHeight: 20,
@@ -403,9 +396,9 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6, // est.
+    gap: 6,
   },
-  // Figma: Menlo Regular 8/11, uppercase; widths follow the text.
+  // Widths follow the text.
   cardTitle: {
     ...androidTextFix,
     height: 11,
@@ -510,11 +503,11 @@ const styles = StyleSheet.create({
   metric: {
     width: METRIC_WIDTH,
     height: METRIC_HEIGHT,
-    paddingHorizontal: 6, // est.
-    paddingVertical: 5, // est.
+    paddingHorizontal: 6,
+    paddingVertical: 5,
     justifyContent: 'space-between',
-    borderRadius: 8, // est.
-    // Figma: only a hairline top edge, no side or bottom border.
+    borderRadius: 8,
+    // Only a hairline top edge, no side or bottom border.
     borderTopWidth: 0.32,
     borderTopColor: colors.metricBorderTop,
     backgroundColor: colors.metricFill,
@@ -525,12 +518,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   metricIcon: {
-    width: 10, // est.
+    width: 10,
     height: 10,
     tintColor: colors.textSecondary,
   },
-  // Figma sizes; widths are left to the text (Figma: 7 and 18, but
-  // "COURAGE" needs ~20.6pt at these metrics).
+  // Widths are left to the text: "COURAGE" needs ~20.6pt at these metrics.
   metricValue: {
     ...androidTextFix,
     height: 7,
@@ -555,7 +547,7 @@ const styles = StyleSheet.create({
   metricBottom: {
     gap: 4, // label to bar
   },
-  // Figma: a 1.68pt bar with 1pt caps; the fill is clipped to the track.
+  // The fill is clipped to the track.
   track: {
     height: 1.68,
     borderRadius: 1,
@@ -575,11 +567,11 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   patterns: {
-    gap: 10, // est.
+    gap: 10,
   },
   pattern: {
     flexDirection: 'row',
-    gap: 6, // est.
+    gap: 6,
   },
   patternIndex: {
     ...androidTextFix,

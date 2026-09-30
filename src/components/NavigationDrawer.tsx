@@ -21,7 +21,6 @@ import { useScenarioProgress } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
 
-// Figma inspect values.
 const DRAWER_WIDTH = 256;
 const ITEM_WIDTH = 208;
 const ITEM_HEIGHT = 45.5;
@@ -35,8 +34,7 @@ const LIST_TOP = 103.23;
 // (256 - 208) / 2: the buttons sit 24pt from both panel edges.
 const LIST_SIDE = (DRAWER_WIDTH - ITEM_WIDTH) / 2;
 
-// Figma @3x exports, white on transparent so they can be tinted. DNA is
-// exported at 48px (16pt); the others at 60px (20pt).
+// White on transparent so they can be tinted.
 const ICONS = {
   SCENARIOS: {
     source: require('../assets/images/icon-drawer-scenarios.png'),
@@ -52,7 +50,7 @@ const ICONS = {
   },
 } satisfies Record<string, { source: ImageSourcePropType; size: number }>;
 
-const DURATION = 240; // est.
+const DURATION = 240;
 // Extra travel so the shadow is off screen too when closed.
 const SHADOW_RADIUS = 16;
 
@@ -270,7 +268,7 @@ export function NavigationDrawer({
             expanded={settingsOpen}
             onPress={() => setSettingsOpen(open => !open)}
           />
-          {/* Not in Figma: placeholder until Settings is designed. */}
+          {/* Placeholder until Settings is designed. */}
           {settingsOpen ? (
             <View style={styles.settings}>
               <Text style={styles.settingsLabel}>{t('language')}</Text>
@@ -332,7 +330,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.drawerBackground,
     borderRightWidth: HAIRLINE,
     borderRightColor: colors.drawerBorder,
-    // Not in Figma: lifts the panel off the landscape screen behind it.
+    // Lifts the panel off the landscape screen behind it.
     shadowColor: '#000000',
     shadowOffset: { width: 4, height: 0 },
     shadowOpacity: 0.45,
@@ -362,12 +360,12 @@ const styles = StyleSheet.create({
     borderTopColor: colors.drawerItemBorder,
   },
   itemPressed: {
-    opacity: 0.8, // est.
+    opacity: 0.8,
   },
   itemLead: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12, // est.
+    gap: 12,
   },
   iconBox: {
     width: ICON_BOX,
@@ -375,7 +373,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Figma inspect; color is set per state (#90A1B9 / #00D3F3).
+  // Color is set per state.
   label: {
     ...androidTextFix,
     fontFamily: fonts.bold, // 700
@@ -391,7 +389,7 @@ const styles = StyleSheet.create({
     borderRadius: DOT_SIZE / 2,
     backgroundColor: colors.primary,
   },
-  // Settings panel: not in Figma, styled after the drawer items.
+  // Settings panel, styled after the drawer items.
   settings: {
     width: ITEM_WIDTH,
     marginTop: -ITEM_GAP / 2,

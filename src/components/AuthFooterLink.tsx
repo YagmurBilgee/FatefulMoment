@@ -11,7 +11,7 @@ type AuthFooterLinkProps = {
 };
 
 /**
- * Bottom prompt such as "No account yet? Sign up". Styles are estimates.
+ * Bottom prompt such as "No account yet? Sign up".
  *
  * The link is a sibling Text, not nested inside the prompt, so assistive
  * technologies expose it as its own pressable element.
@@ -38,20 +38,20 @@ export function AuthFooterLink({
 const styles = StyleSheet.create({
   row: {
     marginTop: 24,
-    marginBottom: 28, // est.
+    marginBottom: 28,
     flexDirection: 'row',
     justifyContent: 'center',
   },
   prompt: {
     ...androidTextFix,
-    color: colors.textSecondary, // est.
-    fontFamily: fonts.regular, // est.: Inter 14/20
+    color: colors.textSecondary,
+    fontFamily: fonts.regular,
     fontSize: 14,
     lineHeight: 20,
   },
   link: {
-    color: colors.primary, // est.
-    fontFamily: fonts.semiBold, // est.
+    color: colors.primary,
+    fontFamily: fonts.semiBold,
     textDecorationLine: 'underline',
   },
 });
