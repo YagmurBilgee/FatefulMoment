@@ -18,15 +18,16 @@ import {
   NavigationDrawer,
   RadarChart,
 } from '../components';
+import { useTranslation } from '../context/LanguageContext';
 import {
   DNA_DIMENSIONS,
-  DNA_LABELS,
   DNA_MAX,
   DnaDimension,
   DnaProfileId,
   nextBrowsedProfile,
   selectDnaProfile,
 } from '../data/simulation';
+import type { Language, TranslationKey } from '../locales';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts, monoFont } from '../theme/typography';
@@ -49,6 +50,22 @@ const METRIC_ICONS: Record<DnaDimension, number> = {
   ethics: require('../assets/images/icon-dna-ethics.png'),
 };
 
+const DIMENSION_LABELS: Record<DnaDimension, TranslationKey> = {
+  vision: 'dnaVision',
+  courage: 'dnaCourage',
+  risk: 'dnaRisk',
+  control: 'dnaControl',
+  empathy: 'dnaEmpathy',
+  ethics: 'dnaEthics',
+};
+
+/**
+ * Capitals for the current language. Turkish capitalises "i" as "İ",
+ * which neither `toUpperCase` nor the native uppercase transform does.
+ */
+const upperCase = (text: string, language: Language) =>
+  (language === 'tr' ? text.replace(/i/g, 'İ') : text).toUpperCase();
+
 const COLUMN_GAP = 16; // est.
 /** Figma: between stacked cards in each column. */
 const CARD_GAP = 16;
@@ -60,7 +77,8 @@ const DNA_ICON_SIZE = 11; // est., one header line
 const patternIcon = require('../assets/images/icon-pattern-detection.png');
 const blindSpotIcon = require('../assets/images/icon-blind-spot.png');
 
-// Figma: the "Karar DNAsı" text box, positioned on the screen frame.
+// Figma: the "Karar DNAsı" text box, positioned on the screen frame; its
+// width follows the text so the English title fits too.
 const TITLE_TOP = 33.04;
 const TITLE_LEFT = 66;
 const TITLE_HEIGHT = 28;
@@ -106,11 +124,17 @@ function MetricCard({
   dimension: DnaDimension;
   value: number;
 }) {
+  const { language, t } = useTranslation();
+  const label = t(DIMENSION_LABELS[dimension]);
   return (
     <View
       style={styles.metric}
       accessible
-      accessibilityLabel={`${DNA_LABELS[dimension]} ${value} of ${DNA_MAX}`}
+      accessibilityLabel={t('dnaScore', {
+        dimension: label,
+        value: String(value),
+        max: String(DNA_MAX),
+      })}
     >
       <View style={styles.metricTop}>
         <Image source={METRIC_ICONS[dimension]} style={styles.metricIcon} />
@@ -118,7 +142,7 @@ function MetricCard({
       </View>
       <View style={styles.metricBottom}>
         <Text style={styles.metricLabel} numberOfLines={1}>
-          {DNA_LABELS[dimension].toUpperCase()}
+          {upperCase(label, language)}
         </Text>
         <View style={styles.track}>
           <View
@@ -166,6 +190,7 @@ function CardHeader({
 export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
   const insets = useSafeAreaInsets();
   const padding = useLandscapePadding();
+  const { language, t, localize } = useTranslation();
   // Fixed for the visit: a played path decides the archetype, a visit from
   // the drawer takes the next one in turn.
   const [profile] = useState(() =>
@@ -184,7 +209,7 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
     <View style={styles.root}>
       <View style={styles.titleBox}>
         <Text style={styles.title} accessibilityRole="header">
-          Karar DNAsı
+          {t('dnaTitle')}
         </Text>
       </View>
 
@@ -209,11 +234,11 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
             </View>
             <View style={styles.archetypeText}>
               <Text style={styles.archetype} numberOfLines={1}>
-                {profile.archetype}
+                {localize(profile.archetype)}
               </Text>
               <View style={styles.quoteBox}>
                 <Text style={styles.quote} numberOfLines={3}>
-                  "{profile.quote}"
+                  "{localize(profile.quote)}"
                 </Text>
               </View>
             </View>
@@ -225,14 +250,14 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
               iconStyle={styles.matrixIcon}
               titleStyle={styles.matrixTitle}
             >
-              PSYCHOLOGICAL MATRIX
+              {t('dnaMatrix')}
             </CardHeader>
             <View style={styles.matrixBody}>
               <View style={styles.radar}>
                 <RadarChart
                   values={DNA_DIMENSIONS.map(dimension => score[dimension])}
-                  labels={DNA_DIMENSIONS.map(
-                    dimension => DNA_LABELS[dimension],
+                  labels={DNA_DIMENSIONS.map(dimension =>
+                    t(DIMENSION_LABELS[dimension]),
                   )}
                   max={DNA_MAX}
                   width={RADAR_WIDTH}
@@ -265,15 +290,15 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
               iconStyle={styles.patternIcon}
               titleStyle={styles.patternTitle}
             >
-              PATTERN DETECTION
+              {t('dnaPatterns')}
             </CardHeader>
             <View style={styles.patterns}>
               {profile.patterns.map((pattern, index) => (
-                <View key={pattern} style={styles.pattern}>
+                <View key={pattern.en} style={styles.pattern}>
                   <Text style={styles.patternIndex}>
                     {String(index + 1).padStart(2, '0')}
                   </Text>
-                  <Text style={styles.patternText}>{pattern}</Text>
+                  <Text style={styles.patternText}>{localize(pattern)}</Text>
                 </View>
               ))}
             </View>
@@ -285,12 +310,19 @@ export function DnaProfileScreen({ route }: RootScreenProps<'DnaProfile'>) {
               iconStyle={styles.blindSpotIcon}
               titleStyle={styles.blindSpotTitle}
             >
-              BLIND SPOT — {profile.blindSpot.toUpperCase()}
+              {t('dnaBlindSpot', {
+                dimension: upperCase(
+                  t(DIMENSION_LABELS[profile.blindSpot]),
+                  language,
+                ),
+              })}
             </CardHeader>
             <Text style={styles.blindSpotQuestion}>
-              {profile.blindSpotQuestion}
+              {localize(profile.blindSpotQuestion)}
             </Text>
-            <Text style={styles.blindSpotBody}>{profile.blindSpotBody}</Text>
+            <Text style={styles.blindSpotBody}>
+              {localize(profile.blindSpotBody)}
+            </Text>
           </Card>
         </ScrollView>
       </View>
@@ -324,7 +356,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: TITLE_TOP,
     left: TITLE_LEFT,
-    width: 119,
     height: TITLE_HEIGHT,
     paddingTop: 4,
     paddingBottom: 4,

@@ -14,7 +14,11 @@ import {
   radarVertices,
   splitTriangle,
 } from '../src/components/RadarChart';
-import { LanguageProvider } from '../src/context/LanguageContext';
+import {
+  LanguageProvider,
+  useTranslation,
+} from '../src/context/LanguageContext';
+import type { Language } from '../src/locales';
 import {
   BASELINE_DNA,
   DNA_DIMENSIONS,
@@ -64,11 +68,20 @@ const iraqPath = (...ids: string[]): DnaScore => {
 const area = ([a, b, c]: Point[]) =>
   Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2;
 
+/** Set by `render`: switches the app language, as Settings does. */
+let setLanguage: (language: Language) => void = () => {};
+
+function LanguageHandle() {
+  setLanguage = useTranslation().setLanguage;
+  return null;
+}
+
 async function render(params: { score?: DnaScore }) {
   let renderer!: ReactTestRenderer.ReactTestRenderer;
   await act(() => {
     renderer = ReactTestRenderer.create(
       <LanguageProvider>
+        <LanguageHandle />
         <ScenarioProgressProvider>
           <DnaProfileScreen
             route={{ key: 'dna', name: 'DnaProfile', params }}
@@ -429,7 +442,7 @@ describe('DnaProfileScreen', () => {
     const root = renderer.root;
     const shown = texts(root);
 
-    expect(shown).toContain(profile.archetype);
+    expect(shown).toContain(profile.archetype.en);
     const avatar = root.find(
       n =>
         typeof n.type === 'string' &&
@@ -506,8 +519,47 @@ describe('DnaProfileScreen', () => {
     expect(leader[5].x).toBeLessThan(visionary[5].x);
   });
 
+  test('switching the language retranslates the screen in place', async () => {
+    const profile = DNA_PROFILES['brave-visionary'];
+    const renderer = await render({
+      score: iraqPath('launch-on-schedule', 'sonar-signal'),
+    });
+    const root = renderer.root;
+    const scoreRow = (label: string) =>
+      root.findAll(
+        n => typeof n.type === 'string' && n.props.accessibilityLabel === label,
+      );
+
+    await act(() => setLanguage('tr'));
+    let shown = texts(root);
+    expect(shown).toContain('Karar DNAsı');
+    expect(shown).toContain('PSİKOLOJİK MATRİS');
+    expect(shown).toContain('ÖRÜNTÜ TESPİTİ');
+    // Turkish capitals: "Etik" becomes "ETİK", not "ETIK".
+    expect(shown).toContain('KÖR NOKTA — ETİK');
+    expect(shown).toContain('VİZYON');
+    expect(shown).toContain(profile.archetype.tr);
+    expect(shown).toContain(`"${profile.quote.tr}"`);
+    profile.patterns.forEach(p => expect(shown).toContain(p.tr));
+    expect(shown).toContain(profile.blindSpotQuestion.tr);
+    expect(shown).toContain(profile.blindSpotBody.tr);
+    expect(shown).not.toContain(profile.archetype.en);
+    expect(scoreRow('Vizyon 88 / 100')).toHaveLength(1);
+
+    await act(() => setLanguage('en'));
+    shown = texts(root);
+    expect(shown).toContain('Decision DNA');
+    expect(shown).toContain('PSYCHOLOGICAL MATRIX');
+    expect(shown).toContain('BLIND SPOT — ETHICS');
+    expect(shown).toContain(profile.archetype.en);
+    expect(shown).not.toContain(profile.archetype.tr);
+    expect(scoreRow('Vision 88 of 100')).toHaveLength(1);
+
+    await act(() => renderer.unmount());
+  });
+
   test('a drawer visit shows the next archetype and keeps it', async () => {
-    const archetypes = Object.values(DNA_PROFILES).map(p => p.archetype);
+    const archetypes = Object.values(DNA_PROFILES).map(p => p.archetype.en);
     const renderer = await render({});
     const shownBefore = texts(renderer.root).find(t => archetypes.includes(t));
     expect(shownBefore).toBeDefined();

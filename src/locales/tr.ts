@@ -29,6 +29,19 @@ export const tr: Dictionary = {
   closeMenu: 'Menüyü kapat',
   goBack: 'Geri dön',
 
+  // DNA profile
+  dnaTitle: 'Karar DNAsı',
+  dnaMatrix: 'PSİKOLOJİK MATRİS',
+  dnaPatterns: 'ÖRÜNTÜ TESPİTİ',
+  dnaBlindSpot: 'KÖR NOKTA — {dimension}',
+  dnaScore: '{dimension} {value} / {max}',
+  dnaVision: 'Vizyon',
+  dnaCourage: 'Cesaret',
+  dnaRisk: 'Risk',
+  dnaControl: 'Kontrol',
+  dnaEmpathy: 'Empati',
+  dnaEthics: 'Etik',
+
   // Audio status pill
   standby: 'BEKLEMEDE',
 };

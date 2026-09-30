@@ -30,15 +30,6 @@ export type DnaScore = Record<DnaDimension, number>;
 /** Signed change applied to a score; omitted dimensions are unchanged. */
 export type DnaImpact = Partial<Record<DnaDimension, number>>;
 
-export const DNA_LABELS: Record<DnaDimension, string> = {
-  vision: 'Vision',
-  courage: 'Courage',
-  risk: 'Risk',
-  control: 'Control',
-  empathy: 'Empathy',
-  ethics: 'Ethics',
-};
-
 export const DNA_MIN = 0;
 export const DNA_MAX = 100;
 
@@ -73,7 +64,9 @@ export function applyImpacts(base: DnaScore, impacts: DnaImpact[]): DnaScore {
  * Mock archetype profiles shown on the DNA screen. Brave Visionary is the
  * Figma frame's copy; the other two follow the brief (title and quote) with
  * placeholder patterns and blind spots. Scores are fixed per profile, not
- * the raw sum of the player's impacts.
+ * the raw sum of the player's impacts. Copy is kept per language; titles
+ * are stored in capitals because Turkish needs "İ", which a plain
+ * uppercase transform would not produce.
  */
 export type DnaProfileId =
   | 'brave-visionary'
@@ -82,25 +75,31 @@ export type DnaProfileId =
 
 export interface DnaProfile {
   id: DnaProfileId;
-  archetype: string;
-  quote: string;
+  archetype: Localized;
+  quote: Localized;
   scores: DnaScore;
   /** Pattern detection cards, numbered 01, 02, 03 on screen. */
-  patterns: string[];
+  patterns: Localized[];
   /** The lowest-scoring dimension. */
   blindSpot: DnaDimension;
-  blindSpotQuestion: string;
-  blindSpotBody: string;
+  blindSpotQuestion: Localized;
+  blindSpotBody: Localized;
 }
 
 export const DNA_PROFILES: Record<DnaProfileId, DnaProfile> = {
   'brave-visionary': {
     id: 'brave-visionary',
-    archetype: 'BRAVE VISIONARY',
-    quote:
-      'You see the big picture and walk towards it - no matter the cost. ' +
-      'Ethics sometimes take a back seat, but few surpass you in the ' +
-      'courage to take action.',
+    archetype: { en: 'BRAVE VISIONARY', tr: 'CESUR VİZYONER' },
+    quote: {
+      en:
+        'You see the big picture and walk towards it - no matter the cost. ' +
+        'Ethics sometimes take a back seat, but few surpass you in the ' +
+        'courage to take action.',
+      tr:
+        'Büyük resmi görür ve bedeli ne olursa olsun ona doğru yürürsün. ' +
+        'Etik bazen arka planda kalsa da, harekete geçme cesaretinde sana ' +
+        'yetişebilen azdır.',
+    },
     scores: {
       vision: 88,
       courage: 82,
@@ -110,21 +109,40 @@ export const DNA_PROFILES: Record<DnaProfileId, DnaProfile> = {
       ethics: 31,
     },
     patterns: [
-      'You are not afraid to take action under pressure. While others hesitate, you have already taken a step. This positions you as a natural leader in crisis moments.',
-      'You prioritize long-term impact over short-term costs. You see the big picture — but this sometimes makes it difficult for you to see the people in front of you.',
-      'When ethics conflict with interests, your tendency is clear: you choose the interest. This pattern repeated in 5 out of 8 scenarios. It works in the short term — but creates erosion of trust in the long term.',
+      {
+        en: 'You are not afraid to take action under pressure. While others hesitate, you have already taken a step. This positions you as a natural leader in crisis moments.',
+        tr: 'Baskı altında harekete geçmekten korkmazsın. Başkaları tereddüt ederken sen çoktan adımını atmışsındır. Bu seni kriz anlarında doğal bir lider yapar.',
+      },
+      {
+        en: 'You prioritize long-term impact over short-term costs. You see the big picture — but this sometimes makes it difficult for you to see the people in front of you.',
+        tr: 'Uzun vadeli etkiyi kısa vadeli bedellerin önünde tutarsın. Büyük resmi görürsün — ama bu bazen karşındaki insanları görmeni zorlaştırır.',
+      },
+      {
+        en: 'When ethics conflict with interests, your tendency is clear: you choose the interest. This pattern repeated in 5 out of 8 scenarios. It works in the short term — but creates erosion of trust in the long term.',
+        tr: "Etik ile çıkar çatıştığında eğilimin nettir: çıkarı seçersin. Bu örüntü 8 senaryonun 5'inde tekrarlandı. Kısa vadede işe yarar — ama uzun vadede güveni aşındırır.",
+      },
     ],
     blindSpot: 'ethics',
-    blindSpotQuestion: 'How much will you pay to win?',
-    blindSpotBody:
-      'Your vision and courage are strong — but your ethics score is your lowest dimension. While reaching big goals, you often overlook how those around you feel and what they sacrifice. Your leadership capacity is high, but the mark you leave is not always positive.',
+    blindSpotQuestion: {
+      en: 'How much will you pay to win?',
+      tr: 'Kazanmak için ne kadar bedel ödeyeceksin?',
+    },
+    blindSpotBody: {
+      en: 'Your vision and courage are strong — but your ethics score is your lowest dimension. While reaching big goals, you often overlook how those around you feel and what they sacrifice. Your leadership capacity is high, but the mark you leave is not always positive.',
+      tr: 'Vizyonun ve cesaretin güçlü — ama etik puanın en düşük boyutun. Büyük hedeflere ulaşırken çevrendekilerin ne hissettiğini ve neleri feda ettiğini çoğu zaman gözden kaçırırsın. Liderlik kapasiten yüksek, ama bıraktığın iz her zaman olumlu değil.',
+    },
   },
   'pragmatic-strategist': {
     id: 'pragmatic-strategist',
-    archetype: 'PRAGMATIC STRATEGIST',
-    quote:
-      'You calculate every risk and move with cold precision. Speed takes ' +
-      'a back seat, but your plans rarely fail.',
+    archetype: { en: 'PRAGMATIC STRATEGIST', tr: 'PRAGMATİK STRATEJİST' },
+    quote: {
+      en:
+        'You calculate every risk and move with cold precision. Speed takes ' +
+        'a back seat, but your plans rarely fail.',
+      tr:
+        'Her riski hesaplar, soğuk bir kararlılıkla hareket edersin. Hız ' +
+        'ikinci plandadır ama planların nadiren yanılır.',
+    },
     scores: {
       vision: 65,
       courage: 60,
@@ -134,21 +152,40 @@ export const DNA_PROFILES: Record<DnaProfileId, DnaProfile> = {
       ethics: 58,
     },
     patterns: [
-      'You keep options open until the last responsible moment. You gather leverage first and act only when the outcome is under your control.',
-      'You prefer negotiation and pressure over open confrontation. Your moves are measured — rarely spectacular, rarely disastrous.',
-      'When the stakes rise, you narrow the risk instead of taking it. This protects you from big losses — but also from big wins.',
+      {
+        en: 'You keep options open until the last responsible moment. You gather leverage first and act only when the outcome is under your control.',
+        tr: 'Seçenekleri son makul ana kadar açık tutarsın. Önce elini güçlendirir, ancak sonuç kontrolün altındayken harekete geçersin.',
+      },
+      {
+        en: 'You prefer negotiation and pressure over open confrontation. Your moves are measured — rarely spectacular, rarely disastrous.',
+        tr: 'Açık çatışma yerine müzakere ve baskıyı tercih edersin. Hamlelerin ölçülüdür — nadiren göz kamaştırıcı, nadiren yıkıcı.',
+      },
+      {
+        en: 'When the stakes rise, you narrow the risk instead of taking it. This protects you from big losses — but also from big wins.',
+        tr: 'Riskler büyüdüğünde onu üstlenmek yerine daraltırsın. Bu seni büyük kayıplardan korur — ama büyük kazançlardan da.',
+      },
     ],
     blindSpot: 'risk',
-    blindSpotQuestion: 'What will you miss while you wait?',
-    blindSpotBody:
-      'Your control is exceptional — but your risk score is your lowest dimension. Some windows close before the plan is perfect. Your caution keeps you safe, but it can leave the initiative to those willing to move first.',
+    blindSpotQuestion: {
+      en: 'What will you miss while you wait?',
+      tr: 'Beklerken neyi kaçıracaksın?',
+    },
+    blindSpotBody: {
+      en: 'Your control is exceptional — but your risk score is your lowest dimension. Some windows close before the plan is perfect. Your caution keeps you safe, but it can leave the initiative to those willing to move first.',
+      tr: 'Kontrolün olağanüstü — ama risk puanın en düşük boyutun. Bazı fırsatlar plan kusursuz hale gelmeden kapanır. Temkinin seni güvende tutar, ama inisiyatifi önce harekete geçmeye istekli olanlara bırakabilir.',
+    },
   },
   'empathetic-leader': {
     id: 'empathetic-leader',
-    archetype: 'EMPATHETIC LEADER',
-    quote:
-      'When the pressure peaks, you put people and principles first. ' +
-      'Results follow trust, and you never leave your crew behind.',
+    archetype: { en: 'EMPATHETIC LEADER', tr: 'EMPATİK LİDER' },
+    quote: {
+      en:
+        'When the pressure peaks, you put people and principles first. ' +
+        'Results follow trust, and you never leave your crew behind.',
+      tr:
+        'Baskı doruğa çıktığında insanları ve ilkeleri öne koyarsın. ' +
+        'Sonuçlar güveni takip eder ve ekibini asla geride bırakmazsın.',
+    },
     scores: {
       vision: 57,
       courage: 36,
@@ -158,14 +195,28 @@ export const DNA_PROFILES: Record<DnaProfileId, DnaProfile> = {
       ethics: 81,
     },
     patterns: [
-      'You read the room before you read the report. Under pressure you check who will carry the cost of a decision before you make it.',
-      'You refuse options that cross a line, even when they would work. Your team trusts you because your principles do not bend with the stakes.',
-      'You build consensus before you act. It keeps everyone with you — but in a crisis, the clock does not always wait for agreement.',
+      {
+        en: 'You read the room before you read the report. Under pressure you check who will carry the cost of a decision before you make it.',
+        tr: 'Raporu okumadan önce ortamı okursun. Baskı altında bir kararı vermeden önce bedelini kimin ödeyeceğine bakarsın.',
+      },
+      {
+        en: 'You refuse options that cross a line, even when they would work. Your team trusts you because your principles do not bend with the stakes.',
+        tr: 'İşe yarasa bile sınırı aşan seçenekleri reddedersin. Ekibin sana güvenir, çünkü ilkelerin riskler büyüdükçe esnemez.',
+      },
+      {
+        en: 'You build consensus before you act. It keeps everyone with you — but in a crisis, the clock does not always wait for agreement.',
+        tr: 'Harekete geçmeden önce uzlaşı kurarsın. Bu herkesi yanında tutar — ama krizde saat her zaman uzlaşıyı beklemez.',
+      },
     ],
     blindSpot: 'courage',
-    blindSpotQuestion: 'Can you make the call nobody likes?',
-    blindSpotBody:
-      'Your empathy and ethics are your strongest dimensions — but your courage score is your lowest. Some decisions hurt someone whichever way you choose. Protecting everyone can mean deciding too late for anyone.',
+    blindSpotQuestion: {
+      en: 'Can you make the call nobody likes?',
+      tr: 'Kimsenin sevmeyeceği kararı verebilir misin?',
+    },
+    blindSpotBody: {
+      en: 'Your empathy and ethics are your strongest dimensions — but your courage score is your lowest. Some decisions hurt someone whichever way you choose. Protecting everyone can mean deciding too late for anyone.',
+      tr: 'Empatin ve etiğin en güçlü boyutların — ama cesaret puanın en düşüğü. Bazı kararlar, hangi yolu seçersen seç birini incitir. Herkesi korumaya çalışmak, kimse için zamanında karar verememek anlamına gelebilir.',
+    },
   },
 };
 

@@ -32,6 +32,19 @@ export const en = {
   closeMenu: 'Close menu',
   goBack: 'Go back',
 
+  // DNA profile. Card titles are stored in capitals; see simulation.ts.
+  dnaTitle: 'Decision DNA',
+  dnaMatrix: 'PSYCHOLOGICAL MATRIX',
+  dnaPatterns: 'PATTERN DETECTION',
+  dnaBlindSpot: 'BLIND SPOT — {dimension}',
+  dnaScore: '{dimension} {value} of {max}',
+  dnaVision: 'Vision',
+  dnaCourage: 'Courage',
+  dnaRisk: 'Risk',
+  dnaControl: 'Control',
+  dnaEmpathy: 'Empathy',
+  dnaEthics: 'Ethics',
+
   // Audio status pill
   standby: 'STANDBY',
 };
