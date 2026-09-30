@@ -22,6 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeFactory = factory
 
     window = UIWindow(frame: UIScreen.main.bounds)
+    window?.backgroundColor = UIColor.brandBackground
 
     factory.startReactNative(
       withModuleName: "FatefulMoment",
@@ -34,6 +35,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
+  // React Native gives the root view the system background (white in
+  // light mode) until the first JS frame; keep it dark like the launch screen.
+  override func customize(_ rootView: RCTRootView) {
+    super.customize(rootView)
+    rootView.backgroundColor = UIColor.brandBackground
+  }
+
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
   }
@@ -45,4 +53,11 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
     Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
+}
+
+extension UIColor {
+  /// #020618, matching LaunchScreen.storyboard and colors.background.
+  static let brandBackground = UIColor(
+    red: 2 / 255, green: 6 / 255, blue: 24 / 255, alpha: 1
+  )
 }

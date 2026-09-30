@@ -1,0 +1,4 @@
+<resources>
+    <!-- Matches colors.background in src/theme/colors.ts. -->
+    <color name="brand_background">#020618</color>
+</resources>

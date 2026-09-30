@@ -1,11 +1,10 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Android 12+ system splash: dark backdrop instead of the default. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
-        <!-- Dark window behind the app from cold start, so it never flashes white. -->
         <item name="android:windowBackground">@color/brand_background</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_background</item>
     </style>
 
 </resources>
