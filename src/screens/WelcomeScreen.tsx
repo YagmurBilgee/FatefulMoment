@@ -2,8 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AuthButton } from '../components/AuthButton';
-import { AuthHeader } from '../components/AuthHeader';
+import { AuthButton, AuthHeader } from '../components';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';

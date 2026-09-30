@@ -14,10 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   LandscapeHeader,
   useLandscapePadding,
-} from '../components/LandscapeHeader';
-import { MenuButton } from '../components/MenuButton';
-import { NavigationDrawer } from '../components/NavigationDrawer';
-import { ScenarioCard } from '../components/ScenarioCard';
+  MenuButton,
+  NavigationDrawer,
+  ScenarioCard,
+} from '../components';
 import { useTranslation } from '../context/LanguageContext';
 import { Scenario, SCENARIOS } from '../data/simulation';
 import type { RootScreenProps } from '../navigation/RootNavigator';

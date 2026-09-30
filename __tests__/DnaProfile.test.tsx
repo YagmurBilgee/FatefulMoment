@@ -120,9 +120,20 @@ describe('selectDnaProfile', () => {
 
   test.each([
     ['naval-quarantine', 'wait-for-moscow'],
-    ['naval-quarantine', 'sonar-signal'],
-  ])('the cautious Iraq War path %s → %s stays Pragmatic', (a, b) => {
-    expect(selectDnaProfile(iraqPath(a, b)).id).toBe('pragmatic-strategist');
+    ['wait-for-moscow', 'naval-quarantine'],
+  ])(
+    'the diplomatic Iraq War path %s → %s reaches Empathetic Leader',
+    (a, b) => {
+      const score = iraqPath(a, b);
+      expect(score.empathy).toBeGreaterThan(score.control);
+      expect(selectDnaProfile(score).id).toBe('empathetic-leader');
+    },
+  );
+
+  test('the calculated Iraq War path naval-quarantine → sonar-signal stays Pragmatic', () => {
+    expect(
+      selectDnaProfile(iraqPath('naval-quarantine', 'sonar-signal')).id,
+    ).toBe('pragmatic-strategist');
   });
 
   test('ties go to Brave Visionary', () => {
@@ -410,7 +421,7 @@ describe('DnaProfileScreen', () => {
     ],
     [
       'caring',
-      { score: applyImpacts(BASELINE_DNA, [{ empathy: 20 }]) },
+      { score: iraqPath('naval-quarantine', 'wait-for-moscow') },
       DNA_PROFILES['empathetic-leader'],
     ],
   ])('draws the %s path as its profile', async (_, params, profile) => {

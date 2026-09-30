@@ -1,8 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { AuthScreenLayout } from '../components/AuthScreenLayout';
-import { PrimaryButton } from '../components/PrimaryButton';
+import { AuthScreenLayout, PrimaryButton } from '../components';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';

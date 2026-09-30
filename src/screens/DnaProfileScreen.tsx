@@ -12,10 +12,12 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useLandscapePadding } from '../components/LandscapeHeader';
-import { MenuButton } from '../components/MenuButton';
-import { NavigationDrawer } from '../components/NavigationDrawer';
-import { RadarChart } from '../components/RadarChart';
+import {
+  useLandscapePadding,
+  MenuButton,
+  NavigationDrawer,
+  RadarChart,
+} from '../components';
 import {
   DNA_DIMENSIONS,
   DNA_LABELS,

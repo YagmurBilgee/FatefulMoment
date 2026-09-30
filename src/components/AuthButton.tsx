@@ -11,7 +11,7 @@ import {
 
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
-import { usePressScale } from './usePressScale';
+import { usePressScale } from '../hooks';
 
 export type AuthButtonIcon = {
   source: ImageSourcePropType;

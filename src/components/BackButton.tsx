@@ -4,7 +4,7 @@ import { Animated, Image, Pressable, StyleSheet } from 'react-native';
 
 import { useTranslation } from '../context/LanguageContext';
 import { colors } from '../theme/colors';
-import { usePressScale } from './usePressScale';
+import { usePressScale } from '../hooks';
 
 const SIZE = 40; // est. — measured 39–40pt in the Sign in frames
 // Figma @3x export, 48px -> 16pt. Exported black; tinted to the icon color.

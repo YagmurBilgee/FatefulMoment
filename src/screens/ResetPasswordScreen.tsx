@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 
-import { AuthHeader } from '../components/AuthHeader';
-import { AuthScreenLayout } from '../components/AuthScreenLayout';
-import { FMTextInput } from '../components/FMTextInput';
-import { PrimaryButton } from '../components/PrimaryButton';
+import {
+  AuthHeader,
+  AuthScreenLayout,
+  FMTextInput,
+  PrimaryButton,
+} from '../components';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { INVALID_EMAIL_MESSAGE, isValidEmail } from '../utils/validation';
 

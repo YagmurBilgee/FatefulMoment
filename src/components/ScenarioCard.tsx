@@ -12,7 +12,7 @@ import { useTranslation } from '../context/LanguageContext';
 import type { Scenario } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fontSecondaryBold, fonts } from '../theme/typography';
-import { usePressScale } from './usePressScale';
+import { usePressScale } from '../hooks';
 
 // Figma card tokens.
 const CARD_WIDTH = 220;

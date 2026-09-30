@@ -8,11 +8,13 @@ import {
   View,
 } from 'react-native';
 
-import { AuthFooterLink } from '../components/AuthFooterLink';
-import { AuthHeader } from '../components/AuthHeader';
-import { AuthScreenLayout } from '../components/AuthScreenLayout';
-import { FMTextInput } from '../components/FMTextInput';
-import { PrimaryButton } from '../components/PrimaryButton';
+import {
+  AuthFooterLink,
+  AuthHeader,
+  AuthScreenLayout,
+  FMTextInput,
+  PrimaryButton,
+} from '../components';
 import type { RootScreenProps } from '../navigation/RootNavigator';
 import { mockSignUp } from '../services/mockAuth';
 import { colors } from '../theme/colors';

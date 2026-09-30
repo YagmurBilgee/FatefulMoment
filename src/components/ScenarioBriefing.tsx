@@ -13,7 +13,7 @@ import { useTranslation } from '../context/LanguageContext';
 import type { Scenario } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
-import { usePressScale } from './usePressScale';
+import { usePressScale } from '../hooks';
 
 // Figma "Scenario Container": 728×292, about 90% of the 812pt frame.
 const CARD_MAX_WIDTH = 728;

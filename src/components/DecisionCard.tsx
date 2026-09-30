@@ -5,7 +5,7 @@ import { useTranslation } from '../context/LanguageContext';
 import type { DecisionOption } from '../data/simulation';
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
-import { usePressScale } from './usePressScale';
+import { usePressScale } from '../hooks';
 
 // Figma "Option Card": 345×66, 8/16 padding, label box up to 309pt.
 const CARD_WIDTH = 345;

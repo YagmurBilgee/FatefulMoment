@@ -303,8 +303,9 @@ const IRAQ_WAR: Scenario = {
       // each line keeps its Figma wording in that language and is
       // translated for the other. Impacts are placeholders, balanced so
       // the bold path (launch on schedule, then signal with sonar) lands
-      // on Brave Visionary with vision and courage at 80, while naval
-      // quarantine followed by waiting or sonar stays Pragmatic Strategist.
+      // on Brave Visionary with vision and courage at 80, the diplomatic
+      // path (naval quarantine, then wait for Moscow) on Empathetic Leader,
+      // and naval quarantine followed by sonar on Pragmatic Strategist.
       options: [
         {
           id: 'naval-quarantine',
@@ -320,7 +321,7 @@ const IRAQ_WAR: Scenario = {
             en: 'Wait for Signal from Moscow',
             tr: "Moskova'dan Sinyal Bekle",
           },
-          impact: { empathy: 5, courage: -10, risk: -5 },
+          impact: { empathy: 15, ethics: 5, courage: -10, risk: -5 },
         },
         {
           id: 'launch-on-schedule',

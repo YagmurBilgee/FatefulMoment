@@ -2,20 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BackButton } from '../components/BackButton';
 import {
+  BackButton,
   LandscapeHeader,
   useLandscapePadding,
-} from '../components/LandscapeHeader';
-import { DecisionCard } from '../components/DecisionCard';
-import { ScenarioBriefing } from '../components/ScenarioBriefing';
-import {
+  DecisionCard,
+  ScenarioBriefing,
   BACKDROP_DIM,
   DEFAULT_BACKDROP_DIM,
   ScenarioVideo,
   VIDEOS,
-} from '../components/ScenarioVideo';
-import { TensionTimer, UrgencyVignette } from '../components/TensionTimer';
+  TensionTimer,
+  UrgencyVignette,
+} from '../components';
 import { useTranslation } from '../context/LanguageContext';
 import {
   applyImpacts,

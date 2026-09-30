@@ -10,7 +10,7 @@ import {
 
 import { colors } from '../theme/colors';
 import { androidTextFix, fonts } from '../theme/typography';
-import { usePressScale } from './usePressScale';
+import { usePressScale } from '../hooks';
 
 // Measured: the disabled frame matches the active one at ~35% opacity.
 const DISABLED_OPACITY = 0.35; // est.

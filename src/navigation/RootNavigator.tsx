@@ -11,14 +11,16 @@ import {
 
 import { LanguageProvider } from '../context/LanguageContext';
 import type { DnaScore } from '../data/simulation';
-import { CheckEmailScreen } from '../screens/CheckEmailScreen';
-import { CreateAccountScreen } from '../screens/CreateAccountScreen';
-import { DnaProfileScreen } from '../screens/DnaProfileScreen';
-import { ResetPasswordScreen } from '../screens/ResetPasswordScreen';
-import { ScenariosScreen } from '../screens/ScenariosScreen';
-import { SignInScreen } from '../screens/SignInScreen';
-import { SimulationScreen } from '../screens/SimulationScreen';
-import { WelcomeScreen } from '../screens/WelcomeScreen';
+import {
+  CheckEmailScreen,
+  CreateAccountScreen,
+  DnaProfileScreen,
+  ResetPasswordScreen,
+  ScenariosScreen,
+  SignInScreen,
+  SimulationScreen,
+  WelcomeScreen,
+} from '../screens';
 import type { MockProfile } from '../services/mockAuth';
 import { ScenarioProgressProvider } from '../state/ScenarioProgress';
 import { colors } from '../theme/colors';
